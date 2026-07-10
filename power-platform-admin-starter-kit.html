@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Power Platform Admin — Starter Kit</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 900px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+.stage {
+  margin: 30px 0 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.stage .num {
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.stage h2 { font-size: 18px; margin: 0; }
+.stage .stage-sub { color: var(--cp-text-soft); font-size: 13px; margin: 2px 0 0; }
+
+a.res {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 12px 0;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+a.res:hover { border-color: var(--cp-accent); transform: translateY(-2px); }
+.res-title { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+.res-title .arrow { color: var(--cp-accent); font-weight: 700; margin-right: 7px; }
+.res-desc { color: var(--cp-text-muted); margin: 0 0 8px; font-size: 14px; }
+.res-url { font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; color: var(--cp-text-soft); word-break: break-all; }
+
+.callout {
+  border-left: 4px solid var(--cp-warning);
+  background: rgba(245,158,11,0.10);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 18px 0;
+  font-size: 14px;
+}
+
+.toolbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 10px 0; margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 0.625rem; padding: 9px 18px;
+  border: 1px solid var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px; padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft); font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  a.res { box-shadow: none; break-inside: avoid; }
+  .stage { break-after: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform · Enablement Reference</p>
+    <h1>Power Platform Admin — Starter Kit</h1>
+    <p class="sub">A curated path of free, public Microsoft resources for someone standing up the Power Platform admin function from scratch. Sequenced from day-one foundations to running a governed platform at scale.</p>
+  </header>
+
+  <div class="stage">
+    <span class="num">1</span>
+    <div>
+      <h2>Start here — foundations</h2>
+      <p class="stage-sub">Build the mental model. If you come from a Power BI background, much of this will feel familiar.</p>
+    </div>
+  </div>
+  <a class="res" href="https://learn.microsoft.com/en-us/credentials/certifications/power-platform-fundamentals/" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Power Platform Fundamentals (PL-900)</p>
+    <p class="res-desc">The ideal on-ramp — a free, guided learning path plus an entry-level certification covering the whole platform (Power Apps, Power Automate, Power Pages, Copilot Studio, Dataverse).</p>
+    <span class="res-url">learn.microsoft.com/en-us/credentials/certifications/power-platform-fundamentals/</span>
+  </a>
+  <a class="res" href="https://learn.microsoft.com/en-us/training/browse/?products=power-platform&roles=administrator" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Administrator training catalog</p>
+    <p class="res-desc">Every free Microsoft Learn module filtered to the administrator role — self-paced, hands-on, and searchable by topic.</p>
+    <span class="res-url">learn.microsoft.com/en-us/training/browse/?products=power-platform&roles=administrator</span>
+  </a>
+
+  <div class="stage">
+    <span class="num">2</span>
+    <div>
+      <h2>The admin's home base</h2>
+      <p class="stage-sub">The console you'll live in, and the security model underneath it.</p>
+    </div>
+  </div>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/admin/admin-documentation" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Power Platform Admin Center — overview</p>
+    <p class="res-desc">Your day-to-day cockpit: environments, data policies (DLP), capacity, and analytics. Start here to learn what each area does.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/admin/admin-documentation</span>
+  </a>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/admin/security" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Security &amp; governance documentation</p>
+    <p class="res-desc">The hub for access control, DLP policies, and tenant-level governance across the platform.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/admin/security</span>
+  </a>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/admin/wp-security" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Security in Microsoft Dataverse (white paper)</p>
+    <p class="res-desc">The deep dive on the data-layer security model — business units, security roles, row/field-level security.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/admin/wp-security</span>
+  </a>
+
+  <div class="stage">
+    <span class="num">3</span>
+    <div>
+      <h2>Governance at scale</h2>
+      <p class="stage-sub">The core of the admin mandate — moving from an open default environment to a governed platform.</p>
+    </div>
+  </div>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/guidance/adoption/methodology" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Adoption Methodology</p>
+    <p class="res-desc">Microsoft's framework for admin, nurture, and governance strategy — the "how do I stand this up properly" playbook for scaling safely.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/guidance/adoption/methodology</span>
+  </a>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/guidance/white-papers/" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Power Platform white papers</p>
+    <p class="res-desc">In-depth guidance on governance, licensing, and security — the reference shelf for tricky decisions.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/guidance/white-papers/</span>
+  </a>
+
+  <div class="stage">
+    <span class="num">4</span>
+    <div>
+      <h2>Building it right</h2>
+      <p class="stage-sub">Solid delivery practices so what gets built is reliable and maintainable.</p>
+    </div>
+  </div>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/alm/" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Application Lifecycle Management (ALM)</p>
+    <p class="res-desc">Solutions, environment strategy, and pipelines to promote work Dev &rarr; Test &rarr; Prod in a controlled, repeatable way.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/alm/</span>
+  </a>
+  <a class="res" href="https://learn.microsoft.com/en-us/power-platform/well-architected/" target="_blank" rel="noopener">
+    <p class="res-title"><span class="arrow">&rarr;</span>Power Platform Well-Architected</p>
+    <p class="res-desc">Pillar-based guidance (reliability, security, operational excellence, performance, experience) for designing well-governed solutions.</p>
+    <span class="res-url">learn.microsoft.com/en-us/power-platform/well-architected/</span>
+  </a>
+
+  <div class="callout">
+    <strong>A note on the CoE Starter Kit:</strong> you may see the “Center of Excellence (CoE) Starter Kit” referenced in older blogs and videos. Microsoft is transitioning its capabilities into the Power Platform admin center, so it’s intentionally left off this list — build your governance on the admin center and the Adoption Methodology above instead.
+  </div>
+
+  <footer class="foot">
+    Curated by Joel Cade · hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. All links point to public Microsoft documentation (verified July 2026). Guidance only.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
