@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Joel Cade — Resources</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 820px; margin: 0 auto; padding: 56px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 30px; margin: 0 0 8px; line-height: 1.15; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 15px; }
+
+h2 {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 34px 0 14px;
+}
+
+.cards { display: grid; gap: 14px; }
+a.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+a.card:hover { border-color: var(--cp-accent); transform: translateY(-2px); }
+.card-title { font-size: 17px; font-weight: 600; margin: 0 0 5px; display: flex; align-items: center; gap: 9px; }
+.card-title .arrow { color: var(--cp-accent); font-weight: 700; }
+.card-desc { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+.card-tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 11.5px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+footer.foot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Enablement Library</p>
+    <h1>Resources</h1>
+    <p class="sub">A collection of enablement references and guides. Curated by Joel Cade.</p>
+  </header>
+
+  <h2>Power Platform &amp; Copilot</h2>
+  <div class="cards">
+    <a class="card" href="power-platform-licensing-managed-environments.html">
+      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform Licensing &amp; Managed Environments</p>
+      <p class="card-desc">A plain-language overview of how Power Platform is licensed and what changes when you turn on Managed Environments — seeded vs premium, licensing paths, the managed-environment premium-license rule, and per-user vs per-app guidance. Links to the official Microsoft references.</p>
+      <div class="card-tags">
+        <span class="tag">Licensing</span>
+        <span class="tag">Managed Environments</span>
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Printable</span>
+      </div>
+    </a>
+  </div>
+
+  <footer class="foot">
+    Hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Content compiled from public Microsoft documentation; guidance only, not a contract.
+  </footer>
+</div>
+</body>
+</html>

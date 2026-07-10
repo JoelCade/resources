@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Power Platform Licensing &amp; Managed Environments — Overview</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.seeded { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2 { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform · Enablement Reference</p>
+    <h1>Power Platform Licensing &amp; Managed Environments</h1>
+    <p class="sub">A plain-language overview of how Power Platform is licensed, and what changes when you turn on Managed Environments. Prepared as an enablement reference · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> A <em>Managed</em> environment is a premium capability. Once you manage an environment, <strong>every user with active usage in it must hold a standalone premium license</strong> (Power Apps Premium, Power Automate Premium, Copilot Studio, Power Pages, or a qualifying Dynamics 365 plan) — or the environment must have qualifying pay-as-you-go meters / per-app capacity allocated.
+  </div>
+
+  <h2>1. The core distinction: “seeded” vs “premium”</h2>
+  <p>Most licensing confusion comes down to this split. What a user can build and run depends on which bucket their license falls into.</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill seeded">Seeded (bundled)</span>
+      <h3>Included with Microsoft 365 / Dynamics 365</h3>
+      <ul>
+        <li>Build apps &amp; flows on <strong>Microsoft 365 data</strong> and <strong>standard connectors</strong> only.</li>
+        <li><strong>No</strong> premium/custom connectors.</li>
+        <li><strong>No</strong> on-premises data.</li>
+        <li>D365-seeded rights apply only <em>within the context of</em> that Dynamics 365 app.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">Premium (standalone)</span>
+      <h3>Power Apps / Power Automate Premium, Copilot Studio, etc.</h3>
+      <ul>
+        <li>Premium &amp; custom connectors.</li>
+        <li>On-premises data gateway access.</li>
+        <li>Create <strong>Dataverse</strong> in non-default (production/sandbox) environments.</li>
+        <li><strong>Includes Managed Environments as an entitlement.</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>2. Licensing paths</h2>
+  <table>
+    <thead><tr><th>Path</th><th>What it is</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Per-user</strong></td><td>A named user licensed to run/create across unlimited apps &amp; flows.</td><td>Heavy makers/users (rule of thumb: 10+ apps).</td></tr>
+      <tr><td><strong>Per-app / per-flow</strong></td><td>Scoped capacity for a specific app or business process, allocated to the environment.</td><td>Light users of a small number of solutions.</td></tr>
+      <tr><td><strong>Pay-as-you-go (PAYG)</strong></td><td>Billed through an Azure subscription — no upfront commitment. Meters exist for Power Apps per-app, Power Pages, and Copilot Studio.</td><td>Variable/unpredictable usage; production safety valve.</td></tr>
+      <tr><td><strong>Developer Plan</strong></td><td>Free, single-person environment for building. <span style="color:var(--cp-warning)">Does <strong>not</strong> include Managed Environments when running assets.</span></td><td>Individual learning &amp; prototyping.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. What “Managed Environments” actually gives you</h2>
+  <p>Managed Environments are a suite of premium governance capabilities that let admins manage Power Platform at scale — <em>more control, less effort, more insight</em>. You can apply it to <strong>any</strong> environment type, and it’s toggled <strong>per environment</strong> (not all-or-nothing across the tenant).</p>
+  <div class="card">
+    <h3>Representative capabilities unlocked</h3>
+    <div class="feature-tags">
+      <span class="tag">Environment groups</span>
+      <span class="tag">Default environment routing</span>
+      <span class="tag">On-demand developer environments</span>
+      <span class="tag">Sharing limits</span>
+      <span class="tag">Weekly usage insights</span>
+      <span class="tag">Data policies (DLP)</span>
+      <span class="tag">Pipelines (ALM)</span>
+      <span class="tag">Solution checker</span>
+      <span class="tag">Maker welcome content</span>
+      <span class="tag">IP firewall / cookie binding</span>
+      <span class="tag">Customer-managed key</span>
+      <span class="tag">Lockbox</span>
+      <span class="tag">Extended backup</span>
+      <span class="tag">App Insights export</span>
+      <span class="tag">VNet support</span>
+    </div>
+  </div>
+
+  <h2>4. The licensing rule for Managed Environments</h2>
+  <p>When you enable Managed Environments in an environment, <strong>all active usage requires a qualifying standalone license or PAYG meter</strong>. In practice:</p>
+  <ul>
+    <li>Every user <strong>running an app</strong> in a managed environment needs <strong>Power Apps Premium</strong>, <strong>Power Automate Premium</strong>, or a qualifying <strong>Dynamics 365 Enterprise</strong> license (or per-app capacity allocated to the environment).</li>
+    <li>Every user <strong>running a cloud flow</strong> in a managed environment needs the same (or Flow per-business-process capacity allocated).</li>
+    <li>A single user who runs <strong>both</strong> an app and a flow does <strong>not</strong> need two licenses — either Power Apps Premium <em>or</em> Power Automate Premium satisfies the requirement.</li>
+    <li>Flows triggered <em>within</em> an app or agent are covered by that app’s / Copilot Studio license.</li>
+    <li><strong>Trial</strong> licenses can cover users in managed environments, but trial restrictions (e.g. 30-day) still apply.</li>
+  </ul>
+  <div class="callout warn">
+    <strong>The trade-off:</strong> Managed Environments = ease of administration &amp; governance <em>vs.</em> the cost of premium licensing for the users in those environments. A common pattern: leave the <strong>default</strong> environment unmanaged for citizen makers (locked-down DLP, no premium), and reserve <strong>managed</strong> environments for a smaller community of enterprise builders who hold premium licenses.
+  </div>
+
+  <h2>5. Per-user vs per-app: which is cheaper?</h2>
+  <p>Rule of thumb: if a user actively uses <strong>~10 or more</strong> apps, a <strong>per-user</strong> license is usually the better value. Below that, <strong>per-app</strong> licensing (allocated to the environment) tends to win. Model both against your actual usage — the break-even shifts with your mix.</p>
+
+  <h2>6. Copilot Studio note</h2>
+  <p>Copilot Studio has its <strong>own consumption model</strong> (Copilot Credits / PAYG) layered on top of environment licensing. Key nuance for agents:</p>
+  <ul>
+    <li>An <strong>M365 Copilot</strong>-licensed user interacting with an agent in an authenticated chat burns <strong>no</strong> Copilot Studio credits — their license covers it.</li>
+    <li><strong>Autonomous</strong> agents (triggered by schedule, email, or a file drop) have <strong>no license coverage</strong> and always consume Copilot Studio credits.</li>
+    <li>A Copilot Studio agent requires a <strong>Dataverse</strong>-enabled environment.</li>
+  </ul>
+
+  <h2>7. Quick self-check</h2>
+  <table>
+    <thead><tr><th>Question</th><th>Where it points</th></tr></thead>
+    <tbody>
+      <tr><td>Do makers need premium/custom connectors, on-prem data, or their own Dataverse?</td><td>Premium standalone license.</td></tr>
+      <tr><td>Do you want governance at scale (grouping, routing, DLP, pipelines, insights)?</td><td>Turn on Managed Environments — on the specific environments that warrant it.</td></tr>
+      <tr><td>Who consumes in a managed environment?</td><td>Each active user needs a qualifying premium license (or allocated per-app/PAYG capacity).</td></tr>
+      <tr><td>Unpredictable or spiky usage / production safety net?</td><td>Attach pay-as-you-go via an Azure subscription.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2085130" target="_blank" rel="noopener">Microsoft Power Platform Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2085130</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pricing-billing-skus" target="_blank" rel="noopener">Licensing overview for Microsoft Power Platform (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pricing-billing-skus</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-overview" target="_blank" rel="noopener">Managed environments overview (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-licensing" target="_blank" rel="noopener">Managed environments — Licensing (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-enable" target="_blank" rel="noopener">How to enable Managed Environments (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-enable</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/alm/set-up-pipelines" target="_blank" rel="noopener">Pipelines in Power Platform (ALM) (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/alm/set-up-pipelines</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing" target="_blank" rel="noopener">Copilot Studio licensing requirements (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
+  </div>
+
+  <footer class="foot">
+    Compiled from Microsoft Learn public documentation (verified July 2026). Licensing SKUs and rules change frequently — always confirm current terms against the Power Platform Licensing Guide and your organization’s agreement before making purchasing decisions. This overview is guidance, not a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
