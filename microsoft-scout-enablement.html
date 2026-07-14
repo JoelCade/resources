@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enabling Microsoft Scout for Your Organization — Admin Guide</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 22px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 12px 0;
+}
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1; }
+.step .body h3 { margin: 2px 0 6px; }
+.path {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 2px 8px;
+  color: var(--cp-text);
+}
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar { display: none !important; }
+  .card, .step { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Scout · Enablement Reference</p>
+    <h1>Enabling Microsoft Scout for Your Organization</h1>
+    <p class="sub">A step-by-step admin guide to turning on Microsoft Scout for users in a customer (non-Microsoft) tenant — the prerequisites, the four enablement gates, and how model access is licensed. Prepared as an enablement reference · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Installing the Scout app does <strong>not</strong> grant access on its own. A user can sign in only after <strong>all four enablement gates</strong> below are complete: tenant enablement, organization attestation, device policy, and licensing. If any gate is missing, the user sees a waitlist screen or a failed sign-in — and the cause is not always obvious inside the app.
+  </div>
+
+  <h2>Prerequisites at a glance</h2>
+  <table>
+    <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Identity</strong></td><td>Each user needs a Microsoft 365 work or school (Entra ID) account.</td></tr>
+      <tr><td><strong>Model licensing</strong></td><td>Each end user needs a <strong>GitHub Copilot Business or Enterprise</strong> license. Scout currently uses GitHub Copilot licensing and token infrastructure for model access.</td></tr>
+      <tr><td><strong>Admin roles</strong></td><td>Access to the <strong>Microsoft 365 admin center</strong> (Copilot settings) and the <strong>Microsoft Intune admin center</strong> (device configuration).</td></tr>
+      <tr><td><strong>Managed devices</strong></td><td>Target devices should be enrolled in Intune (or your MDM) so the Scout access policy can be applied.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>How AI model access is provided</h2>
+  <p>Scout does <strong>not</strong> bring its own separate token pool for customer organizations today. Instead:</p>
+  <ul>
+    <li>Model access is provisioned through <strong>GitHub Copilot</strong>. Users must hold a <strong>GitHub Copilot Business or Enterprise</strong> seat.</li>
+    <li>Consumption is billed against <strong>GitHub Copilot AI credits / tokens</strong> associated with that seat.</li>
+    <li>During first-run setup, each user <strong>associates Scout with their GitHub account</strong>, which links their Copilot entitlement to the app.</li>
+  </ul>
+  <div class="callout warn">
+    <strong>Plan for two licenses per user:</strong> a Microsoft 365 (Entra) identity <em>and</em> a GitHub Copilot Business/Enterprise seat. Confirm current SKU requirements and credit/consumption terms with your Microsoft account team before rollout — these evolve during the program.
+  </div>
+
+  <h2>The four enablement gates</h2>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Enable Copilot Frontier in the Microsoft 365 admin center</h3>
+      <ol>
+        <li>Sign in to the <strong>Microsoft 365 admin center</strong>.</li>
+        <li>Go to <span class="path">Copilot &rarr; Settings &rarr; View all</span>, then search for <strong>Frontier</strong> and open <strong>Copilot Frontier</strong>.</li>
+        <li>Set the access scope: <strong>No access</strong>, <strong>All users</strong>, or <strong>Specific users</strong> (recommended for a pilot — add just the intended user or group).</li>
+        <li><strong>Save</strong> the configuration.</li>
+      </ol>
+      <div class="callout warn" style="margin:10px 0 0;"><strong>Allow time to propagate.</strong> Enablement can take several hours to take effect after you save.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Complete the organization attestation / sign-up</h3>
+      <p>Complete the <strong>Frontier organization sign-up / attestation form</strong> for your tenant. Because Scout may route data through GitHub-related inference paths, the organization must explicitly opt in and attest before access is granted. This is a one-time, tenant-level step.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Allow Scout access on managed devices via Intune</h3>
+      <p>Obtain the Scout device-policy files from the Scout admin repository:</p>
+      <div class="feature-tags">
+        <span class="tag">microsoft-scout.admx</span>
+        <span class="tag">microsoft-scout.adml</span>
+        <span class="tag">microsoft-scout.mobileconfig</span>
+      </div>
+      <h3>Windows</h3>
+      <ol>
+        <li>Import the <strong>ADMX / ADML</strong> templates into Intune.</li>
+        <li>Create a <strong>Windows configuration policy</strong> using <em>Imported Administrative Templates</em>.</li>
+        <li>Set <span class="path">Allow Microsoft Scout Frontier access = Enabled</span>.</li>
+        <li>Assign the policy to your pilot devices (or all devices).</li>
+      </ol>
+      <h3>macOS</h3>
+      <ol>
+        <li>Create a <strong>macOS Custom profile</strong>.</li>
+        <li>Upload the <span class="path">microsoft-scout.mobileconfig</span> file.</li>
+        <li>Deploy through the <strong>Device</strong> channel and assign to target devices.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>Assign licenses to the user</h3>
+      <ul>
+        <li>Ensure the user has a <strong>Microsoft 365</strong> work/school account.</li>
+        <li>Assign a <strong>GitHub Copilot Business or Enterprise</strong> license to the user (this is what provides model access and token consumption).</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Final step — the user signs in</h2>
+  <p>Only after gates 1–4 are complete:</p>
+  <ol>
+    <li>The user installs the <strong>Microsoft Scout</strong> application on a managed device.</li>
+    <li>The user signs in with their <strong>Microsoft 365 (Entra) account</strong>.</li>
+    <li>During first-run setup, the user <strong>links their GitHub account</strong> to associate their Copilot entitlement with Scout.</li>
+  </ol>
+  <div class="callout">
+    <strong>Troubleshooting a blocked sign-in:</strong> if a user is stuck on a waitlist screen or sign-in fails, work back through the gates — the most common causes are (a) Frontier not yet propagated, (b) the attestation form not submitted, (c) the Intune access policy not applied to that device, or (d) a missing GitHub Copilot license.
+  </div>
+
+  <h2>Enablement checklist</h2>
+  <table>
+    <thead><tr><th>#</th><th>Gate</th><th>Where</th><th>Scope</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Enable Copilot Frontier</td><td>Microsoft 365 admin center</td><td>Tenant / user</td></tr>
+      <tr><td>2</td><td>Organization attestation / sign-up</td><td>Frontier sign-up form</td><td>Tenant (one-time)</td></tr>
+      <tr><td>3</td><td>Allow Scout access policy</td><td>Microsoft Intune admin center</td><td>Device</td></tr>
+      <tr><td>4</td><td>Assign M365 + GitHub Copilot licenses</td><td>M365 admin / GitHub</td><td>Per user</td></tr>
+      <tr><td>5</td><td>Install, sign in, link GitHub</td><td>End-user device</td><td>Per user</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/admin/" target="_blank" rel="noopener">Microsoft 365 admin center documentation (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-365/admin/</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/mem/intune/configuration/administrative-templates-windows" target="_blank" rel="noopener">Import & use administrative templates in Microsoft Intune (Learn)</a><br><span class="u">https://learn.microsoft.com/mem/intune/configuration/administrative-templates-windows</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/mem/intune/configuration/custom-settings-macos" target="_blank" rel="noopener">Add a macOS custom configuration profile in Intune (Learn)</a><br><span class="u">https://learn.microsoft.com/mem/intune/configuration/custom-settings-macos</span></div>
+    <div class="ref"><a href="https://docs.github.com/copilot/managing-copilot/managing-github-copilot-in-your-organization" target="_blank" rel="noopener">Managing GitHub Copilot in your organization (GitHub Docs)</a><br><span class="u">https://docs.github.com/copilot/managing-copilot/managing-github-copilot-in-your-organization</span></div>
+  </div>
+
+  <footer class="foot">
+    Microsoft Scout is offered through an evolving enablement program; steps, forms, and SKU requirements change frequently. Always confirm the current process and licensing terms with your Microsoft account team before rollout. This overview is guidance, not a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
