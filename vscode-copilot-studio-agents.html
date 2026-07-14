@@ -207,6 +207,8 @@ button.btn {
   transition: background 0.15s ease;
 }
 button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
 
 footer.foot {
   margin-top: 40px;
@@ -220,7 +222,7 @@ footer.foot {
   @page { margin: 14mm; }
   body { background: #fff; font-size: 11.5px; }
   .wrap { max-width: none; padding: 0; }
-  .toolbar { display: none !important; }
+  .toolbar, .backlink { display: none !important; }
   .card { box-shadow: none; break-inside: avoid; }
   h2 { break-after: avoid; }
   table, .callout, .grid2, .step, pre { break-inside: avoid; }
@@ -233,6 +235,8 @@ footer.foot {
   <div class="toolbar">
     <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
   </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
 
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot Studio · Enablement Reference</p>
