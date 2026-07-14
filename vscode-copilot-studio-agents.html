@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Editing &amp; Publishing Copilot Studio Agents with VS Code</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+pre {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+pre code { background: none; border: none; padding: 0; font-size: 12.5px; line-height: 1.5; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  font-size: 14px;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin-top: 2px; }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step, pre { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio · Enablement Reference</p>
+    <h1>Editing &amp; Publishing Copilot Studio Agents with VS Code</h1>
+    <p class="sub">A practical, code-first workflow for authoring Microsoft Copilot Studio agents in Visual Studio Code — pull, edit, source-control, and publish. Prepared as an enablement reference · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> The Copilot Studio web maker is best for prototyping and visual editing; Visual Studio Code shines once an agent matures — bringing <strong>source control, diffs, bulk edits, and CI/CD</strong> to the agent definition. The two are complementary, not either/or.
+  </div>
+
+  <h2>1. Why author agents in VS Code?</h2>
+  <p>The browser-based maker experience is fast and visual, but a code-first workflow unlocks capabilities the browser can't match:</p>
+  <ul>
+    <li><strong>Source control</strong> — commit agent definitions to Git, review changes in pull requests, and roll back cleanly.</li>
+    <li><strong>Bulk edits</strong> — find-and-replace across topics, instructions, and prompts in seconds.</li>
+    <li><strong>Diff &amp; review</strong> — see exactly what changed between versions.</li>
+    <li><strong>Team collaboration</strong> — multiple makers working against the same agent with real merge history.</li>
+    <li><strong>CI/CD</strong> — promote agents across Dev → Test → Prod with pipelines instead of manual export/import.</li>
+  </ul>
+
+  <h2>2. What you'll need</h2>
+  <table>
+    <thead><tr><th>Requirement</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Visual Studio Code</strong></td><td>Latest stable build.</td></tr>
+      <tr><td><strong>Power Platform Tools extension</strong></td><td>Install from the VS Code Marketplace.</td></tr>
+      <tr><td><strong>Power Platform CLI (<code>pac</code>)</strong></td><td>Bundled with the extension, or installed standalone.</td></tr>
+      <tr><td><strong>A Copilot Studio environment</strong></td><td>With maker permissions on the target agent.</td></tr>
+      <tr><td><strong>Git</strong></td><td>To realize the source-control benefits above.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Set up the tooling &amp; connect</h2>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Install the extension</h3>
+      <p>Open VS Code → <strong>Extensions</strong> (<code>Ctrl+Shift+X</code>), search for <strong>"Power Platform Tools"</strong>, and install it. Confirm the bundled CLI is available:</p>
+      <pre><code>pac --version</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Authenticate to your environment</h3>
+      <p>Create an auth profile pointing at your Power Platform environment, then list or switch profiles as needed:</p>
+      <pre><code>pac auth create --environment https://yourorg.crm.dynamics.com
+
+pac auth list
+pac auth select --index 1</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Bring the agent local</h3>
+      <p>Copilot Studio agents live inside a Power Platform <strong>solution</strong>. Export the solution and unpack it into source files you can edit and place under version control:</p>
+      <pre><code># See which agents exist in the environment
+pac copilot list
+
+# Export and unpack the solution that contains the agent
+pac solution export --path ./myagent/MyAgentSolution.zip --name MyAgentSolution
+pac solution unpack --zipfile ./myagent/MyAgentSolution.zip --folder ./myagent-src</code></pre>
+      <div class="callout"><strong>Tip:</strong> Commit the freshly unpacked agent to Git <em>before</em> editing. That clean baseline is what every future diff compares against.</div>
+    </div>
+  </div>
+
+  <h2>4. Edit the agent</h2>
+  <p>Once unpacked, the agent is just text — so all of VS Code's editing power applies (multi-file search, snippets, extensions, Git diffing). Inside the source you can modify:</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Conversation &amp; behavior</h3>
+      <ul>
+        <li><strong>Topics &amp; conversation flows</strong> — authored in YAML.</li>
+        <li><strong>Agent instructions / system prompts</strong> — the natural-language behavior guiding generative answers.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Data &amp; capabilities</h3>
+      <ul>
+        <li><strong>Knowledge sources &amp; connections</strong> — references to the data the agent draws on.</li>
+        <li><strong>Actions &amp; tools</strong> — connectors and flows the agent can invoke.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>5. Publish your changes</h2>
+  <p>Repack the source into a solution, import it back into the environment, then publish:</p>
+  <pre><code>pac solution pack --zipfile ./myagent/MyAgentSolution.zip --folder ./myagent-src
+pac solution import --path ./myagent/MyAgentSolution.zip</code></pre>
+  <p>Then open the agent in Copilot Studio (web) and select <strong>Publish</strong> to push the changes live to your channels — or automate publishing as part of a pipeline.</p>
+
+  <h2>6. Recommended workflow</h2>
+  <div class="card">
+    <pre><code>Web maker (prototype)  →  Pull to VS Code  →  Edit + commit to Git
+      →  PR review  →  Import to Test  →  Validate  →  Import to Prod  →  Publish</code></pre>
+    <div class="feature-tags">
+      <span class="tag">Prototype in web</span>
+      <span class="tag">Refine in code</span>
+      <span class="tag">Review via PR</span>
+      <span class="tag">Promote by pipeline</span>
+    </div>
+  </div>
+
+  <h2>7. Good practices</h2>
+  <ul>
+    <li><strong>One solution per agent</strong> where practical — keeps import/export clean.</li>
+    <li><strong>Use managed solutions</strong> downstream (Test/Prod); unmanaged in Dev.</li>
+    <li><strong>Never hard-code secrets</strong> — use environment variables and connection references.</li>
+    <li><strong>Automate with pipelines</strong> — Power Platform Pipelines, or Azure DevOps / GitHub Actions driving the <code>pac</code> CLI.</li>
+    <li><strong>Test after every import</strong> — validate topics and generative responses before you publish.</li>
+  </ul>
+  <div class="callout warn">
+    <strong>A note on scope:</strong> Code-first authoring for Copilot Studio is evolving quickly. The <code>pac solution</code> export/unpack path above is the reliable, generally-available method today; some preview capabilities add more direct agent pull/push commands. Always confirm the current command surface against the Microsoft Learn references below before standing up a pipeline.
+  </div>
+
+  <h2>8. Handy <code>pac</code> commands</h2>
+  <table>
+    <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>pac auth create</code></td><td>Create an authentication profile.</td></tr>
+      <tr><td><code>pac auth list</code> / <code>select</code></td><td>Manage / switch environments.</td></tr>
+      <tr><td><code>pac copilot list</code></td><td>List agents in the environment.</td></tr>
+      <tr><td><code>pac solution export</code></td><td>Export a solution (.zip).</td></tr>
+      <tr><td><code>pac solution unpack</code> / <code>pack</code></td><td>Convert between .zip and source files.</td></tr>
+      <tr><td><code>pac solution import</code></td><td>Import a solution into an environment.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/developer/cli/introduction" target="_blank" rel="noopener">Microsoft Power Platform CLI — overview &amp; install (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/developer/cli/introduction</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/developer/cli/reference/copilot" target="_blank" rel="noopener">pac copilot command reference (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/developer/cli/reference/copilot</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/developer/cli/reference/solution" target="_blank" rel="noopener">pac solution command reference (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/developer/cli/reference/solution</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/authoring-first-bot" target="_blank" rel="noopener">Create and edit agents in Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/authoring-first-bot</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/authoring-export-import-bots" target="_blank" rel="noopener">Export and import agents with solutions (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/authoring-export-import-bots</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/alm/set-up-pipelines" target="_blank" rel="noopener">Pipelines in Power Platform (ALM) (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/alm/set-up-pipelines</span></div>
+  </div>
+
+  <footer class="foot">
+    Compiled from Microsoft Learn public documentation (verified July 2026). The Copilot Studio code-first authoring surface and <code>pac</code> CLI commands change frequently — always confirm current command syntax and capabilities against the official references above before building automation. This overview is guidance, not a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
