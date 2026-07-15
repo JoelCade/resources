@@ -203,13 +203,13 @@ td code, p code, li code { font-family: Consolas, monospace; font-size: 12.5px; 
   padding: 10px 0; margin: -32px 0 0;
   background: linear-gradient(var(--cp-bg) 70%, transparent);
 }
-button.btn {
+button.btn, a.btn {
   font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
   border-radius: 0.625rem; padding: 9px 18px;
   border: 1px solid var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-fg);
   transition: background 0.15s ease;
 }
-button.btn:hover { background: var(--cp-accent-hover); }
+button.btn:hover, a.btn:hover { background: var(--cp-accent-hover); }
 
 footer.foot {
   margin-top: 44px; padding-top: 16px;
@@ -541,6 +541,40 @@ Create disabled. Dry-run first. Enable only after I approve.</code></pre>
     <div class="card"><h3>A Scout with personality</h3><p><code>SOUL.md</code> + <code>AGENTS.md</code> = a real colleague. <em>(optional)</em></p></div>
     <div class="card"><h3>A nightly consolidation loop</h3><p>Grows the vault while you sleep. <em>(optional)</em></p></div>
     <div class="card"><h3>Compounding value</h3><p>Six months from now, you'll wonder how you ever worked without it.</p></div>
+  </div>
+
+  <h2>Bonus — browse your vault visually</h2>
+  <p>Your vault is plain markdown, so it opens in Obsidian, VS Code, or any editor. But here's a zero-install extra: a single-file <strong>Vault Navigator</strong> — a self-contained HTML app that turns the folder into a browsable knowledge base in your browser.</p>
+  <div class="grid3">
+    <div class="card"><h3>Folder tree + search</h3><p>The whole vault in a sidebar, with instant full-text search (press <code>/</code>).</p></div>
+    <div class="card"><h3>Wikilink navigation</h3><p>Rendered markdown with clickable <code>[[wikilinks]]</code> — click through your notes like a real wiki.</p></div>
+    <div class="card"><h3>Backlinks panel</h3><p>See every page that points at the note you're reading — the connections you'd never spot manually.</p></div>
+    <div class="card"><h3>Tag filtering</h3><p>Filter the vault down to any tag, or hide unlinked/orphan pages.</p></div>
+    <div class="card"><h3>Graph view</h3><p>A colour-coded map of notes and how they link together, grouped by folder.</p></div>
+    <div class="card"><h3>Light &amp; dark</h3><p>Theme toggle; your preference is remembered locally.</p></div>
+  </div>
+  <div class="callout warn">
+    <span class="lead">Runs entirely on your machine</span>
+    Nothing leaves your device. The navigator uses your browser's read-only folder picker (File System Access API) to read the vault locally — no upload, no server, no telemetry. Best in <strong>Chrome</strong> or <strong>Edge</strong> on desktop.
+  </div>
+
+  <p style="margin:16px 0;">
+    <a class="btn" href="vault-navigator.html" download style="text-decoration:none;display:inline-block;">⬇ Download Vault Navigator (single HTML file)</a>
+  </p>
+
+  <h3>How to run it locally</h3>
+  <p>Because the folder picker needs a secure context, the reliable way is to serve the file from a tiny local web server (it won't work opened straight off the disk). It's two commands:</p>
+  <p class="prompt-label">1 · Save the file, then start a local server from its folder:</p>
+  <pre><code># Python (already on most machines)
+cd <span class="ph">&lt;folder where you saved vault-navigator.html&gt;</span>
+python -m http.server 8000</code></pre>
+  <p class="prompt-label">2 · Open it in Chrome or Edge and pick your vault:</p>
+  <pre><code>Go to:  http://localhost:8000/vault-navigator.html
+Click "📂 Open Vault Folder" → choose your Second Brain folder →
+grant read access. That's it — browse away.</code></pre>
+  <div class="callout">
+    <span class="lead">Tip</span>
+    Drop <code>vault-navigator.html</code> right inside your vault folder and point the server at the vault — one command and your whole knowledge base is browsable. You can also let your Microsoft Scout start the server for you.
   </div>
 
   <p style="margin-top:22px;">

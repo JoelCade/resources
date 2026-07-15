@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Second Brain — Vault Navigator</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --bg-elev: #171a21;
+    --bg-elev2: #1e222b;
+    --border: #262b36;
+    --text: #d7dbe3;
+    --text-dim: #8b93a3;
+    --text-faint: #5b6473;
+    --accent: #6ea8fe;
+    --accent-soft: rgba(110,168,254,0.14);
+    --green: #7ee0a1;
+    --amber: #f0c674;
+    --code-bg: #12151b;
+    --shadow: 0 8px 30px rgba(0,0,0,0.35);
+    --sidebar-w: 320px;
+  }
+  html[data-theme="light"] {
+    --bg: #f6f7f9;
+    --bg-elev: #ffffff;
+    --bg-elev2: #eef0f4;
+    --border: #dde1e8;
+    --text: #1d2230;
+    --text-dim: #5a6474;
+    --text-faint: #97a0b0;
+    --accent: #2f6fed;
+    --accent-soft: rgba(47,111,237,0.10);
+    --green: #1f9d57;
+    --amber: #b8860b;
+    --code-bg: #f0f2f6;
+    --shadow: 0 8px 30px rgba(20,30,60,0.10);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- Top bar ---- */
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px; background: var(--bg-elev);
+    border-bottom: 1px solid var(--border); flex: 0 0 auto; z-index: 5;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 650; letter-spacing: .2px; }
+  .brand .logo {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), #a06efe);
+    display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 800;
+  }
+  .brand small { color: var(--text-faint); font-weight: 500; }
+  header .spacer { flex: 1; }
+  .btn {
+    background: var(--bg-elev2); color: var(--text); border: 1px solid var(--border);
+    padding: 7px 13px; border-radius: 8px; font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: .15s; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { filter: brightness(1.08); color: #fff; }
+  .icon-btn { padding: 7px 9px; }
+  .vault-path { color: var(--text-faint); font-size: 12px; max-width: 320px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---- Layout ---- */
+  main { display: flex; flex: 1; min-height: 0; }
+  aside {
+    width: var(--sidebar-w); flex: 0 0 auto; background: var(--bg-elev);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0;
+  }
+  .search-wrap { padding: 10px; border-bottom: 1px solid var(--border); }
+  .search-wrap input {
+    width: 100%; padding: 8px 10px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .tree-meta { padding: 6px 12px; font-size: 11px; color: var(--text-faint);
+    display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .tree-meta a { color: var(--text-faint); cursor: pointer; text-decoration: none; }
+  .tree-meta a:hover { color: var(--accent); }
+  .tree { overflow-y: auto; flex: 1; padding: 6px 4px 40px; }
+
+  .node { user-select: none; }
+  .row {
+    display: flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 7px;
+    cursor: pointer; font-size: 13px; line-height: 1.3; color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .row:hover { background: var(--bg-elev2); color: var(--text); }
+  .row.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .row .chev { width: 12px; flex: 0 0 12px; color: var(--text-faint); transition: transform .12s; font-size: 10px; }
+  .node.collapsed > .row .chev { transform: rotate(-90deg); }
+  .row .ic { width: 15px; flex: 0 0 15px; text-align: center; opacity: .85; font-size: 12px; }
+  .row .lbl { overflow: hidden; text-overflow: ellipsis; }
+  .row .cnt { margin-left: auto; color: var(--text-faint); font-size: 11px; padding-left: 8px; }
+  .children { margin-left: 13px; border-left: 1px solid var(--border); padding-left: 3px; }
+  .node.collapsed > .children { display: none; }
+  .hidden { display: none !important; }
+
+  /* ---- Content ---- */
+  .content-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .crumbbar { display: flex; align-items: center; gap: 4px; padding: 6px 14px;
+    border-bottom: 1px solid var(--border); background: var(--bg); flex: 0 0 auto; }
+  .nav-btn { background: var(--bg-elev2); border: 1px solid var(--border); color: var(--text-dim);
+    width: 27px; height: 27px; border-radius: 7px; cursor: pointer; font-size: 17px; line-height: 1;
+    display: grid; place-items: center; flex: 0 0 auto; transition: .15s; padding: 0; }
+  .nav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .nav-btn:disabled { opacity: .3; cursor: default; }
+  .crumbs {
+    font-size: 12px; color: var(--text-faint); display: flex; align-items: center; gap: 6px;
+    overflow: hidden; white-space: nowrap; flex: 1; min-width: 0; margin-left: 6px;
+  }
+  .crumbs .seg { color: var(--text-dim); }
+  .crumbs .sep { opacity: .5; }
+  .reader-wrap { overflow-y: auto; flex: 1; }
+  .reader {
+    max-width: 860px; margin: 0 auto; padding: 34px 40px 120px;
+    font-size: 15.5px; line-height: 1.72;
+  }
+
+  /* Empty / welcome */
+  .welcome { max-width: 620px; margin: 8vh auto; text-align: center; padding: 0 30px; }
+  .welcome h1 { font-size: 26px; margin-bottom: 6px; }
+  .welcome p { color: var(--text-dim); line-height: 1.7; }
+  .welcome .big-btn { margin-top: 22px; padding: 12px 22px; font-size: 15px; }
+  .welcome .hint { margin-top: 20px; font-size: 12.5px; color: var(--text-faint); }
+  .kbd { background: var(--bg-elev2); border: 1px solid var(--border); border-radius: 5px;
+    padding: 1px 6px; font-size: 12px; font-family: ui-monospace, monospace; }
+
+  /* Frontmatter card */
+  .fm {
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin: 0 0 26px; font-size: 13px;
+  }
+  .fm .fm-title { font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
+    color: var(--text-faint); margin-bottom: 8px; }
+  .fm table { border-collapse: collapse; width: 100%; }
+  .fm td { padding: 3px 8px 3px 0; vertical-align: top; }
+  .fm td.k { color: var(--text-dim); font-weight: 600; width: 120px; white-space: nowrap; }
+  .fm .tag { display: inline-block; background: var(--accent-soft); color: var(--accent);
+    border-radius: 20px; padding: 1px 9px; margin: 2px 4px 2px 0; font-size: 12px; }
+
+  /* Markdown */
+  .md h1,.md h2,.md h3,.md h4 { line-height: 1.3; margin: 1.5em 0 .5em; font-weight: 650; }
+  .md h1 { font-size: 1.85em; margin-top: 0; }
+  .md h2 { font-size: 1.42em; border-bottom: 1px solid var(--border); padding-bottom: .25em; }
+  .md h3 { font-size: 1.18em; }
+  .md h4 { font-size: 1.02em; color: var(--text-dim); }
+  .md p { margin: .7em 0; }
+  .md a { color: var(--accent); text-decoration: none; }
+  .md a:hover { text-decoration: underline; }
+  .md a.wikilink { background: var(--accent-soft); padding: 0 5px; border-radius: 5px; }
+  .md a.broken { color: var(--amber); background: rgba(240,198,116,.12); }
+  .md ul,.md ol { padding-left: 1.5em; margin: .6em 0; }
+  .md li { margin: .25em 0; }
+  .md li.task { list-style: none; margin-left: -1.2em; }
+  .md li.task input { margin-right: 8px; }
+  .md blockquote {
+    margin: .9em 0; padding: .3em 1em; border-left: 3px solid var(--accent);
+    background: var(--accent-soft); color: var(--text-dim); border-radius: 0 6px 6px 0;
+  }
+  .md code {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 5px;
+    padding: 1px 5px; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .88em;
+  }
+  .md pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 1em 0;
+  }
+  .md pre code { background: none; border: none; padding: 0; font-size: .86em; line-height: 1.55; }
+  .md table { border-collapse: collapse; margin: 1em 0; width: 100%; font-size: .94em; display: block; overflow-x: auto; }
+  .md th,.md td { border: 1px solid var(--border); padding: 7px 11px; text-align: left; }
+  .md th { background: var(--bg-elev2); font-weight: 650; }
+  .md tr:nth-child(even) td { background: var(--bg-elev); }
+  .md hr { border: none; border-top: 1px solid var(--border); margin: 1.6em 0; }
+  .md img { max-width: 100%; border-radius: 8px; }
+  .md del { color: var(--text-faint); }
+
+  /* ---- Backlinks panel ---- */
+  aside.backlinks {
+    width: 282px; flex: 0 0 auto; background: var(--bg-elev);
+    border-left: 1px solid var(--border); display: none; flex-direction: column; min-height: 0;
+  }
+  aside.backlinks.show { display: flex; }
+  .bl-head { padding: 12px 14px; border-bottom: 1px solid var(--border);
+    font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-faint);
+    display: flex; align-items: center; justify-content: space-between; }
+  .bl-head .badge { background: var(--accent-soft); color: var(--accent); border-radius: 20px;
+    padding: 1px 9px; font-size: 12px; font-weight: 700; letter-spacing: 0; }
+  .bl-list { overflow-y: auto; flex: 1; padding: 8px; }
+  .bl-item { padding: 9px 10px; border-radius: 9px; cursor: pointer; margin-bottom: 6px;
+    border: 1px solid transparent; }
+  .bl-item:hover { background: var(--bg-elev2); border-color: var(--border); }
+  .bl-name { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 3px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bl-path { font-size: 10.5px; color: var(--text-faint); margin-bottom: 4px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bl-ctx { font-size: 12px; color: var(--text-dim); line-height: 1.5;
+    overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  .bl-ctx mark { background: var(--accent-soft); color: var(--accent); padding: 0 2px; border-radius: 3px; }
+  .bl-empty { color: var(--text-faint); font-size: 12.5px; padding: 14px 10px; line-height: 1.6; }
+
+  /* ---- Theme switch ---- */
+  .theme-switch { display:inline-flex; align-items:center; cursor:pointer; user-select:none; }
+  .theme-switch .track { width:44px; height:24px; border-radius:20px; background:var(--bg-elev2);
+    border:1px solid var(--border); position:relative; transition:.2s; }
+  .theme-switch .thumb { position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%;
+    background:linear-gradient(135deg,#f6c453,#f08c3a); transition:.2s; display:grid; place-items:center; font-size:10px; }
+  html[data-theme="dark"] .theme-switch .thumb { left:22px; background:linear-gradient(135deg,#6ea8fe,#a06efe); }
+  .theme-switch .thumb::after { content:"☀"; }
+  html[data-theme="dark"] .theme-switch .thumb::after { content:"☾"; }
+
+  /* ---- View toggle ---- */
+  .view-toggle { display:inline-flex; background:var(--bg-elev2); border:1px solid var(--border);
+    border-radius:8px; overflow:hidden; }
+  .view-toggle button { background:none; border:none; color:var(--text-dim); padding:7px 12px;
+    font-size:13px; cursor:pointer; display:flex; align-items:center; gap:5px; }
+  .view-toggle button.active { background:var(--accent); color:#fff; }
+
+  /* ---- Tags panel ---- */
+  .tags-panel { border-bottom:1px solid var(--border); }
+  .tags-head { display:flex; align-items:center; justify-content:space-between; padding:8px 12px;
+    cursor:pointer; font-size:11px; text-transform:uppercase; letter-spacing:.7px; color:var(--text-faint); }
+  .tags-head:hover { color:var(--text); }
+  .tags-head .chev-t { transition:transform .15s; font-size:9px; }
+  .tags-panel:not(.open) .tags-head .chev-t { transform:rotate(-90deg); }
+  .tags-head .clr { color:var(--accent); text-transform:none; letter-spacing:0; font-size:11px; display:none; margin-left:auto; margin-right:8px; }
+  .tags-panel.has-active .tags-head .clr { display:inline; }
+  .tags-body { max-height:148px; overflow-y:auto; padding:2px 10px 10px; display:none; flex-wrap:wrap; gap:5px; }
+  .tags-panel.open .tags-body { display:flex; }
+  .tag-chip { background:var(--bg-elev2); border:1px solid var(--border); color:var(--text-dim);
+    border-radius:20px; padding:2px 9px; font-size:12px; cursor:pointer; white-space:nowrap; }
+  .tag-chip:hover { border-color:var(--accent); color:var(--accent); }
+  .tag-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .tag-chip .n { opacity:.6; margin-left:4px; font-size:11px; }
+
+  /* ---- Search results ---- */
+  .results { overflow-y:auto; flex:1; padding:6px; display:none; }
+  .results.show { display:block; }
+  .res-item { padding:9px 11px; border-radius:9px; cursor:pointer; margin-bottom:5px; border:1px solid transparent; }
+  .res-item:hover { background:var(--bg-elev2); border-color:var(--border); }
+  .res-name { font-size:13px; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .res-name .badge-t { font-size:10px; background:var(--accent-soft); color:var(--accent); border-radius:10px; padding:0 6px; margin-left:6px; vertical-align:middle; }
+  .res-path { font-size:10.5px; color:var(--text-faint); margin:2px 0 3px; }
+  .res-snip { font-size:12px; color:var(--text-dim); line-height:1.45; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .res-snip mark, .res-name mark { background:var(--accent-soft); color:var(--accent); padding:0 2px; border-radius:3px; }
+  .res-empty { color:var(--text-faint); font-size:12.5px; padding:16px 12px; }
+
+  /* ---- Graph view ---- */
+  .notes-view { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .graph-view { flex:1; position:relative; display:none; overflow:hidden; background:var(--bg); }
+  .graph-view.show { display:block; }
+  .graph-view canvas { display:block; width:100%; height:100%; cursor:grab; }
+  .graph-controls { position:absolute; top:12px; left:12px; display:flex; gap:9px; align-items:center;
+    background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:7px 12px;
+    font-size:12px; box-shadow:var(--shadow); }
+  .graph-controls label { display:flex; align-items:center; gap:5px; color:var(--text-dim); cursor:pointer; }
+  .graph-hint { position:absolute; bottom:12px; left:12px; font-size:11px; color:var(--text-faint);
+    background:var(--bg-elev); border:1px solid var(--border); border-radius:8px; padding:5px 10px; }
+  .graph-legend { position:absolute; top:12px; right:12px; background:var(--bg-elev); border:1px solid var(--border);
+    border-radius:10px; padding:9px 12px; font-size:11.5px; box-shadow:var(--shadow); max-width:210px; max-height:60%; overflow-y:auto; }
+  .graph-legend .lg { display:flex; align-items:center; gap:7px; margin:3px 0; color:var(--text-dim); }
+  .graph-legend .dot { width:10px; height:10px; border-radius:50%; flex:0 0 10px; }
+  .graph-tip { position:absolute; pointer-events:none; background:var(--bg-elev2); border:1px solid var(--border);
+    border-radius:8px; padding:6px 10px; font-size:12px; color:var(--text); box-shadow:var(--shadow);
+    opacity:0; transition:opacity .1s; z-index:10; max-width:240px; }
+  .graph-tip.show { opacity:1; }
+  .graph-tip .t-name { font-weight:600; }
+  .graph-tip .t-meta { color:var(--text-faint); font-size:11px; margin-top:2px; }
+
+  /* scrollbars */
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 3px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); background-clip: content-box; }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-elev2); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 18px; border-radius: 10px; box-shadow: var(--shadow); font-size: 13px;
+    opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">B</div>
+    <div>Second Brain <small>Vault Navigator</small></div>
+  </div>
+  <span class="vault-path" id="vaultPath"></span>
+  <span class="spacer"></span>
+  <div class="view-toggle" id="viewToggle">
+    <button data-view="notes" class="active" title="Notes view">📄 Notes</button>
+    <button data-view="graph" title="Graph view">🕸 Graph</button>
+  </div>
+  <button class="btn" id="reloadBtn" title="Rescan folder" style="display:none">↻ Rescan</button>
+  <button class="btn icon-btn" id="blToggle" title="Toggle backlinks panel">⇆</button>
+  <label class="theme-switch" id="themeSwitch" title="Toggle light / dark mode">
+    <span class="track"><span class="thumb"></span></span>
+  </label>
+  <button class="btn primary" id="openBtn">📂 Open Vault</button>
+</header>
+
+<main>
+  <aside>
+    <div class="search-wrap">
+      <input id="search" type="text" placeholder="Search names & content…  ( / )" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="tags-panel" id="tagsPanel">
+      <div class="tags-head" id="tagsHead"><span><span class="chev-t">▾</span> <span id="tagsTitle">Tags</span></span><a class="clr" id="tagsClear">clear</a></div>
+      <div class="tags-body" id="tagsBody"></div>
+    </div>
+    <div class="tree-meta">
+      <span id="fileCount">No vault open</span>
+      <span><a id="expandAll">expand</a> · <a id="collapseAll">collapse</a></span>
+    </div>
+    <div class="tree" id="tree"></div>
+    <div class="results" id="results"></div>
+  </aside>
+
+  <div class="content-col">
+    <div class="notes-view" id="notesView">
+    <div class="crumbbar">
+      <button class="nav-btn" id="navBack" title="Back (Alt+←)" disabled>‹</button>
+      <button class="nav-btn" id="navFwd" title="Forward (Alt+→)" disabled>›</button>
+      <div class="crumbs" id="crumbs"></div>
+    </div>
+    <div class="reader-wrap">
+      <div class="reader" id="reader">
+        <div class="welcome">
+          <h1>Open your vault to begin</h1>
+          <p>Pick your <strong>Second Brain</strong> folder and this navigator will build a live,
+             searchable tree of every <code>.md</code> file — with frontmatter, tables, code, and
+             <code>[[wikilink]]</code> navigation rendered inline.</p>
+          <button class="btn primary big-btn" id="openBtn2">📂 Open Vault Folder</button>
+          <p class="hint">Nothing leaves your machine — this runs entirely in your browser.<br>
+             Best in <strong>Chrome</strong> or <strong>Edge</strong>. Press <span class="kbd">/</span> to search,
+             <span class="kbd">Esc</span> to clear.</p>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="graph-view" id="graphView">
+      <canvas id="graphCanvas"></canvas>
+      <div class="graph-controls">
+        <label><input type="checkbox" id="hideOrphans"> Hide unlinked</label>
+        <span style="color:var(--text-faint)">·</span>
+        <a id="graphReset" style="color:var(--accent);cursor:pointer">reset view</a>
+      </div>
+      <div class="graph-legend" id="graphLegend"></div>
+      <div class="graph-hint">drag nodes · scroll to zoom · drag background to pan · click a node to open</div>
+      <div class="graph-tip" id="graphTip"></div>
+    </div>
+  </div>
+
+  <aside class="backlinks" id="backlinks">
+    <div class="bl-head"><span>Linked mentions</span><span class="badge" id="blCount">0</span></div>
+    <div class="bl-list" id="blList"></div>
+  </aside>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Second Brain Vault Navigator — single-file, no dependencies
+   ============================================================ */
+
+const $ = s => document.querySelector(s);
+const state = {
+  rootHandle: null,
+  rootName: "",
+  nodesByPath: new Map(),   // path -> node
+  filesByBase: new Map(),   // lowercased basename (no ext) -> [node]
+  filesByPath: new Map(),   // lowercased relative path (no ext & with) -> node
+  linkGraph: new Map(),     // targetPath -> [{path, name, context}]  (reverse links)
+  forwardLinks: new Map(),  // path -> Set(targetPath)  (forward, for graph)
+  textCache: new Map(),     // path -> raw text
+  tagsByFile: new Map(),    // path -> [tag]
+  filesByTag: new Map(),    // tag -> Set(path)
+  allTags: [],              // [[tag, count], ...] sorted
+  activeTags: new Set(),
+  activePath: null,
+  view: "notes",
+  history: [],
+  histIndex: -1,
+};
+
+/* -------- IndexedDB: remember the last folder handle -------- */
+const DB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open("vault-nav", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("handles");
+      r.onsuccess = () => { this.db = r.result; res(); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async set(k, v) { await this.open(); return new Promise((res, rej) => {
+    const t = this.db.transaction("handles", "readwrite");
+    t.objectStore("handles").put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error);
+  }); },
+  async get(k) { await this.open(); return new Promise((res) => {
+    const t = this.db.transaction("handles", "readonly");
+    const rq = t.objectStore("handles").get(k); rq.onsuccess = () => res(rq.result); rq.onerror = () => res(null);
+  }); },
+};
+
+/* -------- Toast -------- */
+let toastT;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+/* -------- Open / scan folder -------- */
+async function pickFolder() {
+  if (!window.showDirectoryPicker) {
+    alert("Your browser doesn't support the folder picker. Please use Chrome or Edge (desktop).");
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker({ id: "vault", mode: "read" });
+    await useHandle(handle, true);
+  } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Could not open folder."); } }
+}
+
+async function ensurePermission(handle) {
+  const opts = { mode: "read" };
+  if ((await handle.queryPermission(opts)) === "granted") return true;
+  if ((await handle.requestPermission(opts)) === "granted") return true;
+  return false;
+}
+
+async function useHandle(handle, save) {
+  if (!(await ensurePermission(handle))) { toast("Permission denied."); return; }
+  state.rootHandle = handle;
+  state.rootName = handle.name;
+  $("#vaultPath").textContent = handle.name;
+  $("#reloadBtn").style.display = "";
+  if (save) { try { await DB.set("root", handle); } catch (_) {} }
+  state.history = []; state.histIndex = -1; updateNavButtons();
+  await rescan();
+}
+
+async function rescan() {
+  if (!state.rootHandle) return;
+  toast("Scanning vault…");
+  state.nodesByPath.clear(); state.filesByBase.clear(); state.filesByPath.clear();
+  state.forwardLinks.clear(); state.tagsByFile.clear(); state.filesByTag.clear();
+  const root = { name: state.rootName, kind: "dir", path: "", handle: state.rootHandle, children: [] };
+  await walk(state.rootHandle, root, "");
+  sortTree(root);
+  indexFiles(root);
+  renderTree(root);
+  const n = state.filesByPath.size;
+  $("#fileCount").textContent = n + " markdown file" + (n === 1 ? "" : "s");
+  toast("Indexing links & tags…");
+  await buildLinkGraph(root);
+  renderTags();
+  if (!state.activePath) openIndexNote();
+  if (state.activePath && state.nodesByPath.has(state.activePath)) renderBacklinks(state.activePath);
+  if (state.view === "graph") { buildGraphData(); startGraph(); }
+  toast("Loaded " + n + " notes.");
+}
+
+function openIndexNote(){
+  const prefer = ["index.md", "readme.md", "home.md", "index", "readme", "home"];
+  for (const cand of prefer) { const node = state.filesByPath.get(cand); if (node) { openFile(node.path); return; } }
+}
+
+const IGNORE = new Set([".git", ".obsidian", ".vscode", "node_modules", ".trash"]);
+async function walk(dirHandle, node, prefix) {
+  for await (const [name, h] of dirHandle.entries()) {
+    if (h.kind === "directory") {
+      if (IGNORE.has(name)) continue;
+      const path = prefix + name + "/";
+      const child = { name, kind: "dir", path, handle: h, children: [] };
+      node.children.push(child);
+      await walk(h, child, path);
+    } else if (name.toLowerCase().endsWith(".md")) {
+      const path = prefix + name;
+      node.children.push({ name, kind: "file", path, handle: h, children: null });
+    }
+  }
+}
+
+function sortTree(node) {
+  if (!node.children) return;
+  node.children.sort((a, b) => {
+    if (a.kind !== b.kind) return a.kind === "dir" ? -1 : 1;
+    return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
+  });
+  node.children.forEach(sortTree);
+}
+
+function countFiles(node) {
+  if (node.kind === "file") return 1;
+  return node.children.reduce((s, c) => s + countFiles(c), 0);
+}
+
+function indexFiles(node) {
+  if (node.kind === "file") {
+    state.nodesByPath.set(node.path, node);
+    const base = node.name.replace(/\.md$/i, "").toLowerCase();
+    if (!state.filesByBase.has(base)) state.filesByBase.set(base, []);
+    state.filesByBase.get(base).push(node);
+    state.filesByPath.set(node.path.replace(/\.md$/i, "").toLowerCase(), node);
+    state.filesByPath.set(node.path.toLowerCase(), node);
+  } else if (node.children) {
+    node.children.forEach(indexFiles);
+  }
+}
+
+/* -------- Render sidebar tree -------- */
+const DIR_OPEN = "📂", DIR_CLOSED = "📁", FILE_IC = "📄";
+function renderTree(root) {
+  const tree = $("#tree"); tree.innerHTML = "";
+  root.children.forEach(c => tree.appendChild(renderNode(c, 0)));
+}
+
+function renderNode(node, depth) {
+  const el = document.createElement("div");
+  el.className = "node" + (node.kind === "dir" ? " collapsed" : "");
+  el.dataset.path = node.path;
+
+  const row = document.createElement("div");
+  row.className = "row";
+  if (node.kind === "dir") {
+    const cnt = countFiles(node);
+    row.innerHTML = `<span class="chev">▾</span><span class="ic">${DIR_CLOSED}</span>` +
+                    `<span class="lbl"></span><span class="cnt">${cnt}</span>`;
+    row.querySelector(".lbl").textContent = node.name;
+    row.addEventListener("click", () => {
+      el.classList.toggle("collapsed");
+      row.querySelector(".ic").textContent = el.classList.contains("collapsed") ? DIR_CLOSED : DIR_OPEN;
+    });
+    const kids = document.createElement("div");
+    kids.className = "children";
+    node.children.forEach(c => kids.appendChild(renderNode(c, depth + 1)));
+    el.appendChild(row); el.appendChild(kids);
+  } else {
+    row.innerHTML = `<span class="chev" style="visibility:hidden">▾</span>` +
+                    `<span class="ic">${FILE_IC}</span><span class="lbl"></span>`;
+    row.querySelector(".lbl").textContent = node.name.replace(/\.md$/i, "");
+    row.dataset.path = node.path;
+    row.addEventListener("click", () => openFile(node.path));
+    el.appendChild(row);
+  }
+  return el;
+}
+
+function markActive(path) {
+  document.querySelectorAll(".row.active").forEach(r => r.classList.remove("active"));
+  const row = document.querySelector(`.row[data-path="${cssEscape(path)}"]`);
+  if (row) {
+    row.classList.add("active");
+    // expand ancestors
+    let p = row.closest(".node");
+    while (p) { p.classList.remove("collapsed");
+      const ic = p.querySelector(":scope > .row > .ic"); if (ic && ic.textContent === DIR_CLOSED) ic.textContent = DIR_OPEN;
+      p = p.parentElement ? p.parentElement.closest(".node") : null; }
+    row.scrollIntoView({ block: "nearest" });
+  }
+}
+function cssEscape(s){ return s.replace(/["\\]/g, "\\$&"); }
+
+/* -------- Open + render a file -------- */
+async function openFile(path, fromHistory) {
+  const node = state.nodesByPath.get(path);
+  if (!node) { toast("File not found: " + path); return; }
+  if (!fromHistory && state.history[state.histIndex] !== path) {
+    if (state.histIndex < state.history.length - 1) state.history = state.history.slice(0, state.histIndex + 1);
+    state.history.push(path); state.histIndex = state.history.length - 1;
+  }
+  updateNavButtons();
+  state.activePath = path;
+  markActive(path);
+  let text = state.textCache.get(path);
+  if (text == null) {
+    try { const f = await node.handle.getFile(); text = await f.text(); state.textCache.set(path, text); }
+    catch (e) { console.error(e); $("#reader").innerHTML = `<p style="color:var(--amber)">Couldn't read this file.</p>`; return; }
+  }
+
+  const { fm, body } = splitFrontmatter(text);
+  const reader = $("#reader");
+  reader.innerHTML = "";
+  if (fm) reader.appendChild(renderFrontmatter(fm));
+  const md = document.createElement("div");
+  md.className = "md";
+  md.innerHTML = renderMarkdown(body, path);
+  reader.appendChild(md);
+  wireInternalLinks(md, path);
+  renderCrumbs(path);
+  renderBacklinks(path);
+  $(".reader-wrap").scrollTop = 0;
+}
+
+/* -------- Backlinks (reverse link graph) -------- */
+function collectLinks(text) {
+  const out = [];
+  const lines = text.split(/\r?\n/);
+  for (const raw of lines) {
+    const line = raw.trim();
+    let m;
+    const wl = /\[\[([^\]|#]+)(?:[#|][^\]]*)?\]\]/g;
+    while ((m = wl.exec(line))) out.push({ targetRaw: m[1].trim(), context: line });
+    const ml = /\[[^\]]+\]\(([^)\s]+?\.md)(?:#[^)]*)?\)/g;
+    while ((m = ml.exec(line))) if (!/^https?:/i.test(m[1])) out.push({ targetRaw: m[1].trim(), context: line });
+  }
+  return out;
+}
+
+async function buildLinkGraph(root) {
+  state.linkGraph = new Map();
+  const files = [];
+  (function collect(n){ if (n.kind === "file") files.push(n); else if (n.children) n.children.forEach(collect); })(root);
+  for (const node of files) {
+    let text = state.textCache.get(node.path);
+    if (text == null) {
+      try { const f = await node.handle.getFile(); text = await f.text(); state.textCache.set(node.path, text); }
+      catch (_) { continue; }
+    }
+    // frontmatter tags
+    const fm = splitFrontmatter(text).fm;
+    let tags = [];
+    if (fm && fm.tags != null) {
+      const raw = Array.isArray(fm.tags) ? fm.tags : String(fm.tags).split(/[,\s]+/);
+      tags = raw.map(t => String(t).replace(/^#/, "").trim().toLowerCase()).filter(Boolean);
+    }
+    state.tagsByFile.set(node.path, tags);
+    tags.forEach(t => { if (!state.filesByTag.has(t)) state.filesByTag.set(t, new Set()); state.filesByTag.get(t).add(node.path); });
+    // links (reverse + forward)
+    if (!state.forwardLinks.has(node.path)) state.forwardLinks.set(node.path, new Set());
+    const seen = new Set();
+    for (const { targetRaw, context } of collectLinks(text)) {
+      const tgt = resolveTarget(targetRaw, node.path);
+      if (!tgt || tgt.path === node.path) continue;
+      state.forwardLinks.get(node.path).add(tgt.path);
+      if (seen.has(tgt.path)) continue;
+      seen.add(tgt.path);
+      if (!state.linkGraph.has(tgt.path)) state.linkGraph.set(tgt.path, []);
+      state.linkGraph.get(tgt.path).push({
+        path: node.path,
+        name: node.name.replace(/\.md$/i, ""),
+        context: highlightContext(context, targetRaw),
+      });
+    }
+  }
+  state.allTags = [...state.filesByTag.entries()].map(([t, s]) => [t, s.size])
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+
+function highlightContext(line, target) {
+  let s = line.replace(/^#+\s*/, "").replace(/^\s*[-*+]\s+/, "").replace(/^>\s?/, "");
+  if (s.length > 220) {
+    const idx = s.toLowerCase().indexOf(target.toLowerCase());
+    if (idx > 90) s = "…" + s.slice(idx - 40);
+    s = s.slice(0, 220) + "…";
+  }
+  const e = esc(s);
+  const base = esc(target.replace(/\.md$/i, "").split("/").pop());
+  try { return e.replace(new RegExp("(" + base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "i"), "<mark>$1</mark>"); }
+  catch (_) { return e; }
+}
+
+function renderBacklinks(path) {
+  const panel = $("#backlinks"), list = $("#blList"), cnt = $("#blCount");
+  const items = (state.linkGraph.get(path) || []).slice()
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  cnt.textContent = items.length;
+  list.innerHTML = "";
+  if (!items.length) {
+    list.innerHTML = '<div class="bl-empty">No notes link here yet.<br>Backlinks appear when other notes reference this one via <code>[[wikilink]]</code> or a relative <code>.md</code> link.</div>';
+  } else {
+    for (const it of items) {
+      const d = document.createElement("div"); d.className = "bl-item"; d.title = it.path;
+      const dir = it.path.includes("/") ? it.path.slice(0, it.path.lastIndexOf("/")) : "";
+      d.innerHTML = `<div class="bl-name"></div>${dir ? `<div class="bl-path"></div>` : ""}<div class="bl-ctx">${it.context}</div>`;
+      d.querySelector(".bl-name").textContent = it.name;
+      if (dir) d.querySelector(".bl-path").textContent = dir + "/";
+      d.addEventListener("click", () => openFile(it.path));
+      list.appendChild(d);
+    }
+  }
+  if (localStorage.getItem("vault-backlinks") !== "off") panel.classList.add("show");
+}
+
+function renderCrumbs(path) {
+  const parts = path.split("/").filter(Boolean);
+  const c = $("#crumbs"); c.innerHTML = "";
+  const root = document.createElement("span"); root.className = "seg"; root.textContent = state.rootName;
+  c.appendChild(root);
+  parts.forEach((p, i) => {
+    const sep = document.createElement("span"); sep.className = "sep"; sep.textContent = "  ›  "; c.appendChild(sep);
+    const seg = document.createElement("span"); seg.className = "seg"; seg.textContent = p.replace(/\.md$/i, ""); c.appendChild(seg);
+  });
+}
+
+/* -------- Frontmatter -------- */
+function splitFrontmatter(text) {
+  const m = text.match(/^\uFEFF?---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  if (!m) return { fm: null, body: text };
+  return { fm: parseYaml(m[1]), body: text.slice(m[0].length) };
+}
+function parseYaml(src) {
+  const out = {};
+  src.split(/\r?\n/).forEach(line => {
+    if (!line.trim() || /^\s*#/.test(line)) return;
+    const m = line.match(/^([A-Za-z0-9_\-]+)\s*:\s*(.*)$/);
+    if (!m) return;
+    let [, k, v] = m; v = v.trim();
+    if (v.startsWith("[") && v.endsWith("]")) {
+      out[k] = v.slice(1, -1).split(",").map(s => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+    } else {
+      out[k] = v.replace(/^["']|["']$/g, "");
+    }
+  });
+  return out;
+}
+function renderFrontmatter(fm) {
+  const wrap = document.createElement("div"); wrap.className = "fm";
+  wrap.innerHTML = `<div class="fm-title">Frontmatter</div>`;
+  const tbl = document.createElement("table");
+  for (const [k, v] of Object.entries(fm)) {
+    const tr = document.createElement("tr");
+    const tdK = document.createElement("td"); tdK.className = "k"; tdK.textContent = k;
+    const tdV = document.createElement("td");
+    if (Array.isArray(v)) v.forEach(item => {
+      const t = document.createElement("span"); t.className = "tag"; t.textContent = item; tdV.appendChild(t);
+    });
+    else tdV.textContent = v;
+    tr.appendChild(tdK); tr.appendChild(tdV); tbl.appendChild(tr);
+  }
+  wrap.appendChild(tbl); return wrap;
+}
+
+/* -------- Internal link navigation (wikilinks + relative .md) -------- */
+function wireInternalLinks(container, fromPath) {
+  container.querySelectorAll("a[data-target]").forEach(a => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const t = resolveTarget(a.dataset.target, fromPath);
+      if (t) openFile(t.path); else toast("No note found for “" + a.dataset.target + "”");
+    });
+  });
+}
+function resolveTarget(target, fromPath) {
+  let t = target.split("#")[0].trim();
+  if (!t) return null;
+  const low = t.toLowerCase();
+  // 1) exact relative path (with or without .md)
+  if (state.filesByPath.has(low)) return state.filesByPath.get(low);
+  if (state.filesByPath.has(low + ".md")) return state.filesByPath.get(low + ".md");
+  // 2) resolve relative to current file's folder
+  const dir = fromPath.includes("/") ? fromPath.slice(0, fromPath.lastIndexOf("/") + 1) : "";
+  const joined = normalizePath(dir + t).toLowerCase();
+  if (state.filesByPath.has(joined)) return state.filesByPath.get(joined);
+  if (state.filesByPath.has(joined + ".md")) return state.filesByPath.get(joined + ".md");
+  // 3) basename match (wikilink style)
+  const base = t.replace(/\.md$/i, "").split("/").pop().toLowerCase();
+  if (state.filesByBase.has(base)) return state.filesByBase.get(base)[0];
+  return null;
+}
+function normalizePath(p) {
+  const parts = p.split("/"); const stack = [];
+  for (const seg of parts) {
+    if (seg === "" || seg === ".") continue;
+    if (seg === "..") stack.pop(); else stack.push(seg);
+  }
+  return stack.join("/");
+}
+function targetExists(target) {
+  return !!resolveTarget(target, state.activePath || "");
+}
+
+/* ============================================================
+   Minimal, dependency-free Markdown renderer
+   Supports: headings, bold/italic/strike, inline+fenced code,
+   lists (nested, tasks), blockquotes, tables, hr, links,
+   images, [[wikilinks]], autolinks, escaping.
+   ============================================================ */
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function escAttr(s){ return s.replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+function renderInline(text) {
+  // protect inline code
+  const codes = [];
+  text = text.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return "\u0000C" + (codes.length-1) + "\u0000"; });
+  text = esc(text);
+  // images ![alt](src)
+  text = text.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g,
+    (_, alt, src) => `<img alt="${escAttr(alt)}" src="${escAttr(src)}">`);
+  // wikilinks [[target|alias]] or [[target]]
+  text = text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, tgt, alias) => {
+    const label = (alias || tgt).trim();
+    const broken = targetExists(tgt.trim()) ? "" : " broken";
+    return `<a class="wikilink${broken}" data-target="${escAttr(tgt.trim())}" href="#">${esc(label)}</a>`;
+  });
+  // standard links [text](url)
+  text = text.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (_, label, url) => {
+    const isMd = /\.md($|#)/i.test(url) && !/^https?:/i.test(url);
+    const rel = !/^(https?:|mailto:|#|\/)/i.test(url);
+    if (isMd || rel) return `<a data-target="${escAttr(url)}" href="#">${label}</a>`;
+    return `<a href="${escAttr(url)}" target="_blank" rel="noopener">${label}</a>`;
+  });
+  // bold, italic, strike
+  text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+             .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+             .replace(/\b__([^_]+)__\b/g, "<strong>$1</strong>")
+             .replace(/~~([^~]+)~~/g, "<del>$1</del>");
+  // bare URLs
+  text = text.replace(/(^|[\s(])(https?:\/\/[^\s)<]+)/g,
+    (_, pre, url) => `${pre}<a href="${escAttr(url)}" target="_blank" rel="noopener">${url}</a>`);
+  // restore code
+  text = text.replace(/\u0000C(\d+)\u0000/g, (_, i) => `<code>${esc(codes[+i])}</code>`);
+  return text;
+}
+
+function renderMarkdown(src, path) {
+  const lines = src.replace(/\r\n/g, "\n").split("\n");
+  let html = "", i = 0;
+
+  while (i < lines.length) {
+    let line = lines[i];
+
+    // fenced code
+    const fence = line.match(/^\s*```(.*)$/);
+    if (fence) {
+      const lang = fence[1].trim(); const buf = [];
+      i++;
+      while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+      i++; // closing fence
+      html += `<pre><code${lang ? ` class="lang-${escAttr(lang)}"` : ""}>${esc(buf.join("\n"))}</code></pre>`;
+      continue;
+    }
+
+    // blank
+    if (/^\s*$/.test(line)) { i++; continue; }
+
+    // hr
+    if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { html += "<hr>"; i++; continue; }
+
+    // heading
+    const h = line.match(/^(#{1,6})\s+(.*)$/);
+    if (h) { const lvl = h[1].length; html += `<h${lvl}>${renderInline(h[2].trim())}</h${lvl}>`; i++; continue; }
+
+    // blockquote (consume consecutive)
+    if (/^\s*>/.test(line)) {
+      const buf = [];
+      while (i < lines.length && /^\s*>/.test(lines[i])) { buf.push(lines[i].replace(/^\s*>\s?/, "")); i++; }
+      html += `<blockquote>${renderMarkdown(buf.join("\n"), path)}</blockquote>`;
+      continue;
+    }
+
+    // table
+    if (line.includes("|") && i + 1 < lines.length && /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(lines[i+1]) && lines[i+1].includes("-")) {
+      const header = splitRow(line);
+      const aligns = splitRow(lines[i+1]).map(c => {
+        const l = c.startsWith(":"), r = c.endsWith(":");
+        return r && l ? "center" : r ? "right" : l ? "left" : "";
+      });
+      i += 2;
+      const rows = [];
+      while (i < lines.length && lines[i].includes("|") && lines[i].trim() !== "") { rows.push(splitRow(lines[i])); i++; }
+      let t = "<table><thead><tr>";
+      header.forEach((c, x) => t += `<th${aligns[x] ? ` style="text-align:${aligns[x]}"` : ""}>${renderInline(c)}</th>`);
+      t += "</tr></thead><tbody>";
+      rows.forEach(r => { t += "<tr>"; header.forEach((_, x) => t += `<td${aligns[x] ? ` style="text-align:${aligns[x]}"` : ""}>${renderInline(r[x] || "")}</td>`); t += "</tr>"; });
+      t += "</tbody></table>";
+      html += t; continue;
+    }
+
+    // lists (ordered/unordered, nested by indent, task items)
+    if (/^\s*([-*+]|\d+[.)])\s+/.test(line)) {
+      const { htmlOut, next } = parseList(lines, i);
+      html += htmlOut; i = next; continue;
+    }
+
+    // paragraph (gather until blank / block start)
+    const buf = [line];
+    i++;
+    while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+           !/^\s*(#{1,6}\s|>|```|[-*+]\s|\d+[.)]\s)/.test(lines[i]) &&
+           !/^\s*([-*_])(\s*\1){2,}\s*$/.test(lines[i])) {
+      buf.push(lines[i]); i++;
+    }
+    html += `<p>${renderInline(buf.join(" ").trim())}</p>`;
+  }
+  return html;
+}
+
+function splitRow(line) {
+  let s = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+  return s.split(/(?<!\\)\|/).map(c => c.replace(/\\\|/g, "|").trim());
+}
+
+function parseList(lines, start) {
+  function indentOf(l){ const m = l.match(/^(\s*)/); return m[1].replace(/\t/g,"    ").length; }
+  const baseIndent = indentOf(lines[start]);
+  const ordered = /^\s*\d+[.)]\s+/.test(lines[start]);
+  let i = start, items = [];
+  while (i < lines.length) {
+    const l = lines[i];
+    if (/^\s*$/.test(l)) {
+      // allow single blank inside list if next line is deeper/continuation
+      if (i+1 < lines.length && /^\s*([-*+]|\d+[.)])\s+/.test(lines[i+1]) && indentOf(lines[i+1]) >= baseIndent) { i++; continue; }
+      break;
+    }
+    const ind = indentOf(l);
+    if (ind < baseIndent || !/^\s*([-*+]|\d+[.)])\s+/.test(l)) break;
+    if (ind > baseIndent) { // nested — handled inside item loop below; shouldn't hit
+      i++; continue;
+    }
+    const m = l.match(/^\s*(?:[-*+]|\d+[.)])\s+(.*)$/);
+    let content = m[1];
+    const sub = [];
+    i++;
+    // gather nested / continuation lines
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && indentOf(lines[i]) > baseIndent) { sub.push(lines[i]); i++; }
+    items.push({ content, sub });
+  }
+  let out = ordered ? "<ol>" : "<ul>";
+  items.forEach(it => {
+    let task = "";
+    let c = it.content;
+    const tm = c.match(/^\[([ xX])\]\s+(.*)$/);
+    if (tm) { const checked = tm[1].toLowerCase() === "x"; task = "task"; 
+      c = `<input type="checkbox" disabled ${checked ? "checked" : ""}>` + renderInline(tm[2]); }
+    else c = renderInline(c);
+    let inner = c;
+    if (it.sub.length) {
+      const dedent = it.sub.map(s => s.replace(/^\s{2,}/, m => m.slice(2))); // rough dedent
+      inner += renderMarkdown(dedent.join("\n"));
+    }
+    out += `<li${task ? ' class="task"' : ""}>${inner}</li>`;
+  });
+  out += ordered ? "</ol>" : "</ul>";
+  return { htmlOut: out, next: i };
+}
+
+/* -------- Search / filter -------- */
+/* -------- Navigation history (back / forward) -------- */
+function updateNavButtons(){
+  const b = $("#navBack"), f = $("#navFwd");
+  if (b) b.disabled = state.histIndex <= 0;
+  if (f) f.disabled = state.histIndex >= state.history.length - 1;
+}
+function navBack(){ if (state.histIndex > 0) { state.histIndex--; openFile(state.history[state.histIndex], true); } }
+function navFwd(){ if (state.histIndex < state.history.length - 1) { state.histIndex++; openFile(state.history[state.histIndex], true); } }
+
+/* -------- Full-text + filename search -------- */
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+function hl(text, q){ try { return esc(text).replace(new RegExp("(" + escRe(q) + ")", "ig"), "<mark>$1</mark>"); } catch (_) { return esc(text); } }
+function snippetAround(text, q){
+  const low = text.toLowerCase(), i = low.indexOf(q.toLowerCase());
+  if (i < 0) return null;
+  const start = Math.max(0, i - 55), end = Math.min(text.length, i + q.length + 100);
+  const s = text.slice(start, end).replace(/\s+/g, " ").trim();
+  return (start > 0 ? "… " : "") + s + (end < text.length ? " …" : "");
+}
+function filesPassingTags(){
+  if (!state.activeTags.size) return null;
+  const need = [...state.activeTags], set = new Set();
+  for (const [path, tags] of state.tagsByFile) if (need.every(t => tags.includes(t))) set.add(path);
+  return set;
+}
+let searchT;
+function onSearchInput(v){ clearTimeout(searchT); searchT = setTimeout(() => runSearch(v), 130); }
+function runSearch(q){
+  q = q.trim();
+  const tree = $("#tree"), results = $("#results"), tagsPanel = $("#tagsPanel");
+  if (!q) { results.classList.remove("show"); results.innerHTML = ""; tree.style.display = ""; tagsPanel.style.display = state.allTags.length ? "" : "none"; applyTagFilter(); return; }
+  tree.style.display = "none"; tagsPanel.style.display = "none"; results.classList.add("show");
+  const scope = filesPassingTags(), ql = q.toLowerCase(), hits = [];
+  for (const [path, node] of state.nodesByPath) {
+    if (scope && !scope.has(path)) continue;
+    const nameMatch = node.name.toLowerCase().includes(ql);
+    const text = state.textCache.get(path) || "";
+    const bodyIdx = text.toLowerCase().indexOf(ql);
+    if (!nameMatch && bodyIdx < 0) continue;
+    hits.push({ node, path, nameMatch, snip: bodyIdx >= 0 ? snippetAround(text, q) : null });
+  }
+  hits.sort((a, b) => (b.nameMatch - a.nameMatch) || a.node.name.localeCompare(b.node.name, undefined, { sensitivity: "base" }));
+  results.innerHTML = "";
+  if (!hits.length) { results.innerHTML = '<div class="res-empty">No matches for “' + esc(q) + '”.</div>'; $("#fileCount").textContent = "0 results"; return; }
+  $("#fileCount").textContent = hits.length + " result" + (hits.length === 1 ? "" : "s");
+  const frag = document.createDocumentFragment();
+  for (const h of hits.slice(0, 300)) {
+    const d = document.createElement("div"); d.className = "res-item"; d.title = h.path;
+    const dir = h.path.includes("/") ? h.path.slice(0, h.path.lastIndexOf("/")) : "";
+    const nm = h.node.name.replace(/\.md$/i, "");
+    d.innerHTML = `<div class="res-name">${hl(nm, q)}${h.nameMatch ? '<span class="badge-t">name</span>' : ""}</div>` +
+                  (dir ? `<div class="res-path">${esc(dir)}/</div>` : "") +
+                  (h.snip ? `<div class="res-snip">${hl(h.snip, q)}</div>` : "");
+    d.addEventListener("click", () => openFile(h.path));
+    frag.appendChild(d);
+  }
+  results.appendChild(frag);
+}
+
+/* -------- Tag filtering -------- */
+function renderTags(){
+  const body = $("#tagsBody"), panel = $("#tagsPanel"), title = $("#tagsTitle");
+  body.innerHTML = "";
+  if (!state.allTags.length) { title.textContent = "Tags"; panel.style.display = "none"; return; }
+  panel.style.display = "";
+  if (!panel.dataset.init) { panel.classList.add("open"); panel.dataset.init = "1"; }
+  title.textContent = "Tags (" + state.allTags.length + ")";
+  for (const [tag, count] of state.allTags) {
+    const c = document.createElement("span");
+    c.className = "tag-chip" + (state.activeTags.has(tag) ? " active" : "");
+    c.innerHTML = "#" + esc(tag) + '<span class="n">' + count + "</span>";
+    c.addEventListener("click", () => toggleTag(tag));
+    body.appendChild(c);
+  }
+  panel.classList.toggle("has-active", state.activeTags.size > 0);
+}
+function toggleTag(tag){
+  if (state.activeTags.has(tag)) state.activeTags.delete(tag); else state.activeTags.add(tag);
+  renderTags();
+  if ($("#search").value.trim()) runSearch($("#search").value); else applyTagFilter();
+}
+function clearTags(){ state.activeTags.clear(); renderTags(); if ($("#search").value.trim()) runSearch($("#search").value); else applyTagFilter(); }
+function applyTagFilter(){
+  const scope = filesPassingTags();
+  const nodes = document.querySelectorAll("#tree .node");
+  if (!scope) {
+    nodes.forEach(n => { n.classList.remove("hidden"); if (n.querySelector(":scope > .children")) n.classList.add("collapsed");
+      const ic = n.querySelector(":scope > .row > .ic"); if (ic && ic.textContent === DIR_OPEN) ic.textContent = DIR_CLOSED; });
+    const t = state.filesByPath.size; $("#fileCount").textContent = t + " markdown file" + (t === 1 ? "" : "s"); return;
+  }
+  nodes.forEach(n => n.classList.add("hidden"));
+  let cnt = 0;
+  document.querySelectorAll('#tree .node[data-path]').forEach(n => {
+    if (n.querySelector(":scope > .children")) return;
+    if (scope.has(n.dataset.path)) {
+      cnt++; n.classList.remove("hidden");
+      let p = n.parentElement ? n.parentElement.closest(".node") : null;
+      while (p) { p.classList.remove("hidden", "collapsed");
+        const ic = p.querySelector(":scope > .row > .ic"); if (ic) ic.textContent = DIR_OPEN;
+        p = p.parentElement ? p.parentElement.closest(".node") : null; }
+    }
+  });
+  $("#fileCount").textContent = cnt + " of " + state.filesByPath.size + " · tag filter";
+}
+
+/* ============================================================
+   Graph view — force-directed canvas, dependency-free
+   ============================================================ */
+const G = { nodes: [], edges: [], byId: new Map(), raf: null, alpha: 0, tr: { k: 1, x: 0, y: 0 },
+  hover: null, drag: null, down: null, moved: false, initialized: false };
+const FOLDER_COLORS = {};
+const PALETTE = ["#6ea8fe","#7ee0a1","#f0c674","#e0779e","#a06efe","#5fd0c8","#f0895a","#9db2c8","#c586f0","#6fd0f0","#d0a15f"];
+function folderColor(folder){
+  if (!(folder in FOLDER_COLORS)) FOLDER_COLORS[folder] = PALETTE[Object.keys(FOLDER_COLORS).length % PALETTE.length];
+  return FOLDER_COLORS[folder];
+}
+function topFolder(path){ const i = path.indexOf("/"); return i < 0 ? "(root)" : path.slice(0, i); }
+
+function buildGraphData(){
+  const hideOrphans = $("#hideOrphans").checked;
+  const deg = new Map(), edges = [], seen = new Set();
+  for (const [src, targets] of state.forwardLinks) {
+    for (const tgt of targets) {
+      if (!state.nodesByPath.has(tgt) || !state.nodesByPath.has(src)) continue;
+      const key = src < tgt ? src + "|" + tgt : tgt + "|" + src;
+      if (seen.has(key)) continue; seen.add(key);
+      edges.push({ s: src, t: tgt });
+      deg.set(src, (deg.get(src) || 0) + 1); deg.set(tgt, (deg.get(tgt) || 0) + 1);
+    }
+  }
+  const nodes = [], total = state.nodesByPath.size || 1;
+  const R = Math.min(window.innerWidth, window.innerHeight) * 0.38;
+  let idx = 0;
+  for (const [path, node] of state.nodesByPath) {
+    const d = deg.get(path) || 0;
+    if (hideOrphans && d === 0) continue;
+    const ang = (idx / total) * Math.PI * 2;
+    nodes.push({ id: path, label: node.name.replace(/\.md$/i, ""), folder: topFolder(path), deg: d,
+      x: Math.cos(ang) * R + (Math.random() - .5) * 50, y: Math.sin(ang) * R + (Math.random() - .5) * 50, vx: 0, vy: 0, fx: 0, fy: 0 });
+    idx++;
+  }
+  G.nodes = nodes; G.byId = new Map(nodes.map(n => [n.id, n]));
+  G.edges = edges.filter(e => G.byId.has(e.s) && G.byId.has(e.t));
+  G.alpha = 1;
+  renderLegend(); fitGraph();
+}
+function renderLegend(){
+  const folders = [...new Set(G.nodes.map(n => n.folder))].sort();
+  $("#graphLegend").innerHTML =
+    "<div style='font-weight:600;color:var(--text-dim);margin-bottom:5px'>" + G.nodes.length + " notes · " + G.edges.length + " links</div>" +
+    folders.map(f => `<div class="lg"><span class="dot" style="background:${folderColor(f)}"></span>${esc(f)}</div>`).join("");
+}
+function fitGraph(){ const cv = $("#graphCanvas"); G.tr = { k: 1, x: cv.clientWidth / 2, y: cv.clientHeight / 2 }; }
+function resizeCanvas(){
+  const cv = $("#graphCanvas"), dpr = window.devicePixelRatio || 1;
+  cv.width = cv.clientWidth * dpr; cv.height = cv.clientHeight * dpr;
+  cv.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function tickGraph(){
+  const n = G.nodes, repulse = 5200, linkDist = 66, linkK = 0.03, gravity = 0.016, damp = 0.85, a = G.alpha;
+  for (let i = 0; i < n.length; i++) { n[i].fx = 0; n[i].fy = 0; }
+  for (let i = 0; i < n.length; i++) {
+    for (let j = i + 1; j < n.length; j++) {
+      let dx = n[i].x - n[j].x, dy = n[i].y - n[j].y, d2 = dx*dx + dy*dy + 0.01, d = Math.sqrt(d2);
+      let f = Math.min(repulse / d2, 400), ux = dx / d, uy = dy / d;
+      n[i].fx += ux*f; n[i].fy += uy*f; n[j].fx -= ux*f; n[j].fy -= uy*f;
+    }
+  }
+  for (const ed of G.edges) {
+    const s = G.byId.get(ed.s), t = G.byId.get(ed.t);
+    let dx = t.x - s.x, dy = t.y - s.y, d = Math.sqrt(dx*dx + dy*dy) + 0.01;
+    let f = (d - linkDist) * linkK, ux = dx / d, uy = dy / d;
+    s.fx += ux*f; s.fy += uy*f; t.fx -= ux*f; t.fy -= uy*f;
+  }
+  for (const nd of n) {
+    if (nd === G.drag) continue;
+    nd.fx += -nd.x * gravity; nd.fy += -nd.y * gravity;
+    nd.vx = (nd.vx + nd.fx * a) * damp; nd.vy = (nd.vy + nd.fy * a) * damp;
+    nd.x += nd.vx; nd.y += nd.vy;
+  }
+  G.alpha *= 0.985;
+}
+function drawGraph(){
+  const cv = $("#graphCanvas"), ctx = cv.getContext("2d");
+  ctx.clearRect(0, 0, cv.clientWidth, cv.clientHeight);
+  ctx.save(); ctx.translate(G.tr.x, G.tr.y); ctx.scale(G.tr.k, G.tr.k);
+  const cs = getComputedStyle(document.documentElement);
+  const edgeCol = cs.getPropertyValue("--border").trim(), accent = cs.getPropertyValue("--accent").trim(), textCol = cs.getPropertyValue("--text").trim();
+  const hoverId = G.hover && G.hover.id, nbr = new Set();
+  if (hoverId) for (const ed of G.edges) { if (ed.s === hoverId) nbr.add(ed.t); if (ed.t === hoverId) nbr.add(ed.s); }
+  ctx.lineWidth = 1 / G.tr.k;
+  for (const ed of G.edges) {
+    const s = G.byId.get(ed.s), t = G.byId.get(ed.t), hot = hoverId && (ed.s === hoverId || ed.t === hoverId);
+    ctx.strokeStyle = hot ? accent : edgeCol;
+    ctx.globalAlpha = hoverId ? (hot ? 0.9 : 0.12) : 0.4;
+    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.font = (11 / G.tr.k) + "px -apple-system,Segoe UI,sans-serif"; ctx.textAlign = "center";
+  for (const nd of G.nodes) {
+    const r = 4 + Math.min(nd.deg, 12) * 1.1, dim = hoverId && nd.id !== hoverId && !nbr.has(nd.id);
+    ctx.globalAlpha = dim ? 0.22 : 1;
+    ctx.beginPath(); ctx.arc(nd.x, nd.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = folderColor(nd.folder); ctx.fill();
+    if (nd.id === hoverId) { ctx.lineWidth = 2 / G.tr.k; ctx.strokeStyle = textCol; ctx.stroke(); }
+    if (G.tr.k > 1.25 || nd.id === hoverId || nbr.has(nd.id) || nd.deg >= 6) {
+      ctx.fillStyle = textCol; ctx.fillText(nd.label, nd.x, nd.y - r - 3 / G.tr.k);
+    }
+  }
+  ctx.globalAlpha = 1; ctx.restore();
+}
+function frame(){ if (G.alpha > 0.02 || G.drag) tickGraph(); drawGraph(); G.raf = requestAnimationFrame(frame); }
+function startGraph(){ resizeCanvas(); if (!G.raf) frame(); }
+function stopGraph(){ if (G.raf) { cancelAnimationFrame(G.raf); G.raf = null; } }
+function screenToWorld(mx, my){ return { x: (mx - G.tr.x) / G.tr.k, y: (my - G.tr.y) / G.tr.k }; }
+function nodeAt(mx, my){
+  const w = screenToWorld(mx, my); let best = null, bd = Infinity;
+  for (const nd of G.nodes) { const r = 4 + Math.min(nd.deg, 12) * 1.1 + 5, dx = nd.x - w.x, dy = nd.y - w.y, d = dx*dx + dy*dy;
+    if (d < r*r && d < bd) { bd = d; best = nd; } }
+  return best;
+}
+function initGraphEvents(){
+  const cv = $("#graphCanvas"), tip = $("#graphTip");
+  cv.addEventListener("mousedown", ev => {
+    const rect = cv.getBoundingClientRect(), mx = ev.clientX - rect.left, my = ev.clientY - rect.top, nd = nodeAt(mx, my);
+    G.down = { mx, my, tx: G.tr.x, ty: G.tr.y }; G.moved = false; if (nd) G.drag = nd;
+  });
+  window.addEventListener("mousemove", ev => {
+    if (state.view !== "graph") return;
+    const cv2 = $("#graphCanvas"), rect = cv2.getBoundingClientRect(), mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    if (G.down) {
+      if (Math.abs(mx - G.down.mx) + Math.abs(my - G.down.my) > 3) G.moved = true;
+      if (G.drag) { const w = screenToWorld(mx, my); G.drag.x = w.x; G.drag.y = w.y; G.drag.vx = 0; G.drag.vy = 0; G.alpha = Math.max(G.alpha, 0.3); }
+      else { G.tr.x = G.down.tx + (mx - G.down.mx); G.tr.y = G.down.ty + (my - G.down.my); }
+      return;
+    }
+    const nd = nodeAt(mx, my); G.hover = nd;
+    if (nd) { tip.innerHTML = `<div class="t-name">${esc(nd.label)}</div><div class="t-meta">${esc(nd.folder)} · ${nd.deg} link${nd.deg === 1 ? "" : "s"}</div>`;
+      tip.style.left = (mx + 14) + "px"; tip.style.top = (my + 14) + "px"; tip.classList.add("show"); cv2.style.cursor = "pointer"; }
+    else { tip.classList.remove("show"); cv2.style.cursor = ""; }
+  });
+  window.addEventListener("mouseup", () => {
+    if (G.down) { if (G.drag && !G.moved) openFromGraph(G.drag.id); G.drag = null; G.down = null; }
+  });
+  cv.addEventListener("wheel", ev => {
+    ev.preventDefault();
+    const rect = cv.getBoundingClientRect(), mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    const factor = ev.deltaY < 0 ? 1.1 : 1 / 1.1, wx = (mx - G.tr.x) / G.tr.k, wy = (my - G.tr.y) / G.tr.k;
+    G.tr.k = Math.max(0.15, Math.min(5, G.tr.k * factor));
+    G.tr.x = mx - wx * G.tr.k; G.tr.y = my - wy * G.tr.k;
+  }, { passive: false });
+}
+function openFromGraph(path){ setView("notes"); openFile(path); }
+function setView(mode){
+  state.view = mode;
+  document.querySelectorAll("#viewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === mode));
+  const gv = $("#graphView"), nv = $("#notesView"), bl = $("#backlinks");
+  if (mode === "graph") {
+    nv.style.display = "none"; gv.classList.add("show"); bl.classList.remove("show");
+    if (!G.initialized) { initGraphEvents(); G.initialized = true; }
+    buildGraphData(); startGraph();
+    setTimeout(() => { resizeCanvas(); }, 40);
+  } else {
+    gv.classList.remove("show"); nv.style.display = "flex"; stopGraph();
+    if (state.activePath && localStorage.getItem("vault-backlinks") !== "off") bl.classList.add("show");
+  }
+}
+
+/* -------- Wire up UI -------- */
+$("#openBtn").addEventListener("click", pickFolder);
+$("#openBtn2").addEventListener("click", pickFolder);
+$("#reloadBtn").addEventListener("click", rescan);
+$("#search").addEventListener("input", e => onSearchInput(e.target.value));
+$("#expandAll").addEventListener("click", () => document.querySelectorAll("#tree .node").forEach(n => {
+  n.classList.remove("collapsed"); const ic = n.querySelector(":scope > .row > .ic"); if (ic && ic.textContent === DIR_CLOSED) ic.textContent = DIR_OPEN; }));
+$("#collapseAll").addEventListener("click", () => document.querySelectorAll("#tree .node").forEach(n => {
+  if (n.querySelector(":scope > .children")) { n.classList.add("collapsed"); const ic = n.querySelector(":scope > .row > .ic"); if (ic) ic.textContent = DIR_CLOSED; } }));
+
+$("#tagsHead").addEventListener("click", () => $("#tagsPanel").classList.toggle("open"));
+$("#tagsClear").addEventListener("click", e => { e.stopPropagation(); clearTags(); });
+
+$("#navBack").addEventListener("click", navBack);
+$("#navFwd").addEventListener("click", navFwd);
+window.addEventListener("mousedown", e => { if (e.button === 3 || e.button === 4) e.preventDefault(); });
+window.addEventListener("mouseup", e => {
+  if (e.button === 3) { e.preventDefault(); navBack(); }
+  else if (e.button === 4) { e.preventDefault(); navFwd(); }
+});
+
+$("#viewToggle").addEventListener("click", e => { const b = e.target.closest("button[data-view]"); if (b) setView(b.dataset.view); });
+$("#hideOrphans").addEventListener("change", () => { if (state.view === "graph") { buildGraphData(); } });
+$("#graphReset").addEventListener("click", () => { buildGraphData(); });
+window.addEventListener("resize", () => { if (state.view === "graph") resizeCanvas(); });
+
+$("#themeSwitch").addEventListener("click", () => {
+  const el = document.documentElement;
+  const next = el.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  el.setAttribute("data-theme", next); localStorage.setItem("vault-theme", next);
+});
+
+$("#blToggle").addEventListener("click", () => {
+  if (state.view === "graph") return;
+  const panel = $("#backlinks");
+  const showing = panel.classList.toggle("show");
+  localStorage.setItem("vault-backlinks", showing ? "on" : "off");
+});
+if (localStorage.getItem("vault-theme")) document.documentElement.setAttribute("data-theme", localStorage.getItem("vault-theme"));
+
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== $("#search")) { e.preventDefault(); $("#search").focus(); }
+  else if (e.key === "Escape" && document.activeElement === $("#search")) { $("#search").value = ""; runSearch(""); $("#search").blur(); }
+  else if (e.key === "g" && document.activeElement !== $("#search")) { setView(state.view === "graph" ? "notes" : "graph"); }
+  else if (e.altKey && e.key === "ArrowLeft") { e.preventDefault(); navBack(); }
+  else if (e.altKey && e.key === "ArrowRight") { e.preventDefault(); navFwd(); }
+});
+
+/* -------- Try to restore last folder -------- */
+(async function init() {
+  try {
+    const h = await DB.get("root");
+    if (h) {
+      if ((await h.queryPermission({ mode: "read" })) === "granted") { await useHandle(h, false); }
+      else {
+        // show a subtle reopen hint
+        $("#openBtn").textContent = "📂 Reopen “" + h.name + "”";
+        $("#openBtn").addEventListener("click", async () => { await useHandle(h, true); }, { once: true });
+        $("#vaultPath").textContent = "last: " + h.name + " (click Open to grant access)";
+      }
+    }
+  } catch (_) {}
+})();
+</script>
+</body>
+</html>
