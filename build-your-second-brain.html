@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Have Your Microsoft Scout Build Your Second Brain</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-code-bg: #1e2733;
+  --cp-code-fg: #e6edf3;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-code-bg: #1b1b1b;
+  --cp-code-fg: #e6edf3;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 29px; margin: 0 0 8px; line-height: 1.18; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 15px; }
+
+.section-band {
+  background: var(--cp-accent-soft);
+  border: 1px solid var(--cp-border);
+  border-left: 4px solid var(--cp-accent);
+  border-radius: 0 12px 12px 0;
+  padding: 14px 18px;
+  margin: 42px 0 18px;
+}
+.section-band .kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cp-accent); font-weight: 700; margin: 0; }
+.section-band h2 { border: 0; margin: 3px 0 0; padding: 0; font-size: 22px; }
+
+h2 {
+  font-size: 20px;
+  margin: 40px 0 14px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 22px 0 8px; }
+p { margin: 10px 0; }
+ul, ol { margin: 10px 0; padding-left: 22px; }
+li { margin: 5px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin: 20px 0;
+  font-size: 14.5px;
+}
+.callout.warn {
+  border-left-color: var(--cp-warning);
+  background: rgba(245,158,11,0.10);
+}
+.callout .lead { font-weight: 700; display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; color: var(--cp-text-soft); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.12);
+}
+.card h3 { margin: 0 0 6px; font-size: 15px; }
+.card p { margin: 0; font-size: 13.5px; color: var(--cp-text-muted); }
+.card .ico { font-size: 22px; margin-bottom: 6px; display: block; }
+
+.step {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 0 2px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.12);
+}
+.step-head { display: flex; gap: 13px; align-items: baseline; }
+.step-head .badge {
+  flex: 0 0 auto;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em;
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--cp-accent); color: var(--cp-accent-fg);
+}
+.step-head .badge.opt { background: var(--cp-surface-soft); color: var(--cp-text-muted); border: 1px solid var(--cp-border); }
+.step-head h3 { margin: 0; font-size: 17px; }
+.step .why { color: var(--cp-text-muted); font-size: 13.5px; margin: 6px 0 0; }
+.prompt-label { font-size: 12px; font-weight: 600; color: var(--cp-accent); margin: 14px 0 6px; }
+pre {
+  background: var(--cp-code-bg);
+  color: var(--cp-code-fg);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+pre code { white-space: pre; }
+.ph { color: #ffcf7a; }
+
+table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 13.5px; }
+th, td { border: 1px solid var(--cp-border); padding: 9px 12px; text-align: left; vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+td code, p code, li code { font-family: Consolas, monospace; font-size: 12.5px; background: var(--cp-surface-soft); padding: 1px 5px; border-radius: 5px; }
+
+.pipeline { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.pipeline .node {
+  font-size: 12px; font-weight: 600;
+  padding: 6px 12px; border-radius: 8px;
+  background: var(--cp-surface); border: 1px solid var(--cp-border);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.pipeline .node .n { font-size: 10px; color: var(--cp-accent); font-weight: 700; }
+.pipeline .node.opt { opacity: 0.75; border-style: dashed; }
+
+.pill {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 600;
+  padding: 3px 11px; border-radius: 999px;
+  background: var(--cp-accent-soft); color: var(--cp-accent);
+  border: 1px solid var(--cp-border);
+  margin: 0 5px 5px 0;
+}
+
+.toolbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 10px 0; margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 0.625rem; padding: 9px 18px;
+  border: 1px solid var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 44px; padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft); font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media (max-width: 700px) {
+  .grid2, .grid3, .grid4 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+}
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card, table, .callout, .step { box-shadow: none; break-inside: avoid; }
+  pre { white-space: pre-wrap; word-break: break-word; border: 1px solid #ccc; }
+  h2, .section-band { break-after: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">How-to Walkthrough · Microsoft Scout</p>
+    <h1>Have Your Microsoft Scout Build Your Second Brain</h1>
+    <p class="sub">A copy-paste walkthrough — your AI colleague does the setup while you watch. Three sections, ~30–45 minutes, 11 prompts.</p>
+  </header>
+
+  <div class="callout">
+    <span class="lead">The idea</span>
+    A <strong>Second Brain</strong> is an LLM-maintained personal wiki (Karpathy's pattern). You provide the sources and the questions; <strong>Microsoft Scout is the librarian</strong> — it summarizes, cross-references, files, and keeps the books. Paste the 11 prompts below, approve each step, and you'll end up with the same working system, entirely in plain markdown you own.
+  </div>
+
+  <p style="color:var(--cp-text-muted);font-size:14px;">
+    <strong>What we'll cover:</strong>
+    <span class="pill">1 · What is Microsoft Scout</span>
+    <span class="pill">2 · What is a Second Brain</span>
+    <span class="pill">3 · The setup — 11 prompts</span>
+  </p>
+
+  <!-- SECTION 1 -->
+  <div class="section-band">
+    <p class="kicker">Section 01 · The Platform</p>
+    <h2>What is Microsoft Scout?</h2>
+  </div>
+  <p>A desktop AI assistant with hands-on access to your tools and data — it doesn't just chat, it acts.</p>
+  <div class="grid4">
+    <div class="card"><span class="ico">📁</span><h3>File system</h3><p>Read, write, search your local files.</p></div>
+    <div class="card"><span class="ico">💻</span><h3>Shell</h3><p>Execute commands and scripts.</p></div>
+    <div class="card"><span class="ico">🌐</span><h3>Browser</h3><p>Drive Playwright automation.</p></div>
+    <div class="card"><span class="ico">📧</span><h3>Microsoft 365</h3><p>Email, Teams, OneDrive, calendar — native.</p></div>
+    <div class="card"><span class="ico">⏰</span><h3>Automations</h3><p>Run on schedule or react to triggers.</p></div>
+    <div class="card"><span class="ico">💬</span><h3>Teams relay</h3><p>Proactive messages, even between sessions.</p></div>
+    <div class="card"><span class="ico">🧠</span><h3>Memory</h3><p>Long-term recall of preferences and decisions.</p></div>
+    <div class="card"><span class="ico">🧩</span><h3>Skills</h3><p>Composable workflows: <code>/planner</code>, <code>/research</code>, <code>/image</code>…</p></div>
+  </div>
+
+  <h3>Why use it — four reasons it stops feeling like a chatbot</h3>
+  <div class="grid2">
+    <div class="card"><h3>Works the way real colleagues do</h3><p>Reads your inbox, preps your meetings, files your notes, pushes back when you're wrong, remembers what you said last week.</p></div>
+    <div class="card"><h3>Composes with the M365 stack</h3><p>"Summarize today's meetings into my project notebook" — pulled, drafted, filed in one turn.</p></div>
+    <div class="card"><h3>Customizable to who you are</h3><p>Personality, voice, operating rules, skills, memory — all configurable. Fits your workflow, not the other way around.</p></div>
+    <div class="card"><h3>Autonomous when you want it</h3><p>Schedule a nightly knowledge consolidation. Trigger a daily inbox triage. It works while you don't have to.</p></div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section-band">
+    <p class="kicker">Section 02 · The Concept</p>
+    <h2>What is a Second Brain?</h2>
+  </div>
+  <h3>Five reasons it matters — what changes when your knowledge stops leaking</h3>
+  <div class="grid2">
+    <div class="card"><h3>Your knowledge stops leaking</h3><p>Conversations, articles, decisions become durable, linked pages your assistant can recall instantly.</p></div>
+    <div class="card"><h3>Context becomes free</h3><p>Every new question starts with the answer to the last hundred. The assistant gets more useful the more you use it.</p></div>
+    <div class="card"><h3>Cross-reference is automatic</h3><p>When a source contradicts something you wrote three months ago, the assistant flags it — relationships you'd never spot.</p></div>
+    <div class="card"><h3>You own it</h3><p>Plain markdown files. Opens in Obsidian, Notepad, anything. No vendor lock-in. Ever.</p></div>
+    <div class="card"><h3>Pairs with your assistant's identity</h3><p><code>SOUL.md</code> (voice) + Second Brain (knowledge) = a real coworker who knows you.</p></div>
+  </div>
+
+  <h3>Three principles — an LLM-maintained wiki, three layers, clear ownership</h3>
+  <div class="grid3">
+    <div class="card"><h3>1 · Three layers, clear ownership</h3><p>Raw sources are immutable inputs <em>you</em> provide. The wiki is owned by your <em>AI</em>. The schema is co-evolved <em>between you</em>.</p></div>
+    <div class="card"><h3>2 · The assistant is the librarian</h3><p>You provide sources and ask questions. The assistant summarizes, cross-references, files, and bookkeeps. Not your job.</p></div>
+    <div class="card"><h3>3 · Compounding knowledge</h3><p>Every ingest touches 5–15 pages. Every good question becomes a new page. The wiki gets denser, not bigger.</p></div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section-band">
+    <p class="kicker">Section 03 · The Setup</p>
+    <h2>Hand it to your Microsoft Scout — 11 prompts</h2>
+  </div>
+  <p>Paste each prompt, watch what happens, approve, move on. Steps 0–7 give you a working Second Brain; steps 8–10 add structured claims, a persona, and a nightly dream loop.</p>
+  <div class="pipeline">
+    <div class="node"><span class="n">STEP 0</span>Brief</div>
+    <div class="node"><span class="n">STEP 1</span>Vault</div>
+    <div class="node"><span class="n">STEP 2</span>AGENTS.md</div>
+    <div class="node"><span class="n">STEP 3</span>Conventions</div>
+    <div class="node"><span class="n">STEP 4</span>Seed</div>
+    <div class="node"><span class="n">STEP 5</span>Ingest</div>
+    <div class="node"><span class="n">STEP 6</span>Query</div>
+    <div class="node"><span class="n">STEP 7</span>Lint</div>
+    <div class="node opt"><span class="n">STEP 8</span>Claims</div>
+    <div class="node opt"><span class="n">STEP 9</span>Persona</div>
+    <div class="node opt"><span class="n">STEP 10</span>Dream</div>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 0</span><h3>Brief your Microsoft Scout</h3></div>
+    <p class="why">Set the scene before the first command.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>I'm setting up a Second Brain — an LLM-maintained personal wiki
+using the Karpathy pattern. I want you to build and configure it
+for me.
+
+I'll paste a series of setup prompts. For each one:
+  1. Confirm what you're about to do.
+  2. Do it.
+  3. Report back briefly and wait for the next prompt.
+
+My vault location: <span class="ph">&lt;vault path, e.g. C:\Users\you\OneDrive\Documents\Scout\SecondBrain&gt;</span>
+My Scout's name: <span class="ph">&lt;pick a name&gt;</span>
+Ready?</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 1</span><h3>Build the vault structure</h3></div>
+    <p class="why">Folders + empty placeholder files.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Create my Second Brain vault at <span class="ph">&lt;vault path&gt;</span> with this structure:
+
+  AGENTS.md, README.md, index.md, log.md
+  raw/      00-Inbox/      50-Archive/
+  10-Notes/entities/   10-Notes/concepts/
+  20-Projects/   30-Areas/   40-Resources/
+  _meta/conventions.md   _meta/MOCs/   _meta/templates/
+
+Make the folders and empty placeholder files now. We'll fill
+AGENTS.md and conventions.md in the next two prompts.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 2</span><h3>Write AGENTS.md (the schema)</h3></div>
+    <p class="why">The most important file in the vault — read first on every session.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Write AGENTS.md at the vault root following Karpathy's pattern:
+
+  1. Three layers (raw / wiki / schema) and ownership.
+  2. Folder conventions and naming rules.
+  3. Page types and required YAML frontmatter:
+       title, type, created, updated, tags, sources, status
+  4. Operations:
+       - ingest: raw → summary + entities/concepts + index + log
+       - query:  read index → drill → synthesize → file good answers
+       - lint:   contradictions / orphans / stale / missing
+  5. Log format (greppable, dated entries).
+  6. House rules: one idea/page, cite sources, flag uncertainty.
+
+Show me a draft. Take my edits. Then save.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 3</span><h3>Write _meta/conventions.md</h3></div>
+    <p class="why">The style guide — short, prescriptive, durable.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Write _meta/conventions.md covering:
+
+- File naming (kebab-case for atomic notes,
+  YYYY-MM-DD-slug for inbox captures)
+- YAML frontmatter template with examples
+- Link conventions ([[wiki-links]])
+- Tag conventions
+- MOC location and naming
+- Weekly Inbox processing checklist
+
+Keep it short and prescriptive. Save when I approve.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 4</span><h3>Seed three real pages</h3></div>
+    <p class="why">An empty wiki is intimidating. Give your Scout examples to follow.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Seed three pages with proper frontmatter and starter content:
+
+  1. index.md (vault root) — empty catalog with sections for
+     entities, concepts, summaries, MOCs.
+  2. _meta/MOCs/home.md — my landing-page Map of Content,
+     curated links to the most important entry points.
+  3. 10-Notes/entities/<span class="ph">&lt;pick-something-I-care-about&gt;</span>.md —
+     a real entity. Ask me what to use before writing.
+
+Show me each one before saving.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 5</span><h3>First ingest — the magic moment</h3></div>
+    <p class="why">Where the Second Brain becomes real.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>I'm going to give you a source: <span class="ph">&lt;URL or file path&gt;</span>.
+
+Follow the AGENTS.md ingest operation exactly:
+  1. Read the source fully. Don't skim.
+  2. Drop a copy or reference into raw/ (immutable).
+  3. Summarize 1–3 key takeaways and discuss with me first.
+  4. Write a summary page in 40-Resources/ with citations.
+  5. Update or create entity pages for any people/orgs/products.
+  6. Update or create concept pages for any ideas worth tracking.
+  7. Update relevant MOCs in _meta/MOCs/.
+  8. Update index.md. Append a dated entry to log.md.
+
+Tell me each page you touched so I can see the cascade.</code></pre>
+    <div class="callout"><span class="lead">Expected</span>A single ingest typically touches 5–15 pages. That cascade is the wiki getting denser.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 6</span><h3>First query</h3></div>
+    <p class="why">Test that the wiki is now answering for itself.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Using only the wiki — no fresh web search — answer this:
+  <span class="ph">&lt;a question that overlaps the source you just ingested&gt;</span>
+
+Follow the AGENTS.md query operation:
+  1. Read index.md first.
+  2. Drill into the relevant pages, follow [[links]].
+  3. Synthesize a clear answer with citations to wiki pages.
+  4. If non-trivial, offer to file the answer back as a new
+     analysis page so the next query starts smarter.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge">Step 7</span><h3>First lint pass</h3></div>
+    <p class="why">After 5–10 sources, run the maintenance pass.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Run the lint operation from AGENTS.md. Look for:
+
+  - Contradictions across pages
+  - Orphans (pages nothing links to)
+  - Stale claims (older than 90 days, marked evergreen)
+  - Implicit concepts (mentioned often, no page yet)
+  - Missing cross-references
+  - Inbox backlog
+
+Produce a short report. Wait for my approval before fixing.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge opt">Step 8 · optional</span><h3>Add structured claims</h3></div>
+    <p class="why">Machine-readable assertions with confidence and evidence.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Extend AGENTS.md with an optional claims block in frontmatter:
+
+  claims:
+    - id: claim-001
+      text: "&lt;assertion&gt;"
+      confidence: 0.0–1.0
+      status: provisional | evergreen | disputed
+      evidence:
+        - source: raw/&lt;file&gt;
+          kind: documentation | quote | observation
+          excerpt: "&lt;short quote&gt;"
+      captured: YYYY-MM-DD
+      updated: YYYY-MM-DD
+
+Update lint to flag: disputed claims, no-evidence claims,
+contradictions across pages, stale evergreen claims.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge opt">Step 9 · optional</span><h3>Give your Microsoft Scout a soul</h3></div>
+    <p class="why">Two persona files at the Scout root + two memory files in the vault.</p>
+    <table>
+      <thead><tr><th>File</th><th>Purpose</th><th>Location</th></tr></thead>
+      <tbody>
+        <tr><td><code>SOUL.md</code></td><td>Voice, stance, personality, communication style</td><td><code>~/.copilot/&lt;name&gt;/</code></td></tr>
+        <tr><td><code>AGENTS.md</code></td><td>Operating rules — honesty, initiative, privacy, tools, memory, boundaries</td><td><code>~/.copilot/&lt;name&gt;/</code></td></tr>
+        <tr><td><code>MEMORY.md</code></td><td>Promoted long-term facts (written by nightly dream loop)</td><td><code>SecondBrain/_meta/&lt;name&gt;/</code></td></tr>
+        <tr><td><code>DREAMS.md</code></td><td>Reflective diary of the assistant's daily activity</td><td><code>SecondBrain/_meta/&lt;name&gt;/</code></td></tr>
+      </tbody>
+    </table>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Ask me about your name, role, voice, communication style, drives, and
+operating rules. Write SOUL.md and AGENTS.md to ~/.copilot/&lt;name&gt;/.
+Create MEMORY.md and DREAMS.md (empty seeds) at SecondBrain/_meta/&lt;name&gt;/.
+Create a slash-skill /&lt;name&gt; that loads SOUL.md + AGENTS.md at session start.
+Save a memory pointer to the file locations. Show drafts before saving.</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-head"><span class="badge opt">Step 10 · optional</span><h3>Schedule the nightly dream loop</h3></div>
+    <p class="why">Mirrors the light/deep/REM dreaming pattern — runs while you sleep.</p>
+    <p class="prompt-label">▶ Paste this into Microsoft Scout:</p>
+    <pre><code>Create a Scout automation called "&lt;your-name&gt; Dream Loop"
+that runs every day at 11pm. Follow light/deep/REM:
+
+  - Gather candidate facts from the last 24 hours of sessions.
+  - Score: frequency (≤0.40) + recency (≤0.20)
+         + novelty (≤0.20) + user-confirmation (≤0.20).
+  - Promote anything ≥ 0.70 AND (≥2 sessions OR confirmed)
+    to MEMORY.md and your permanent memory store.
+  - Write a short reflective diary entry to DREAMS.md.
+  - Send me a Teams summary when complete.
+
+PRIVACY RULE (non-negotiable):
+  Never write raw email, calendar, or chat content to MEMORY.md
+  or DREAMS.md. Summarize at whiteboard level. If in doubt, omit.
+
+Create disabled. Dry-run first. Enable only after I approve.</code></pre>
+    <div class="callout warn"><span class="lead">Privacy first</span>The dream loop summarizes at whiteboard level only — never raw email, calendar, or chat content. Create it disabled, dry-run it, and enable only after you've reviewed the output.</div>
+  </div>
+
+  <h2>What you'll have</h2>
+  <p>From here, the wiki only gets better.</p>
+  <div class="grid3">
+    <div class="card"><h3>A vault that's yours</h3><p>Plain markdown. Opens in any editor. No lock-in.</p></div>
+    <div class="card"><h3>A schema any AI can read</h3><p><code>AGENTS.md</code> tells every assistant how the vault works.</p></div>
+    <div class="card"><h3>Three working operations</h3><p>Ingest sources. Query knowledge. Lint for health.</p></div>
+    <div class="card"><h3>A Scout with personality</h3><p><code>SOUL.md</code> + <code>AGENTS.md</code> = a real colleague. <em>(optional)</em></p></div>
+    <div class="card"><h3>A nightly consolidation loop</h3><p>Grows the vault while you sleep. <em>(optional)</em></p></div>
+    <div class="card"><h3>Compounding value</h3><p>Six months from now, you'll wonder how you ever worked without it.</p></div>
+  </div>
+
+  <p style="margin-top:22px;">
+    <span class="pill">Second Brain</span>
+    <span class="pill">Karpathy pattern</span>
+    <span class="pill">Markdown vault</span>
+    <span class="pill">11 prompts</span>
+    <span class="pill">Microsoft Scout</span>
+    <span class="pill">Printable</span>
+  </p>
+
+  <footer class="foot">
+    Curated by Joel Cade · hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Adapted from an internal enablement walkthrough (Building Your Second Brain, 2026). A personal working method shared for enablement — evolving guidance, not a product or a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
