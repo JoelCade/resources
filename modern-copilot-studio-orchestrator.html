@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Modern Copilot Studio: The New Orchestrator On-Ramp</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+pre {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+pre code { background: none; border: none; padding: 0; font-size: 12.5px; line-height: 1.5; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  font-size: 14px;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin-top: 2px; }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step, pre { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio · Enablement Reference</p>
+    <h1>Modern Copilot Studio: The New Orchestrator On-Ramp</h1>
+    <p class="sub">A builder's guide to the new agent-and-workflow paradigm in Copilot Studio — what changed, what to build, and how to bring classic agents forward. Understand it, see it, upgrade it. · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Every behavior belongs in the smallest component that makes it reliable and inspectable. <strong>Instructions</strong> carry what's always true, <strong>Knowledge</strong> the searchable facts, <strong>Tools</strong> the system actions, <strong>Memory</strong> the persistent context, <strong>Skills</strong> the situational procedures, and <strong>connected agents</strong> the real specialist domains. A modern agent shouldn't be one instruction blob with 43 tools and a prayer.
+  </div>
+
+  <h2>Why this matters</h2>
+  <p>The new Copilot Studio experience — and the orchestration stack underneath it — is a genuine shift in how you design agents and automation. It's a new paradigm on two fronts: <strong>agents</strong> are far more adaptive and sophisticated, and <strong>workflows</strong> let you build automated processes on a visual canvas with much more control over which steps are handled by AI. That's a lot of new capability, and it changes the questions you ask: What actually changed? What do I build, and where? And what happens to my existing classic agents?</p>
+  <p>There are three resources built to answer exactly those questions — a deck, a mini-site, and a plugin. This page explains how to use each one, and folds in the core concepts from the Technical Deep Dive so you can get oriented before you open any of them.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Agents</span>
+      <h3>Mostly adaptive</h3>
+      <p>Reason over context and decide the next step at runtime, where the path can't be mapped up front — and call deterministic steps when part of the work is fixed.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Workflows</span>
+      <h3>Mostly deterministic</h3>
+      <p>Run a defined sequence the same way every time, where the process is predictable and repeatable — and call agents when part of the work needs reasoning.</p>
+    </div>
+  </div>
+  <p>They are <strong>not</strong> an either-or choice. Enterprise solutions combine both; the real question is which part of a process should carry the load deterministically and which should reason adaptively, and how the two work together.</p>
+
+  <h2>The three-step on-ramp</h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Understand it — the Technical Deep Dive deck</h3>
+      <p><strong>Use it when</strong> you need to learn, or explain, <em>what</em> changed and <em>why</em>. It's built for agent and workflow builders and architects, and it works as a <strong>decision framework</strong> more than a feature tour: where to build what (agent vs. workflow, and which pieces belong where), how to build modern agents and workflows, how to upgrade from classic without just porting the old design, and an honest read on what's improved and what isn't supported yet.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>See it — the technical guide mini-site and samples</h3>
+      <p><strong>Use it when</strong> you're ready to move from "I get the slide" to "show me it running." Read the building blocks, run the scenario transcripts, then download the solution and deploy it into your own Power Platform environment. It's a real, deployable sample — not screenshots with a story.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Upgrade it — the Copilot Studio plugin</h3>
+      <p><strong>Use it when</strong> you have a classic agent and want a head start on a modern version. Install the plugin for AI coding agents, point it at your agent, and it pulls the classic agent, analyzes its structure, proposes a modern architecture, and builds an upgraded agent you can test.</p>
+    </div>
+  </div>
+
+  <h2>1. Understand it: the concepts behind the deck</h2>
+  <p>The deck reframes the move from <em>classic orchestration</em> to <em>modern agents</em>. Classic builds a plan, then runs it. The new orchestrator keeps deciding from the latest state — a continuous <strong>Thought → Action → Observation</strong> loop rather than a fixed plan-then-execute. In Microsoft's testing, the new orchestrator showed roughly <strong>20% higher evaluation accuracy with about 50% fewer tokens</strong>.</p>
+
+  <h3>What modern agents do that classic couldn't</h3>
+  <table>
+    <thead><tr><th>Capability</th><th>What changed</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Asking fewer, smarter questions</strong></td><td>Instead of a rigid prompt for every tool input in a fixed order, modern agents infer what's already known, ask only what's missing, and can bundle or reorder questions.</td></tr>
+      <tr><td><strong>Handling detours</strong></td><td>A side question or mid-task change no longer terminates the plan — the agent answers, then picks the task back up.</td></tr>
+      <tr><td><strong>Orchestrating over tools</strong></td><td>Better tool selection, chaining one tool's output into the next, and running independent tools in parallel.</td></tr>
+      <tr><td><strong>Following instructions</strong></td><td>Instruction-first, not built bottom-up from tool descriptions. Write reusable skills in markdown — or import existing GitHub Copilot / Claude Code skills — and expect them to work.</td></tr>
+      <tr><td><strong>Recovering from errors</strong></td><td>Where classic stops and surfaces an error, a modern agent may retry intelligently or take an alternative path to still finish.</td></tr>
+      <tr><td><strong>Flowing across turns</strong></td><td>Questions, tool calls, and responses interleave fluidly instead of the rigid plan-then-execute pattern.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The building blocks of a modern agent</h3>
+  <p>The core design rule: <strong>choose the smallest component that makes the behavior reliable, inspectable, and safe inside the loop.</strong></p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Instructions</h3>
+      <p>Role, tone, what not to say, and how the agent drives the conversation. What's true in <em>every</em> conversation. Keep them lean — everything here loads on every turn.</p>
+    </div>
+    <div class="card">
+      <h3>Knowledge</h3>
+      <p>Searchable docs, sites, and files used to ground answers.</p>
+    </div>
+    <div class="card">
+      <h3>Tools / MCP servers</h3>
+      <p>Live lookups, APIs, and CRUD operations — how the agent acts on systems.</p>
+    </div>
+    <div class="card">
+      <h3>Memory</h3>
+      <p>Persistent context across sessions: user preferences and history.</p>
+    </div>
+    <div class="card">
+      <h3>Code interpreter</h3>
+      <p>A full Python runtime in an isolated container for data manipulation, file analysis, and generation — on by default, no single-file limit, charts render everywhere.</p>
+    </div>
+    <div class="card">
+      <h3>Skills &amp; connected agents</h3>
+      <p>Skills package situational procedures (a <code>SKILL.md</code> plus bundled resources) loaded on demand. Connected agents delegate real specialist sub-domains.</p>
+    </div>
+  </div>
+
+  <h3>Skills: instructions on demand</h3>
+  <p>A Skill is just instructions and resources, loaded on demand — keep it scenario-specific, name it precisely, and test that it fires. The metadata (name + description) sits in context and drives routing; the full content loads only when a scenario matches.</p>
+  <div class="callout warn">
+    <strong>What to avoid with Skills:</strong> vague descriptions (weak routing signals make a Skill mis-fire or never trigger), mega-skills (broad do-everything scope blurs intent), fact dumps (a Skill guides — it doesn't replace a Knowledge source), and unreviewed Skills (treat AI or community Skills as untrusted code and review them first).
+  </div>
+
+  <h2>2. See it: the mini-site and a real sample</h2>
+  <p>The mini-site is built around <strong>BlastBox Omega</strong>, a retro-future game store run by agents. It shows the new experience doing the things a slide can only promise: agents that reason across multiple turns, delegate to specialists, take real actions, and produce actual deliverables. Two scenarios make that concrete:</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Self-Serve Card Reissue</h3>
+      <p>An agent handles a member request end to end — gating a real write action behind an identity check and handing back a generated file.</p>
+    </div>
+    <div class="card">
+      <h3>Block Party Trade-Up</h3>
+      <p>The flagship: a parent agent coordinates specialist agents to untangle a messy, multi-part request and settle it with a downloadable document.</p>
+    </div>
+  </div>
+  <p>The value is seeing <em>where each responsibility lives</em>: specialist reasoning in connected agents, actions in tools, repeatable procedures in Skills, and exact math in code. Read the building blocks, run the scenario transcripts, then download and deploy the solution into your own Power Platform environment.</p>
+
+  <h2>3. Upgrade it: the migration plugin</h2>
+  <p>Install the Copilot Studio plugin for AI coding agents, then send <code>/migrate</code> with the agent's environment, tenant, and Copilot Studio URL plus any constraints. It clones the classic agent locally, inspects it, computes a target architecture using Microsoft's own best practices, and generates an upgraded agent you can fine-tune rather than rebuild from scratch.</p>
+  <div class="card">
+    <p style="margin-top:0;"><strong>Starter prompt</strong> (use a capable AI model):</p>
+    <pre><code>/mcs-assistant:migrate Upgrade this agent to modern orchestration:
+https://copilotstudio.microsoft.com/environments/&lt;ENV_ID&gt;/bots/&lt;BOT_ID&gt;
+from tenant &lt;TENANT_ID&gt;</code></pre>
+  </div>
+  <div class="callout warn">
+    <strong>The key word is <em>propose</em>.</strong> It's a fast assistant, not a "make my architecture correct" button. Don't turn every topic into a Skill and every variable into memory just because they existed — that's archaeology with YAML. Treat the output as a first draft: run it, inspect it, compare against your old evals, and decide if it's good enough.
+  </div>
+
+  <h3>Migrate capabilities, not components</h3>
+  <p>The migration mental model is <strong>re-architect, don't port</strong>. Ask what tasks the agent must accomplish, then map each responsibility to a loop-native component:</p>
+  <table>
+    <thead><tr><th>Classic construct</th><th>Modern target(s)</th></tr></thead>
+    <tbody>
+      <tr><td>Topics (conversational paths)</td><td>Instructions for flow; a <strong>Skill</strong> for a reusable procedure; a <strong>Tool</strong> when the topic mainly performs one action or lookup.</td></tr>
+      <tr><td>Variables (stored state)</td><td>Short-lived context in the loop; <strong>memory</strong> for user context; Dataverse for durable task context; code interpreter if the value is derived.</td></tr>
+      <tr><td>Power Fx (deterministic logic)</td><td>Explicit code in a tool or skill helper file.</td></tr>
+      <tr><td>Adaptive Cards</td><td>Active work underway on a rich-UI framework (see gaps below).</td></tr>
+      <tr><td>Agent flows</td><td><strong>Workflows</strong> with native AI actions and agent hand-offs.</td></tr>
+    </tbody>
+  </table>
+  <p>A simple loop works well: <strong>understand</strong> the use case and its evals → <strong>inventory</strong> the existing agent → <strong>refactor</strong> tasks (not components) into loop-native blocks → <strong>evaluate</strong> old vs. new on the core journeys, and repeat until evals pass. The migration is done when the agent can perform its core tasks — not when every old artifact has been mechanically copied.</p>
+
+  <h2>Agents vs. workflows: choosing the foundation</h2>
+  <p>Yesterday the choice was binary — a fully autonomous agent that decides everything, or classic automation on rails. Today there's a controllable middle: workflows keep the deterministic reliability of agent flows and bring in agent-node reasoning (or human review) only where judgment is needed.</p>
+  <table>
+    <thead><tr><th>Question</th><th>Agent-first</th><th>Goal-first (workflow)</th></tr></thead>
+    <tbody>
+      <tr><td>Needs AI at all?</td><td>Reasoning everywhere by default</td><td>You choose where AI earns its place</td></tr>
+      <tr><td>Who decides the steps?</td><td>The orchestrator works it out at runtime</td><td>You author the path yourself</td></tr>
+      <tr><td>A step needs judgment?</td><td>The whole process is one agent</td><td>Add reasoning on just that step</td></tr>
+      <tr><td>Which model runs it?</td><td>One model must cover the hardest step</td><td>Each step picks the model that fits</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Rule of thumb:</strong> the decision comes down to how much of the process is known before runtime. Workflows suit processes where start and end points are known with variability at the step level (e.g. expense approval); agents suit broad problem spaces that can't be fully mapped up front (e.g. a multi-turn healthcare intake dialogue). Workflows can call agents, and agents can call workflows.</p>
+
+  <h2>An honest read: gaps and workarounds</h2>
+  <p>Most classic authoring and conversation logic maps cleanly onto instructions, skills, and tools. A few cases need a workaround or are on the roadmap:</p>
+  <ul>
+    <li><strong>UI components</strong> — rich cards and structured input capture (the classic Adaptive Cards role) are the main true gap today; a suitable framework is being identified.</li>
+    <li><strong>System / environment variables</strong> — no direct equivalent; instruct the agent to call a tool that fetches user context before it responds.</li>
+    <li><strong>Message intercept hooks</strong> — no general intercept point yet (classic "On message received" / "On AI response generated"); hooks are planned.</li>
+    <li><strong>Grounded-knowledge-only mode</strong> — by design not offered; modern agents have the autonomy to decide when to generate versus ask.</li>
+    <li><strong>Builder analytics</strong> — work underway to enable both the classic dashboards and the new experience.</li>
+  </ul>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://aka.ms/CopilotStudioDeepDiveDeck" target="_blank" rel="noopener">Copilot Studio — Technical Deep Dive deck</a><br><span class="u">https://aka.ms/CopilotStudioDeepDiveDeck</span></div>
+    <div class="ref"><a href="https://aka.ms/MCSTechGuide" target="_blank" rel="noopener">Copilot Studio technical guide mini-site (BlastBox Omega sample &amp; scenarios)</a><br><span class="u">https://aka.ms/MCSTechGuide</span></div>
+    <div class="ref"><a href="https://github.com/microsoft/copilot-studio-plugin" target="_blank" rel="noopener">Copilot Studio plugin for AI coding agents (GitHub)</a><br><span class="u">https://github.com/microsoft/copilot-studio-plugin</span></div>
+    <div class="ref"><a href="https://microsoft.github.io/mcscatblog/posts/new-orchestrator-resources/" target="_blank" rel="noopener">CAT blog — "New orchestrator resources: deck, mini-site, plugin"</a><br><span class="u">https://microsoft.github.io/mcscatblog/posts/new-orchestrator-resources/</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/" target="_blank" rel="noopener">Microsoft Copilot Studio documentation (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/</span></div>
+  </div>
+
+  <footer class="foot">
+    Compiled from the public Microsoft Copilot Acceleration Team (CAT) blog post "New orchestrator resources" and the public Copilot Studio Technical Deep Dive deck (verified July 2026). Modern Copilot Studio — the new orchestrator, workflows, and the migration plugin — is evolving quickly; some capabilities noted above are in active development or planned. Always confirm current features and supported scenarios against the official Microsoft references before designing production agents. This overview is guidance, not a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
