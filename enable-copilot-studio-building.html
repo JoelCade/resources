@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enabling Copilot Studio Building for an Organization</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.alt { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 14px 0; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.step .body { flex: 1; }
+.step .body h3 { margin-top: 3px; }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio · Enablement Reference</p>
+    <h1>Enabling Copilot Studio Building for an Organization</h1>
+    <p class="sub">The two supported ways to give makers the right to build and manage agents in Microsoft Copilot Studio — the seat-based path and the pay-as-you-go path. Prepared as an enablement reference · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> There are <strong>two</strong> ways to entitle someone to build agents — and you should always weigh both. Either (1) buy the <strong>seat-based licenses</strong> (a tenant license plus a per-user Copilot Studio User License), <em>or</em> (2) enable <strong>pay-as-you-go</strong> on an environment and grant the maker the <strong>Environment Maker</strong> role. Runtime consumption is metered as <strong>Copilot Credits</strong> either way.
+  </div>
+
+  <h2>The two enablement paths at a glance</h2>
+  <p>Building an agent requires a <em>build entitlement</em>. That entitlement can come from a purchased seat, or from a pay-as-you-go environment plus the right security role. Neither path is "more correct" — pick the one that fits the org's procurement and usage profile.</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Path 1 · Seat-based</span>
+      <h3>Tenant license + per-user license</h3>
+      <ul>
+        <li>Predictable, planned rollouts.</li>
+        <li>Entitlement lives on the <strong>user's seat</strong>.</li>
+        <li>Purchased in the Microsoft 365 admin center (or via volume licensing).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill alt">Path 2 · Pay-as-you-go</span>
+      <h3>PAYG environment + Environment Maker</h3>
+      <ul>
+        <li>Dev/test, spiky usage, "give me a sub and let me build."</li>
+        <li>Entitlement lives on the <strong>environment</strong>, not the seat.</li>
+        <li>Billed directly to an <strong>Azure subscription</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Path 1 — Seat-based licensing</h2>
+  <p>Two distinct licenses are required — one at the tenant level and one per builder.</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Tenant license (organization-level)</h3>
+      <p>Listed as <strong>"Copilot Studio"</strong> in the Microsoft 365 admin center. The tenant administrator acquires it <strong>once</strong> — it <strong>cannot</strong> be assigned to individual users. It enables Copilot Studio for the tenant and backs the message / Copilot Credit consumption pool that agents draw from at runtime.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Per-user license (builder-level)</h3>
+      <p>Listed as the <strong>"Copilot Studio User License"</strong> in the admin center. Assigned to <strong>each</strong> individual who needs to create and manage agents. Anyone building, editing, or managing agents needs one.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Volume-licensing rule:</strong> If you buy through volume licensing (EA/CSP) or any channel other than the Microsoft 365 admin center, you must acquire <strong>both</strong> the tenant license and the user licenses through that same channel — preferably in a <strong>single transaction</strong>.
+  </div>
+
+  <h2>Path 2 — Pay-as-you-go + Environment Maker</h2>
+  <p>This path decouples building from prepaid seats entirely. Instead of buying a Copilot Studio User License per maker, you attach an environment to Azure billing and grant makers the environment role that carries build rights.</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Enable pay-as-you-go on the environment</h3>
+      <p>In the <strong>Power Platform Admin Center (PPAC)</strong>, the admin creates a <strong>billing policy</strong> that links the target environment to an <strong>Azure subscription</strong>. Copilot Studio consumption (and the underlying Power Platform requests / Copilot Credits) is then metered and billed directly to Azure — no prepaid tenant capacity or per-user Copilot Studio seat required.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Assign the Environment Maker role</h3>
+      <p>Grant each maker the <strong>Environment Maker</strong> role on that pay-as-you-go environment. With Maker rights in a PAYG-enabled environment, a user can <strong>create and manage agents</strong> in Copilot Studio <strong>without</strong> holding a Copilot Studio User License — the build entitlement comes from the environment/PAYG configuration rather than the seat.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Why teams choose this:</strong> No seat procurement, no upfront commitment, and spend follows actual usage. It's the natural fit for pilots, hackathons, dev/test environments, and organizations that would rather point a maker community at an Azure subscription than pre-provision seats.
+  </div>
+
+  <h2>Side-by-side comparison</h2>
+  <table>
+    <thead><tr><th></th><th>Path 1 · Seat-based</th><th>Path 2 · Pay-as-you-go</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Tenant / org requirement</strong></td><td>Copilot Studio tenant license</td><td>Azure subscription + PPAC billing policy on the environment</td></tr>
+      <tr><td><strong>Builder requirement</strong></td><td>Copilot Studio User License (per user)</td><td>Environment Maker role on the PAYG environment</td></tr>
+      <tr><td><strong>Where entitlement lives</strong></td><td>The user's seat</td><td>The environment</td></tr>
+      <tr><td><strong>Runtime cost</strong></td><td>Prepaid capacity / Copilot Credits</td><td>Metered to Azure (Copilot Credits via PAYG meters)</td></tr>
+      <tr><td><strong>Purchased via</strong></td><td>M365 admin center or volume licensing</td><td>Azure subscription, configured in PPAC</td></tr>
+      <tr><td><strong>Best for</strong></td><td>Predictable, seat-planned rollouts</td><td>Dev/test, spiky usage, "give me a sub and let me build"</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Who does <em>not</em> need a license</h2>
+  <ul>
+    <li><strong>End users</strong> of a published agent — no special license required; anyone with access to the published agent can interact with it.</li>
+    <li><strong>Guest users</strong> of the tenant — cannot access Copilot Studio at all, under either path.</li>
+  </ul>
+
+  <h2>Runtime consumption — common to both paths</h2>
+  <p>Regardless of how you entitle building, agents consume <strong>Copilot Credits</strong> at runtime. The seat path draws them from prepaid capacity; the PAYG path meters them to Azure. A few nuances worth knowing:</p>
+  <ul>
+    <li>An <strong>M365 Copilot</strong>-licensed user interacting with an agent in an authenticated chat typically burns <strong>no</strong> Copilot Studio credits — their license covers it.</li>
+    <li><strong>Autonomous</strong> agents (triggered by schedule, email, or a file drop) have no license coverage and <strong>always</strong> consume Copilot Studio credits.</li>
+    <li>A Copilot Studio agent requires a <strong>Dataverse</strong>-enabled environment.</li>
+    <li>Forecast an agent's credit volume with the public <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator</a> before you deploy.</li>
+  </ul>
+
+  <h2>Quick decision guide</h2>
+  <table>
+    <thead><tr><th>Situation</th><th>Recommended path</th></tr></thead>
+    <tbody>
+      <tr><td>Known, stable maker community you can plan seats for</td><td>Path 1 — seat-based</td></tr>
+      <tr><td>Pilot, hackathon, or dev/test where you just need makers building fast</td><td>Path 2 — PAYG + Environment Maker</td></tr>
+      <tr><td>Unpredictable or spiky consumption; want spend to follow usage</td><td>Path 2 — PAYG</td></tr>
+      <tr><td>Procurement already runs everything through the M365 admin center / EA</td><td>Path 1 — seat-based</td></tr>
+      <tr><td>Want to avoid any upfront seat commitment</td><td>Path 2 — PAYG</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing" target="_blank" rel="noopener">Assign user licenses and manage access — Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Copilot Studio licensing &amp; billing overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credit Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview" target="_blank" rel="noopener">Pay-as-you-go plan overview — Power Platform (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up" target="_blank" rel="noopener">Set up pay-as-you-go with an Azure subscription (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/database-security" target="_blank" rel="noopener">Environment security roles, incl. Environment Maker (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/database-security</span></div>
+    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+  </div>
+
+  <footer class="foot">
+    Compiled from Microsoft Learn public documentation (verified July 2026). Licensing SKUs, Copilot Credit rates, and pay-as-you-go meters change frequently — always confirm current terms against the Copilot Studio Licensing Guide, the Copilot Credit Guide, and your organization's agreement before making purchasing decisions. This overview is guidance, not a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
