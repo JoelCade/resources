@@ -91,7 +91,10 @@ h2 {
   margin: 34px 0 12px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--cp-border);
+  scroll-margin-top: 64px;
 }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 h3 { font-size: 15.5px; margin: 18px 0 6px; }
 p { margin: 8px 0; }
 a { color: var(--cp-link); text-decoration: none; }
@@ -182,6 +185,53 @@ li { margin: 4px 0; }
   line-height: 1.5;
 }
 
+.toc { padding: 16px 20px 18px; }
+.toc h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 0 0 10px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding-left: 0;
+  margin: 0;
+  columns: 2;
+  column-gap: 28px;
+}
+@media (max-width: 680px) { .toc ol { columns: 1; } }
+.toc li {
+  counter-increment: toc;
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 26px;
+  position: relative;
+  font-size: 14px;
+}
+.toc li::before {
+  content: counter(toc);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toc a { color: var(--cp-text); }
+.toc a:hover { color: var(--cp-link); text-decoration: underline; }
+
 .checklist { list-style: none; padding-left: 0; }
 .checklist li { padding-left: 26px; position: relative; margin: 7px 0; }
 .checklist li::before {
@@ -257,7 +307,21 @@ footer.foot {
     <strong>The one thing to remember:</strong> Copilot Credits are billed <strong>per event, not per conversation</strong> — and events <em>stack</em> on a single user turn. The same question answered by a classic topic costs <strong>1 credit</strong>; answered by generative orchestration with graph grounding and two tool calls it can cost <strong>20+ credits</strong>. Optimization is almost never about "using the agent less" — it's about routing each intent to the cheapest mechanism that still answers it correctly.
   </div>
 
-  <h2>Phase 0 — Understand the billing model</h2>
+  <nav class="card toc" aria-label="Table of contents">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#phase-0">Phase 0 — Understand the billing model</a></li>
+      <li><a href="#phase-1">Phase 1 — Measure: where the numbers live</a></li>
+      <li><a href="#phase-2">Phase 2 — Diagnose: the ten cost drivers</a></li>
+      <li><a href="#phase-3">Phase 3 — Optimize: the levers and deltas</a></li>
+      <li><a href="#phase-4">Phase 4 — Govern: caps, enforcement, cadence</a></li>
+      <li><a href="#forecasting">Forecasting a new agent before launch</a></li>
+      <li><a href="#checklist">The optimization checklist</a></li>
+      <li><a href="#references">Reference materials</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="phase-0">Phase 0 — Understand the billing model</h2>
 
   <p>As of <strong>September 1, 2025</strong>, the common currency for agents changed from <em>Copilot Studio messages</em> to <strong>Copilot Credits</strong>. Microsoft states there was no change to the quantity per prepaid pack or to the pay-as-you-go rate at the time of the transition — but the model now exposes event-level granularity rather than the older "billed session" abstraction.</p>
 
@@ -323,7 +387,7 @@ footer.foot {
     <strong>Two exceptions people get wrong.</strong> <strong>Computer Use is <em>not</em> zero-rated</strong> for Microsoft 365 Copilot licensed users — it bills at the standard agent-action rate regardless. And agent flows are only zero-rated when triggered by "when an agent calls the flow"; other triggers bill normally. Zero-rating also requires the agent to run under the user's authenticated identity, and Microsoft applies fair-usage limits it reserves the right to change.
   </div>
 
-  <h2>Phase 1 — Measure: where the numbers actually live</h2>
+  <h2 id="phase-1">Phase 1 — Measure: where the numbers actually live</h2>
   <p>You cannot optimize what you are not reading weekly. There are four distinct surfaces, and each answers a different question.</p>
 
   <div class="step">
@@ -371,7 +435,7 @@ footer.foot {
     </div>
   </div>
 
-  <h2>Phase 2 — Diagnose: the ten cost drivers</h2>
+  <h2 id="phase-2">Phase 2 — Diagnose: the ten cost drivers</h2>
   <p>Ranked roughly by how often they turn out to be the culprit in production.</p>
 
   <table>
@@ -392,7 +456,7 @@ footer.foot {
     </tbody>
   </table>
 
-  <h2>Phase 3 — Optimize: the levers, with the actual deltas</h2>
+  <h2 id="phase-3">Phase 3 — Optimize: the levers, with the actual deltas</h2>
 
   <h3>Lever 1 — Route known intents to classic topics</h3>
   <p>This is the single highest-leverage change available. A classic message node answering "what are your support hours?" costs <strong>1 credit</strong>. The same question through generative orchestration is a topic selection (5) plus a generative answer (2) = <strong>7 credits</strong> — a <strong>7× delta on your highest-volume traffic</strong>. You do not have to abandon generative mode: author classic topics for your top intents <em>inside</em> a generative-orchestration agent and let the orchestrator handle only the genuine long tail.</p>
@@ -432,7 +496,7 @@ footer.foot {
   <h3>Lever 8 — Gate access with authentication</h3>
   <p>Require authentication on high-cost agents so anonymous traffic can't run up the meter, and so that Microsoft 365 Copilot licensed users are correctly identified for zero-rating — an unauthenticated agent forfeits that benefit entirely. Knowledge-source access follows the user's own Microsoft 365 permissions, so authentication also keeps expensive grounding scoped to people entitled to the content.</p>
 
-  <h2>Phase 4 — Govern: caps, enforcement, and cadence</h2>
+  <h2 id="phase-4">Phase 4 — Govern: caps, enforcement, and cadence</h2>
 
   <h3>Set per-agent consumption limits</h3>
   <p>In <em>PPAC → Licensing → Copilot Studio → Manage agents</em> you can set a <strong>monthly credit cap per agent</strong>, configure a <strong>notification threshold</strong> so admins are alerted before the cap is reached, and have the agent automatically turn off at the cap. This works for both prepaid and pay-as-you-go environments and is the single best guard against one misconfigured agent consuming the tenant's capacity. Pair it with Azure Cost Management budgets (alerts at 80% and 100%) on the Power Platform Account resource for PAYG environments.</p>
@@ -460,7 +524,7 @@ footer.foot {
     </tbody>
   </table>
 
-  <h2>Forecasting a new agent before you launch it</h2>
+  <h2 id="forecasting">Forecasting a new agent before you launch it</h2>
   <p>Microsoft publishes a free <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">agent usage estimator</a> covering Copilot Studio custom agents and Dynamics 365 agents, with multi-agent aggregation and PDF export for procurement. Microsoft is explicit that it produces informational estimates only and recommends adding a <strong>10–20% buffer</strong>.</p>
 
   <p>Do the arithmetic by hand as well — it forces you to confront the stacking:</p>
@@ -488,7 +552,7 @@ footer.foot {
     <strong>Read that last example again.</strong> Graph grounding is <strong>83%</strong> of the cost of that agent. Before you tune prompts, shave tools, or downgrade models, check the PPAC feature breakdown — the answer is usually one line item, not a hundred small inefficiencies.
   </div>
 
-  <h2>The optimization checklist</h2>
+  <h2 id="checklist">The optimization checklist</h2>
   <div class="card">
     <h3>Measure</h3>
     <ul class="checklist">
@@ -520,7 +584,7 @@ footer.foot {
     </ul>
   </div>
 
-  <h2>Reference materials</h2>
+  <h2 id="references">Reference materials</h2>
   <div class="card">
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management — the full credit rate card (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Copilot Studio licensing &amp; billing overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
