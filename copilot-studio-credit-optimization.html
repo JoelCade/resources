@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Copilot Credit Optimization Playbook — Copilot Studio Agents in Production</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.alt { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+.num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.cost-lo { color: var(--cp-success); }
+.cost-hi { color: var(--cp-danger); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 14px 0; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.step .body { flex: 1; }
+.step .body h3 { margin-top: 3px; }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.math {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 26px; position: relative; margin: 7px 0; }
+.checklist li::before {
+  content: "\2610";
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+  color: var(--cp-accent);
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step, .math { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio · Cost Optimization Playbook</p>
+    <h1>Evaluating &amp; Optimizing Copilot Credit Consumption in Production</h1>
+    <p class="sub">A four-phase playbook — measure, diagnose, optimize, govern — for teams running Copilot Studio agents at scale. Compiled from public Microsoft documentation · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Copilot Credits are billed <strong>per event, not per conversation</strong> — and events <em>stack</em> on a single user turn. The same question answered by a classic topic costs <strong>1 credit</strong>; answered by generative orchestration with graph grounding and two tool calls it can cost <strong>20+ credits</strong>. Optimization is almost never about "using the agent less" — it's about routing each intent to the cheapest mechanism that still answers it correctly.
+  </div>
+
+  <h2>Phase 0 — Understand the billing model</h2>
+
+  <p>As of <strong>September 1, 2025</strong>, the common currency for agents changed from <em>Copilot Studio messages</em> to <strong>Copilot Credits</strong>. Microsoft states there was no change to the quantity per prepaid pack or to the pay-as-you-go rate at the time of the transition — but the model now exposes event-level granularity rather than the older "billed session" abstraction.</p>
+
+  <h3>The credit rate card</h3>
+  <p>These rates apply to the language models Copilot Studio provides. Bring-your-own models hosted in Azure AI Foundry are billed separately by Foundry; Copilot Studio charges only the agent-action rate to invoke them.</p>
+
+  <table>
+    <thead>
+      <tr><th>Event type</th><th>Credits</th><th>Billed unit</th><th>What triggers it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Classic answer</td><td class="num-cell cost-lo">1</td><td>per response</td><td>A static, author-written response from a topic. No model call.</td></tr>
+      <tr><td>Generative answer</td><td class="num-cell cost-lo">2</td><td>per response</td><td>An AI-generated response grounded in connected knowledge.</td></tr>
+      <tr><td>Agent action</td><td class="num-cell">5</td><td>per action</td><td>Each tool/connector call, trigger, topic transition, deep-reasoning step, or Computer Use step.</td></tr>
+      <tr><td>Content processing</td><td class="num-cell">8</td><td>per page / image</td><td>Document and image processing tools.</td></tr>
+      <tr><td>Tenant graph grounding</td><td class="num-cell cost-hi">10</td><td>per message</td><td>Grounding in Microsoft 365 tenant data — charged <em>on top of</em> the answer.</td></tr>
+      <tr><td>Agent flow actions</td><td class="num-cell">13</td><td>per 100 actions</td><td>Individual actions executed inside an agent flow.</td></tr>
+      <tr><td>AI tools — basic</td><td class="num-cell cost-lo">1</td><td>per 10 responses</td><td>≈ 0.1 credits per 1K tokens. OCR, sentiment, key phrases, simple text.</td></tr>
+      <tr><td>AI tools — standard</td><td class="num-cell">15</td><td>per 10 responses</td><td>≈ 1.5 credits per 1K tokens. General-purpose prompts.</td></tr>
+      <tr><td>AI tools — premium / reasoning</td><td class="num-cell cost-hi">100</td><td>per 10 responses</td><td>≈ 10 credits per 1K tokens. Deep reasoning models.</td></tr>
+      <tr><td>Voice — classic orchestration</td><td class="num-cell">10</td><td>per minute</td><td>Voice channel; core agent activity included in the rate.</td></tr>
+      <tr><td>Voice — generative</td><td class="num-cell">35</td><td>per minute</td><td>Voice channel with generative orchestration.</td></tr>
+      <tr><td>Voice — premium generative</td><td class="num-cell cost-hi">75</td><td>per minute</td><td>Voice channel with premium models.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>The stacking rule is the whole game.</strong> Multiple event types bill simultaneously on one user turn. Microsoft's own example: a tenant-graph-grounded response is 10 (graph) + 2 (generative answer) = <strong>12 credits for a single reply</strong>. Add one tool call (+5) and a standard prompt action over 3K tokens (+4.5) and that turn is <strong>21+ credits</strong>. Reasoning models add their token cost <em>on top of</em> the base feature rate: a 2,000-token reasoning generative answer is 2 + 20 = <strong>22 credits</strong>.
+  </div>
+
+  <h3>How credits are purchased</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Prepaid capacity packs</span>
+      <h3>Monthly pool, no rollover</h3>
+      <ul>
+        <li>Bought in the Microsoft 365 admin center; pooled at tenant level.</li>
+        <li>Can be allocated to specific environments in PPAC.</li>
+        <li><strong>Resets monthly — unused credits do not roll over.</strong></li>
+        <li>Subject to enforcement throttling when exhausted.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill alt">Pay-as-you-go</span>
+      <h3>$0.01 per credit, billed to Azure</h3>
+      <ul>
+        <li>Billing policy in PPAC links an environment to an Azure subscription.</li>
+        <li>No upfront commitment; billed monthly in arrears.</li>
+        <li><strong>Not subject to enforcement throttling</strong> — business continuity is maintained.</li>
+        <li>Charges land on a Power Platform Account resource in Azure.</li>
+      </ul>
+    </div>
+  </div>
+  <p>A one-year prepurchase option (Copilot Credit Commit Units, bought through the Azure portal) also exists. Pack sizes, pack pricing, and CCCU conversion rates are published in the licensing guides linked at the bottom of this page — confirm them there rather than relying on any secondhand figure.</p>
+
+  <h3>What is <em>not</em> billed — check this before optimizing anything</h3>
+  <ul>
+    <li>Testing in the Copilot Studio test chat panel, testing an agent flow from the designer, testing a prompt in prompt builder, and training an AI Builder custom model are all <strong>free</strong>.</li>
+    <li>End users talking to a published agent <strong>do not need a license</strong>.</li>
+    <li>For <strong>authenticated, employee-facing scenarios where the user holds a Microsoft 365 Copilot license</strong>, classic answers, generative answers, tenant graph grounding, agent actions, AI tools, content processing, and agent flows using the "when an agent calls the flow" trigger are all <strong>zero-rated</strong>.</li>
+  </ul>
+  <div class="callout warn">
+    <strong>Two exceptions people get wrong.</strong> <strong>Computer Use is <em>not</em> zero-rated</strong> for Microsoft 365 Copilot licensed users — it bills at the standard agent-action rate regardless. And agent flows are only zero-rated when triggered by "when an agent calls the flow"; other triggers bill normally. Zero-rating also requires the agent to run under the user's authenticated identity, and Microsoft applies fair-usage limits it reserves the right to change.
+  </div>
+
+  <h2>Phase 1 — Measure: where the numbers actually live</h2>
+  <p>You cannot optimize what you are not reading weekly. There are four distinct surfaces, and each answers a different question.</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Power Platform admin center — the governance hub</h3>
+      <p><em>PPAC → Licensing → Copilot Studio.</em> This is the primary source of truth for spend.</p>
+      <ul>
+        <li><strong>Summary tab:</strong> prepaid capacity purchased / assigned / consumed, month-to-date PAYG credits, capacity split between Copilot Studio and Microsoft 365 Copilot Chat, a daily consumption trend, and top environments by credit usage.</li>
+        <li><strong>Environments tab:</strong> per-environment consumption, plus a <em>Copilot credit consumption details</em> grid that breaks spend down <strong>by agent, by product, and by feature name</strong> — this is where you find out that graph grounding, not your tools, is eating the budget. Agent flow actions are listed separately.</li>
+        <li><strong>Manage agents page:</strong> search every agent in the tenant, see month-to-date billed credits per agent, and read status indicators (<em>within limit</em> / <em>nearing limit</em> / <em>over limit</em>).</li>
+      </ul>
+      <p>Data availability: daily figures for the current month plus the previous two full months, and monthly figures for the past 12 months.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Copilot Studio analytics — the behavioural "why"</h3>
+      <p><em>Copilot Studio → your agent → Analytics.</em> PPAC tells you what you spent; analytics tells you what the agent was doing.</p>
+      <ul>
+        <li>Engagement, resolution, escalation and abandon rates, CSAT, and active users. <strong>Abandon rate paired with high credit spend is the classic waste signal.</strong></li>
+        <li>Autonomous analytics for trigger-based agents: trigger receipt through action completion.</li>
+        <li>Topic analytics (classic mode) or themes (generative orchestration) to see which intents dominate volume.</li>
+        <li>Session transcript export as CSV — session ID, outcome, turn count, transcript, topic, channel, CSAT.</li>
+      </ul>
+      <p>Analytics data is retained up to 360 days; session transcripts are available for roughly the last 28–29 days, so <strong>export before the window closes</strong> if you want a baseline. A conversation times out after 30 minutes of inactivity (3 minutes on telephony).</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Azure Cost Management — the finance view for PAYG</h3>
+      <p>All pay-as-you-go charges land on the <strong>Power Platform Account resource</strong> created in the linked Azure subscription. Put it in a dedicated resource group and tag it so cost can be allocated by team or business unit, then use budgets and cost alerts against it like any other Azure resource.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>AI Builder activity page — for prompt-heavy agents</h3>
+      <p>The AI Builder activity view in the Power Automate portal gives near-real-time per-consumption monitoring of AI tool usage and shows whether a given call drew on AI Builder credits or Copilot Credits. Use it when the PPAC feature breakdown points at AI tools and you need to know which prompt is responsible.</p>
+    </div>
+  </div>
+
+  <h2>Phase 2 — Diagnose: the ten cost drivers</h2>
+  <p>Ranked roughly by how often they turn out to be the culprit in production.</p>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Driver</th><th>Why it costs</th><th>Tell-tale signal</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Generative orchestration multi-step turns</strong></td><td>Intent classification, tool selection, knowledge search and synthesis each bill separately. One user message can become 10–25+ credits.</td><td>Credits per session far above turns per session.</td></tr>
+      <tr><td>2</td><td><strong>Tenant graph grounding left on</strong></td><td>10 credits <em>per message</em>, on top of the answer. At 1,000 messages/day that is 10,000 credits/day before anything else happens.</td><td>"Tenant graph grounding" dominating the PPAC feature breakdown.</td></tr>
+      <tr><td>3</td><td><strong>Tool proliferation</strong></td><td>Every tool call is 5 credits. When descriptions overlap, the orchestrator invokes several tools per turn because it can't tell which is right.</td><td>Agent has 10+ tools; activity map shows multiple calls per turn.</td></tr>
+      <tr><td>4</td><td><strong>Premium / reasoning models by default</strong></td><td>10 credits per 1K tokens — 100× the basic tier. A 5,000-token reasoning response is 50 credits from the model alone.</td><td>AI tools (premium) line item present at volume.</td></tr>
+      <tr><td>5</td><td><strong>Over-broad knowledge sources</strong></td><td>Beyond 25 knowledge sources in generative mode, an extra model-driven filter step runs to pick sources — billed as an agent action. Broad SharePoint roots also drive more synthesis turns.</td><td>Root-site SharePoint URLs; sprawling source list.</td></tr>
+      <tr><td>6</td><td><strong>Autonomous triggers firing too broadly</strong></td><td>Each triggered run bills from trigger receipt onward at the agent-action rate. A trigger on "any new email" burns credits on irrelevant events.</td><td>Run count far exceeds the number of genuinely actionable events.</td></tr>
+      <tr><td>7</td><td><strong>Computer Use at scale</strong></td><td>5 credits per GUI step, never zero-rated. A 20-step automation is 100 credits per run minimum, plus model tokens.</td><td>CUA workloads on a Microsoft 365 Copilot licensed population.</td></tr>
+      <tr><td>8</td><td><strong>High action counts inside agent flows</strong></td><td>13 credits per 100 actions. Loops multiply action counts fast — a 50-action flow at 500 runs/day is ~3,250 credits/day.</td><td>Agent flow actions appearing as a top feature in PPAC.</td></tr>
+      <tr><td>9</td><td><strong>No classic fallback / no deflection</strong></td><td>Predictable FAQ traffic answered generatively costs at least 2× the classic rate — often 7× once orchestration overhead is counted.</td><td>Themes/topic analytics show a small set of intents carrying most volume.</td></tr>
+      <tr><td>10</td><td><strong>Unbounded conversation context</strong></td><td>Longer histories mean larger prompts, which matters most when premium models are in play. Per-turn cost rises through a long session.</td><td>High turns-per-session with no summarization or reset.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Phase 3 — Optimize: the levers, with the actual deltas</h2>
+
+  <h3>Lever 1 — Route known intents to classic topics</h3>
+  <p>This is the single highest-leverage change available. A classic message node answering "what are your support hours?" costs <strong>1 credit</strong>. The same question through generative orchestration is a topic selection (5) plus a generative answer (2) = <strong>7 credits</strong> — a <strong>7× delta on your highest-volume traffic</strong>. You do not have to abandon generative mode: author classic topics for your top intents <em>inside</em> a generative-orchestration agent and let the orchestrator handle only the genuine long tail.</p>
+
+  <h3>Lever 2 — Scope knowledge, and switch graph grounding off unless it earns its place</h3>
+  <ul>
+    <li>Point SharePoint knowledge at the narrowest sub-site that contains the answer, never the root.</li>
+    <li>Stay at or under <strong>25 knowledge sources</strong> in generative mode to avoid the extra source-selection model call.</li>
+    <li>Prefer uploaded files for static, controlled content over broad site crawls.</li>
+    <li>Turn off "use information from the web" when web grounding isn't needed.</li>
+    <li><strong>For agents whose users don't hold Microsoft 365 Copilot licenses, tenant graph grounding costs 10 credits per message with no zero-rating.</strong> Turn it on deliberately, for the agents that need tenant-wide recall — not as a default.</li>
+  </ul>
+
+  <h3>Lever 3 — Prune and disambiguate tools</h3>
+  <p>Remove tools the agent no longer uses. Then rewrite the descriptions of what remains so they don't overlap — Microsoft's own guidance notes that if multiple topics have similar descriptions, the agent may invoke all of them to answer one question, at 5 credits each. Where intent is unambiguous, use explicit routing in the agent instructions to name the tool directly rather than letting the orchestrator shop around.</p>
+
+  <h3>Lever 4 — Match the model tier to the job</h3>
+  <table>
+    <thead><tr><th>Tier</th><th>Rate</th><th>Use it for</th></tr></thead>
+    <tbody>
+      <tr><td>Basic</td><td class="num-cell cost-lo">~0.1 credits / 1K tokens</td><td>OCR, sentiment, key-phrase extraction, classification, simple text transforms.</td></tr>
+      <tr><td>Standard</td><td class="num-cell">~1.5 credits / 1K tokens</td><td>The default for most prompt and AI-tool scenarios.</td></tr>
+      <tr><td>Premium / reasoning</td><td class="num-cell cost-hi">~10 credits / 1K tokens</td><td>Genuine multi-step reasoning only. <strong>100× the basic tier</strong> — require a demonstrated need.</td></tr>
+    </tbody>
+  </table>
+  <p>For very high token volumes, bringing your own model from Azure AI Foundry can be worth modelling: Copilot Studio then charges only the agent-action rate to invoke it, and the token cost is billed by Foundry under its own (often cheaper at scale) pricing.</p>
+
+  <h3>Lever 5 — Put the right workload in the right flow engine</h3>
+  <p>Agent flows consume Copilot Credits at 13 per 100 actions. <strong>Power Automate cloud flows do not consume Copilot Credits at all</strong> — they draw on Power Automate licensing. For flows with very high action counts per run, moving the work to a Power Automate cloud flow removes it from your credit budget entirely; for short flows, the agent flow is usually cheaper. Model both against your actual action counts before deciding. Note that converting an agent flow to a cloud flow is a <strong>one-way change</strong>.</p>
+
+  <h3>Lever 6 — Tighten autonomous triggers</h3>
+  <p>Every fired trigger starts billing. Add trigger conditions so the agent only wakes for events it can actually act on, filter at the source (a targeted view or query rather than "all new records"), and confirm run counts in analytics match the number of genuinely actionable events. A trigger that fires on all inbound mail and then decides 90% is irrelevant has already spent the credits.</p>
+
+  <h3>Lever 7 — Keep pre-production off the meter</h3>
+  <p>Test-panel runs, flow-designer tests and prompt-builder tests are free — so do iteration there rather than against a published agent. Keep dev and sandbox environments on pay-as-you-go and allocate prepaid capacity to production only, so experimentation can never consume the capacity your production agents depend on. Use DLP policies to constrain which connectors agents can reach at all.</p>
+
+  <h3>Lever 8 — Gate access with authentication</h3>
+  <p>Require authentication on high-cost agents so anonymous traffic can't run up the meter, and so that Microsoft 365 Copilot licensed users are correctly identified for zero-rating — an unauthenticated agent forfeits that benefit entirely. Knowledge-source access follows the user's own Microsoft 365 permissions, so authentication also keeps expensive grounding scoped to people entitled to the content.</p>
+
+  <h2>Phase 4 — Govern: caps, enforcement, and cadence</h2>
+
+  <h3>Set per-agent consumption limits</h3>
+  <p>In <em>PPAC → Licensing → Copilot Studio → Manage agents</em> you can set a <strong>monthly credit cap per agent</strong>, configure a <strong>notification threshold</strong> so admins are alerted before the cap is reached, and have the agent automatically turn off at the cap. This works for both prepaid and pay-as-you-go environments and is the single best guard against one misconfigured agent consuming the tenant's capacity. Pair it with Azure Cost Management budgets (alerts at 80% and 100%) on the Power Platform Account resource for PAYG environments.</p>
+
+  <h3>Know what happens when you run out</h3>
+  <table>
+    <thead><tr><th>Situation</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>Prepaid consumption reaches <strong>125%</strong> of allocation</td><td>Custom agents are <strong>disabled</strong>. In-flight conversations finish; new invocations are rejected. Admins get an email and a PPAC notification.</td></tr>
+      <tr><td>Prepaid consumption reaches <strong>100%</strong> (agent flows)</td><td>New <strong>agent flow runs are blocked</strong>; the parent agent keeps working for non-flow interactions. Flow makers see a design-time warning.</td></tr>
+      <tr><td>Per-agent hard cap reached</td><td>That agent alone is turned off; other agents in the environment are unaffected.</td></tr>
+      <tr><td>Pay-as-you-go environment</td><td><strong>No enforcement.</strong> Usage continues and bills to the Azure subscription — which is why PAYG is the right choice for anything business-critical.</td></tr>
+    </tbody>
+  </table>
+  <p>When an agent is disabled by enforcement, end users see a generic billing/usage-limit message — not a graceful fallback. If an agent is customer-facing, treat enforcement as an outage scenario and plan the escalation path accordingly.</p>
+
+  <h3>A monitoring cadence that actually gets followed</h3>
+  <table>
+    <thead><tr><th>Cadence</th><th>Do this</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Real-time</td><td>Act on enforcement and threshold notifications.</td><td>PPAC email alerts</td></tr>
+      <tr><td>Weekly</td><td>Review top-consuming environments and agents; compare actual vs. estimate.</td><td>PPAC → Environments tab, consumption trend</td></tr>
+      <tr><td>Monthly</td><td>Full review: prepaid vs. PAYG split, per-agent caps, environment allocations, and unused prepaid capacity that will expire.</td><td>PPAC Summary; session export from Copilot Studio</td></tr>
+      <tr><td>Quarterly</td><td>Re-forecast with updated volumes; revisit orchestration mode and model tiers per agent.</td><td>Agent usage estimator; PPAC 12-month trend</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Forecasting a new agent before you launch it</h2>
+  <p>Microsoft publishes a free <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">agent usage estimator</a> covering Copilot Studio custom agents and Dynamics 365 agents, with multi-agent aggregation and PDF export for procurement. Microsoft is explicit that it produces informational estimates only and recommends adding a <strong>10–20% buffer</strong>.</p>
+
+  <p>Do the arithmetic by hand as well — it forces you to confront the stacking:</p>
+  <div class="math">1. Map the expected turns in a typical session.
+2. For each turn, add every event that fires:
+     classic answer          +1
+     generative answer       +2
+     each tool call          +5
+     tenant graph grounding  +10
+     agent flow actions      +13 per 100 actions
+     AI tool call            tier rate x (tokens / 1000)
+3. Credits per session  = sum of turn costs
+4. Credits per month    = credits/session x sessions/day x days
+5. Add a 10-20% buffer
+6. PAYG cost            = credits x $0.01</div>
+
+  <p>Worked examples published by Microsoft:</p>
+  <ul>
+    <li><strong>Autonomous order-processing agent:</strong> 4 action calls × 5 = <strong>20 credits per run</strong>.</li>
+    <li><strong>Customer support agent:</strong> (4 classic × 1 + 2 generative × 2) × 900 customers/day = <strong>7,200 credits/day</strong>.</li>
+    <li><strong>Sales agent with graph grounding, unlicensed users:</strong> (4 generative × 2 + 4 graph × 10) × 100 users = <strong>4,800 credits/day</strong> — note that grounding alone is 4,000 of those 4,800.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Read that last example again.</strong> Graph grounding is <strong>83%</strong> of the cost of that agent. Before you tune prompts, shave tools, or downgrade models, check the PPAC feature breakdown — the answer is usually one line item, not a hundred small inefficiencies.
+  </div>
+
+  <h2>The optimization checklist</h2>
+  <div class="card">
+    <h3>Measure</h3>
+    <ul class="checklist">
+      <li>Pulled the per-agent, per-feature credit breakdown from the PPAC Environments tab.</li>
+      <li>Identified the single largest feature line item before changing anything.</li>
+      <li>Exported session transcripts (28–29 day window) to establish a turns-per-session baseline.</li>
+      <li>Cross-checked abandon rate and resolution rate against credits spent.</li>
+    </ul>
+    <h3>Optimize</h3>
+    <ul class="checklist">
+      <li>Top-volume intents routed to classic topics rather than generative orchestration.</li>
+      <li>Tenant graph grounding on only where it demonstrably improves answers.</li>
+      <li>Knowledge sources scoped to sub-sites; total kept at or under 25 in generative mode.</li>
+      <li>Web grounding disabled unless required.</li>
+      <li>Unused tools removed; remaining tool descriptions rewritten to be non-overlapping.</li>
+      <li>Premium/reasoning models restricted to cases with a demonstrated need.</li>
+      <li>High-action-count flows evaluated for Power Automate cloud flows instead of agent flows.</li>
+      <li>Autonomous trigger conditions narrowed to genuinely actionable events.</li>
+      <li>Authentication required on high-cost agents.</li>
+    </ul>
+    <h3>Govern</h3>
+    <ul class="checklist">
+      <li>Per-agent monthly credit caps set, with notification thresholds below the cap.</li>
+      <li>Business-critical agents on pay-as-you-go so enforcement can't take them offline.</li>
+      <li>Prepaid capacity allocated to production; dev/sandbox left on PAYG.</li>
+      <li>Azure Cost Management budget and alerts configured on the Power Platform Account resource.</li>
+      <li>Weekly and monthly review owners named.</li>
+      <li>Estimator re-run each quarter against actual volumes.</li>
+    </ul>
+  </div>
+
+  <h2>Reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management — the full credit rate card (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Copilot Studio licensing &amp; billing overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity" target="_blank" rel="noopener">Manage Copilot Studio credits and capacity in PPAC (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview" target="_blank" rel="noopener">Copilot Studio analytics overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-transcripts-studio" target="_blank" rel="noopener">Session transcripts and export (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-transcripts-studio</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-meters" target="_blank" rel="noopener">Pay-as-you-go meters and rates (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-meters</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up" target="_blank" rel="noopener">Set up a pay-as-you-go billing policy (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-quotas" target="_blank" rel="noopener">Quotas and limits — Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-quotas</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/advanced-generative-actions" target="_blank" rel="noopener">Generative orchestration — how turns are composed (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/advanced-generative-actions</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/generative-mode-guidance" target="_blank" rel="noopener">Generative mode guidance — instructions &amp; tool descriptions (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/generative-mode-guidance</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio" target="_blank" rel="noopener">Knowledge sources in Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/flows-overview" target="_blank" rel="noopener">Agent flows overview, incl. conversion to cloud flows (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/flows-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/computer-use" target="_blank" rel="noopener">Computer use in Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/computer-use</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/ai-builder/administer-licensing" target="_blank" rel="noopener">AI Builder capability rate table (Learn)</a><br><span class="u">https://learn.microsoft.com/ai-builder/administer-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator" target="_blank" rel="noopener">Agent usage estimator — documentation (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator</span></div>
+    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Agent usage estimator — the tool</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credit Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
+  </div>
+
+  <div class="feature-tags">
+    <span class="tag">Copilot Studio</span>
+    <span class="tag">Copilot Credits</span>
+    <span class="tag">Cost optimization</span>
+    <span class="tag">PPAC</span>
+    <span class="tag">Governance</span>
+    <span class="tag">Pay-as-you-go</span>
+  </div>
+
+  <footer class="foot">
+    Compiled from Microsoft Learn public documentation (verified July 2026). Copilot Credit rates, zero-rating conditions, enforcement thresholds, prepaid pack sizes, and pay-as-you-go meters change frequently — always confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. Any credits-per-session figures you derive from this page are illustrative modelling, not published Microsoft benchmarks. This playbook is guidance, not a contract.
+  </footer>
+</div>
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
