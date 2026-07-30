@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 28px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 38px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 10px 0; }
+
+a { color: var(--cp-link); }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.card h3 { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.muted { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.warn { background: rgba(245,158,11,0.10); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin: 2px 0 4px; }
+.step .body p { margin: 4px 0; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform · Enablement Reference</p>
+    <h1>Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy</h1>
+    <p class="sub">The ins and outs of application lifecycle management on Power Platform — solutions, environments, pipelines, Dataverse Git integration — and exactly where GitHub and Azure DevOps fit alongside them. Prepared as an enablement reference · July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> ALM on Power Platform isn't a single product — it's four moving parts working together: <strong>solutions</strong> (the unit of change), <strong>environments</strong> (the stages), <strong>source control</strong> (the source of truth), and a <strong>promotion mechanism</strong> (how change moves). <em>Pipelines in Power Platform</em> are the promotion mechanism; <em>GitHub / Azure DevOps</em> are the source of truth and the build system. The mature answer is almost never "one or the other" — it's pipelines for deployment, Git for source control and gates, and pipelines extensibility as the seam between them.
+  </div>
+
+  <h2>1. The mental model — four moving parts</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Unit of change</span>
+      <h3>Solutions</h3>
+      <p>The container that carries your customisations — apps, flows, tables, agents, connectors, PCF controls, plug-ins. Everything downstream of dev moves as a <strong>managed</strong> solution.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Stages</span>
+      <h3>Environments</h3>
+      <p>Dev → Test/QA → UAT → Prod, each with its own Dataverse database, security, and data. Environment strategy <em>is</em> your release strategy.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Source of truth</span>
+      <h3>Source control</h3>
+      <p>Git — via native Dataverse Git integration, or via <code>pac</code> CLI export/unpack in a build workflow. Branches, PRs, history, and rollback live here.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Movement</span>
+      <h3>Promotion</h3>
+      <p>Pipelines in Power Platform (in-product, maker-friendly, governed) and/or GitHub Actions / Azure Pipelines (code-first, cross-tenant, fully scriptable).</p>
+    </div>
+  </div>
+  <p>If any one of these is missing, you feel it immediately: no solutions means untracked drift; no environment separation means editing in production; no source control means the maker's environment <em>is</em> your backup; no promotion mechanism means someone is hand-carrying zip files.</p>
+
+  <h2>2. Solutions — the fundamentals people skip</h2>
+  <table>
+    <thead><tr><th>Concept</th><th>What it means in practice</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Unmanaged</strong></td><td>The editable, in-development form. Lives only in development environments. This is what you commit to source control.</td></tr>
+      <tr><td><strong>Managed</strong></td><td>The built, locked artifact you deploy to test/UAT/production. Not editable in place — which is exactly the point. Uninstalling removes its components cleanly.</td></tr>
+      <tr><td><strong>Publisher &amp; prefix</strong></td><td>Chosen once, effectively forever. Set a real publisher with a meaningful prefix (not <code>new_</code>) before you create your first table or column.</td></tr>
+      <tr><td><strong>Layering</strong></td><td>Multiple managed solutions can touch the same component; the resulting behaviour is resolved by layer order. In the target environment you can inspect layers and diff between them.</td></tr>
+      <tr><td><strong>Connection references</strong></td><td>Decouple a flow from a specific connection so each environment binds its own. Non-negotiable for clean promotion.</td></tr>
+      <tr><td><strong>Environment variables</strong></td><td>Per-environment configuration (URLs, IDs, toggles) supplied at deployment time instead of hard-coded.</td></tr>
+      <tr><td><strong>What solutions do <em>not</em> carry</strong></td><td>Dataverse <strong>data</strong>. Reference/config data needs a separate mechanism (e.g. the Configuration Migration tool or a data-seeding step in your build).</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>Anti-pattern:</strong> the single giant "Company Solution" that everything lands in. It grows into a slow, all-or-nothing deployment with cross-team blast radius. Split by product/domain, keep shared components in a dedicated base solution, and be deliberate about dependencies between them.
+  </div>
+
+  <h2>3. Pipelines in Power Platform — what they actually are</h2>
+  <p>Pipelines bring CI/CD into the product itself. An admin configures a pipeline once; from then on a maker deploys their solution from inside their development environment in a few clicks — no exports, no zip files, no knowledge of ALM tooling required. Developers can drive the same pipelines from the <code>pac pipeline</code> command group.</p>
+
+  <h3>The architecture</h3>
+  <ul>
+    <li><strong>A pipelines host</strong> — a Dataverse environment that stores pipeline configuration, run history, and every exported solution artifact. It should be a production environment, but it does <em>not</em> need to be a managed environment.</li>
+    <li><strong>Environment records</strong> — each environment is registered against the host and classified as <em>Development</em> or <em>Target</em>. An environment can only belong to <strong>one</strong> host.</li>
+    <li><strong>Stages</strong> — the ordered hops (e.g. Dev → QA → UAT → Prod). Solutions traverse them sequentially; skipping isn't possible.</li>
+  </ul>
+
+  <h3>Platform host vs. custom host</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill muted">Zero setup</span>
+      <h3>Platform host (personal pipelines)</h3>
+      <p>Provisioned automatically the first time anyone in the tenant opens the Pipelines page. Great for getting a maker off manual export/import today.</p>
+      <ul>
+        <li>Max three environments — one dev, two targets.</li>
+        <li>Can't be shared with other users.</li>
+        <li><strong>Can't be extended</strong> (no approvals, no delegated deployment).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">Enterprise</span>
+      <h3>Custom host (governed pipelines)</h3>
+      <p>A dedicated Dataverse environment you stand up and administer via the <em>Deployment Pipeline Configuration</em> app.</p>
+      <ul>
+        <li>Unlimited stages and environments.</li>
+        <li>Shareable across teams.</li>
+        <li>Fully extensible — approvals, delegated deployments, custom gates.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout warn">
+    <strong>Watch this trap:</strong> an environment can only be associated with one host. If makers create personal pipelines on the platform host first, those environment records must be deleted from the platform host before the environments can join your governed custom host. Set a <em>default pipelines host</em> early if you want to steer everyone to the governed path from day one.
+  </div>
+
+  <h3>What pipelines deploy — and what they don't</h3>
+  <table>
+    <thead><tr><th></th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Deploys</strong></td><td>The solution plus target-environment configuration: connections, connection references, and environment variables — validated up front, before the deployment starts.</td></tr>
+      <tr><td><strong>Backups</strong></td><td>Both managed and unmanaged artifacts are exported and retained in the host for every deployment.</td></tr>
+      <tr><td><strong>Tamper-proofing</strong></td><td>The solution is exported once, when the maker hits Deploy. The <em>same</em> artifact is promoted through every subsequent stage — nothing can bypass QA or an approval gate.</td></tr>
+      <tr><td><strong>Import behaviour</strong></td><td>Defaults to <em>Upgrade</em> without <em>Overwrite customizations</em>. Not currently configurable per deployment.</td></tr>
+      <tr><td><strong>Rollback</strong></td><td>Redeploying a previous solution version is supported when the pipeline setting is enabled; otherwise only higher versions can go out.</td></tr>
+      <tr><td><strong>Not supported</strong></td><td>Cross-tenant deployment · unmanaged deployment to non-dev · multiple solutions in one deployment · Power BI dashboards/datasets (preview) · Dataverse table data.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Licensing shape</h3>
+  <table>
+    <thead><tr><th>Environment purpose</th><th>Typical type</th><th>Standalone premium licence required?</th></tr></thead>
+    <tbody>
+      <tr><td>Pipelines host</td><td>Production</td><td>No — the host doesn't need to be a managed environment</td></tr>
+      <tr><td>Development</td><td>Developer</td><td>No — dev environments needn't be managed</td></tr>
+      <tr><td>QA</td><td>Developer</td><td>No</td></tr>
+      <tr><td>Production (target)</td><td>Production</td><td><strong>Yes</strong> — all non-dev pipeline environments must be managed environments, and managed environments require premium licences</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>Plan for this:</strong> Microsoft has begun automatically enabling Managed Environments on pipeline <em>target</em> environments that aren't already managed (announced via Message center, starting February 2026). Review your targets and enable deliberately rather than being surprised — you can also switch on automatic conversion per host in the admin center under <strong>Deployments &gt; Settings</strong>.
+  </div>
+
+  <h3>Roles</h3>
+  <ul>
+    <li><strong>Deployment Pipeline Administrator</strong> — full access to all pipelines; can open the Deployment Pipeline Configuration app.</li>
+    <li><strong>Deployment Pipeline Makers</strong> — can create and consume personal pipelines managed in the custom host.</li>
+    <li><strong>Deployment Pipeline Users</strong> — can run pipelines shared with them; read access to stage runs in their business unit.</li>
+  </ul>
+
+  <h2>4. Making pipelines enterprise-grade: gates and extensibility</h2>
+  <p>Out of the box a pipeline is a straight run. Extensibility lets you insert your own stops on the track — implemented as Power Automate cloud flows in the host environment, triggered by Dataverse business events. The maker experience stays a single Deploy button no matter how sophisticated the machinery behind it.</p>
+
+  <div class="step">
+    <span class="num">1</span>
+    <div class="body">
+      <h3>Pre-export step</h3>
+      <p>Custom validation the moment a deployment is requested — solution checker results, naming standards, a change-record lookup. Nothing is exported from dev until your logic says go. Enable on the first stage only.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">2</span>
+    <div class="body">
+      <h3>Delegated deployment</h3>
+      <p>The deployment runs as a <strong>service principal</strong> or the stage owner rather than the requesting maker — so makers need no access at all in production. Requires approval from an authorised identity. This is the single highest-value control for securing prod.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">3</span>
+    <div class="body">
+      <h3>Pre-deployment step</h3>
+      <p>A final gate <em>after</em> approval and before the import — change-window checks, CAB sign-off, a freeze calendar, notifying a system of record.</p>
+    </div>
+  </div>
+
+  <p>Each step raises real-time triggers you can subscribe to in cloud flows: <code>OnDeploymentRequested</code>, <code>OnApprovalStarted</code>, <code>OnApprovalCompleted</code>, <code>OnPreDeploymentStarted</code>, <code>OnPreDeploymentCompleted</code>, <code>OnDeploymentStarted</code>, <code>OnDeploymentCompleted</code>. Your flow signals back with an unbound action (<code>UpdatePreExportStepStatus</code>, <code>UpdateApprovalStatus</code>, <code>UpdatePreDeploymentStepStatus</code>) using status <strong>20</strong> to complete or <strong>30</strong> to reject, with comments surfaced to the maker in run history.</p>
+  <p>Use Power Automate <em>trigger conditions</em> so a flow only fires for the pipeline or stage it governs — e.g. <code>@contains(triggerOutputs()?['body/OutputParameters/DeploymentStageName'], 'QA')</code>. This keeps flow runs (and request consumption) down.</p>
+  <div class="callout warn">
+    <strong>Remember:</strong> personal pipelines on the platform host can't be extended. Gates only exist on a custom host.
+  </div>
+
+  <h2>5. Source control: Dataverse Git integration</h2>
+  <p>Native Git integration syncs unmanaged solutions and solution objects between Dataverse development environments and a Git repository, directly from the solutions experience in <code>make.powerapps.com</code> — no CLI required for the maker.</p>
+  <ul>
+    <li><strong>Dev environments only.</strong> Git integration is designed for development. Test and production still receive built managed artifacts, deployed by pipelines.</li>
+    <li><strong>Human-readable file format.</strong> Solution objects are stored so changes are diffable, and objects are stored once and shared across solutions in the same repo/folder rather than duplicated.</li>
+    <li><strong>Short-lived dev environments.</strong> Because source control holds the truth, you can rehydrate a dev environment from a branch on demand and tear it down after — less sprawl, less storage, fewer stale environments.</li>
+    <li><strong>Fusion teams.</strong> Makers and pro devs work in separate environments and converge through the repository.</li>
+    <li><strong>Recovery.</strong> Restore to a previous state after an unintended change.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Provider support (as of July 2026):</strong> native Dataverse Git integration works with <strong>Azure DevOps Git repositories</strong>. <strong>GitHub</strong> as a native Git provider is on the 2026 wave 1 release plan with public preview slated for <strong>August 2026</strong>, alongside performance improvements and new public APIs for both providers. Release-plan dates can move — validate before you architect around it. In the meantime, GitHub users reach the same outcome through <code>pac</code> CLI export/unpack inside a GitHub Actions workflow.
+  </div>
+
+  <h3>The code-first caveat worth knowing</h3>
+  <p>If a developer deploys a PCF control or plug-in <em>directly</em> into an unmanaged solution in a maker environment and then commits, only the <strong>built</strong> artifact (the DLL, the bundled JS) lands in source control — so you end up with the binary and the source both in the repo, able to drift apart. The recommended pattern is to build code-first components in a proper build process, produce an unmanaged solution, and import <em>that</em> into the maker environment. Source code stays the single source of truth.</p>
+
+  <h2>6. Where GitHub fits</h2>
+  <p><strong>GitHub Actions for Microsoft Power Platform</strong> is a first-party action set on the GitHub Marketplace that removes the need for custom scripts. Actions fall into four categories — <em>helper</em>, <em>quality check</em>, <em>solution</em>, and <em>environment management</em> — and cover:</p>
+  <ul>
+    <li>Export/import and pack/unpack of solutions between environments and source control.</li>
+    <li>Deployment to downstream environments.</li>
+    <li>Provisioning and de-provisioning environments (including spinning up ephemeral build environments).</li>
+    <li>Static analysis via <strong>Power Apps solution checker</strong> as a PR quality gate.</li>
+  </ul>
+  <p>Authentication is via <strong>service principal + client secret</strong> (supports MFA) or username/password (does not). Actions run on Windows or Linux runners, require a Dataverse environment with a database, and carry no extra licence cost beyond your GitHub plan.</p>
+
+  <h3>Pipelines vs. GitHub Actions — an honest split</h3>
+  <table>
+    <thead><tr><th>Need</th><th>Reach for</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Maker-initiated deployment with zero ALM knowledge</td><td>Pipelines</td><td>In-product, few clicks, pre-validated connections and environment variables.</td></tr>
+      <tr><td>Approvals, segregation of duties, no maker access to prod</td><td>Pipelines + delegated deployment</td><td>Service-principal execution with an approval gate, native to the platform.</td></tr>
+      <tr><td>Pull requests, branch policies, code review of changes</td><td>GitHub (or Azure Repos)</td><td>Git is where review, history, and branch protection live.</td></tr>
+      <tr><td>Building PCF controls, plug-ins, custom code</td><td>GitHub Actions</td><td>Compile, test, and package before the solution is ever imported.</td></tr>
+      <tr><td>Solution checker / static analysis as a merge gate</td><td>GitHub Actions</td><td>Fails the PR, not the deployment.</td></tr>
+      <tr><td>Deploying across <em>tenants</em></td><td>GitHub Actions / Azure DevOps</td><td>Pipelines cannot cross tenant boundaries — Microsoft explicitly points here.</td></tr>
+      <tr><td>Orchestrating multiple solutions or non-Power-Platform assets together</td><td>GitHub Actions</td><td>Pipelines deploy one solution per run.</td></tr>
+      <tr><td>Granular diffs of what changed</td><td>Git</td><td>Pipelines show layer/XML diffs in the target; Git shows line-level history.</td></tr>
+      <tr><td>Environment provisioning / teardown automation</td><td>GitHub Actions</td><td>Environment management actions handle create/delete/reset.</td></tr>
+    </tbody>
+  </table>
+  <p>Microsoft's own guidance is unambiguous: <em>use pipelines for core deployment, and extend them to integrate with other CI/CD tools where needed</em>. Doing so usually makes the workload inside GitHub or Azure DevOps smaller and cheaper to maintain, not larger.</p>
+
+  <h2>7. A reference pattern that scales</h2>
+  <p>Microsoft's enterprise ALM reference architecture combines Dataverse Git integration, a custom pipelines host, and repo-side governance. Distilled:</p>
+  <div class="card">
+    <h3>Development</h3>
+    <ul>
+      <li>Map each development stream (DEV1, DEV2, DEV<em>n</em>) to its own environment and feature branch.</li>
+      <li>Sync changes into Git through Dataverse Git integration.</li>
+      <li>Merge feature branches into <code>main</code> via pull requests with branch protection.</li>
+      <li>Pull <code>main</code> back down into every dev branch to avoid drift. <code>main</code> is the authoritative source for release promotion.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Test &amp; UAT</h3>
+    <ul>
+      <li>Promote from <code>main</code> into Test using a custom pipelines host with the <em>Source Control</em> deployment type — deploying from the repo, not from a maker's environment.</li>
+      <li>Technical validation and smoke testing in Test; promote to UAT with pipelines and cut a release branch.</li>
+      <li>Generate release notes from work items and distribute for business validation.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Production &amp; hotfix</h3>
+    <ul>
+      <li>Promote approved UAT changes to Production through the same pipeline, with approvals and service-principal execution.</li>
+      <li>Handle urgent fixes in a dedicated hotfix environment connected to the current <strong>release branch</strong>.</li>
+      <li>Promote the hotfix through the controlled pipeline, then merge the release branch back into <code>main</code> so the fix survives the next release.</li>
+    </ul>
+  </div>
+
+  <h2>8. A maturity ladder — pick your rung, then climb</h2>
+  <table>
+    <thead><tr><th></th><th>Level</th><th>What it looks like</th><th>Move up when…</th></tr></thead>
+    <tbody>
+      <tr><td><strong>0</strong></td><td>Manual</td><td>Export/import zips by hand, or worse, editing in production.</td><td>Immediately.</td></tr>
+      <tr><td><strong>1</strong></td><td>Personal pipelines</td><td>Platform host, one dev + two targets, maker self-service.</td><td>You need approvals, sharing, or more than three environments.</td></tr>
+      <tr><td><strong>2</strong></td><td>Governed pipelines</td><td>Custom host, shared multi-stage pipelines, managed targets, admin-owned.</td><td>Production needs segregation of duties.</td></tr>
+      <tr><td><strong>3</strong></td><td>Gated pipelines</td><td>Delegated deployment via service principal, approval flows, pre-deployment gates, run analytics.</td><td>You need history, review, and rollback beyond the host's artifacts.</td></tr>
+      <tr><td><strong>4</strong></td><td>Source-controlled</td><td>Dataverse Git integration, branch-per-stream, PR review, short-lived dev environments.</td><td>You have pro-code components or cross-tenant/multi-solution releases.</td></tr>
+      <tr><td><strong>5</strong></td><td>Full CI/CD</td><td>GitHub Actions builds and quality gates feeding pipelines for governed promotion; release notes and work-item traceability automated.</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>Don't skip rungs to look sophisticated.</strong> A team that adopts level 1 this week and actually uses it beats a level-5 design nobody can operate. The whole point of pipelines is that the maker experience stays identical as the machinery behind it matures.
+  </div>
+
+  <h2>9. Pitfalls checklist</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Default environment as the pipelines host.</strong> Supported, not recommended. Stand up a dedicated host.</li>
+      <li><strong>Host doubling as a dev environment.</strong> Not supported.</li>
+      <li><strong>Publisher prefix left as <code>new_</code>.</strong> Fix it before the first table exists — it's effectively permanent.</li>
+      <li><strong>Hard-coded connections.</strong> Use connection references and environment variables or every deployment needs manual post-processing.</li>
+      <li><strong>Unmanaged solutions in production.</strong> Always deploy managed downstream; unmanaged belongs in dev and source control only.</li>
+      <li><strong>Unpublished customisations.</strong> Pipelines don't publish before export — publish as you save.</li>
+      <li><strong>Cross-geo assumptions.</strong> Host and environments must share a geography unless cross-geo solution deployments are enabled on the host.</li>
+      <li><strong>Rollback disabled.</strong> Turn on redeploying previous versions <em>before</em> you need it, or you're editing <code>solution.xml</code> by hand at 2am.</li>
+      <li><strong>One dev environment per solution.</strong> Pipelines assume a single dev environment per solution; multi-dev parallelism needs Git integration and branches.</li>
+      <li><strong>Binaries and source both in the repo.</strong> Build code-first components properly and import the resulting solution.</li>
+      <li><strong>No retention policy.</strong> Every deployment stores artifacts in the host — configure bulk delete jobs.</li>
+    </ul>
+  </div>
+
+  <h2>10. Reference materials</h2>
+  <div class="card">
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/" target="_blank" rel="noopener">Application lifecycle management (ALM) in Power Platform</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/pipelines" target="_blank" rel="noopener">Overview of pipelines in Power Platform</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/pipelines</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/extend-pipelines" target="_blank" rel="noopener">Extend pipelines in Power Platform</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/extend-pipelines</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/delegated-deployments-setup" target="_blank" rel="noopener">Deploy pipelines as a service principal or pipeline owner (delegated deployments)</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/delegated-deployments-setup</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/platform-host-pipelines" target="_blank" rel="noopener">Create a personal pipeline using the platform host</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/platform-host-pipelines</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/git-integration/overview" target="_blank" rel="noopener">Overview of Git integration in Power Platform</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/git-integration/overview</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/architecture/reference-architectures/enterprise-power-platform-alm" target="_blank" rel="noopener">Reference architecture: automate deployments with Dataverse Git integration and pipelines</a>
+      <span class="u">learn.microsoft.com/power-platform/architecture/reference-architectures/enterprise-power-platform-alm</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/devops-github-actions" target="_blank" rel="noopener">GitHub Actions for Microsoft Power Platform</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/devops-github-actions</span></p>
+    <p class="ref"><a href="https://github.com/marketplace/actions/powerplatform-actions" target="_blank" rel="noopener">Power Platform Actions on the GitHub Marketplace</a>
+      <span class="u">github.com/marketplace/actions/powerplatform-actions</span></p>
+    <p class="ref"><a href="https://github.com/microsoft/powerplatform-actions-lab" target="_blank" rel="noopener">GitHub Actions hands-on lab (sample workflows)</a>
+      <span class="u">github.com/microsoft/powerplatform-actions-lab</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/developer/cli/reference/pipeline" target="_blank" rel="noopener">pac pipeline — Power Platform CLI command group</a>
+      <span class="u">learn.microsoft.com/power-platform/developer/cli/reference/pipeline</span></p>
+    <p class="ref"><a href="https://aka.ms/powa" target="_blank" rel="noopener">Microsoft Power Platform Well-Architected</a>
+      <span class="u">aka.ms/powa</span></p>
+  </div>
+
+  <div class="feature-tags">
+    <span class="tag">ALM</span>
+    <span class="tag">Pipelines</span>
+    <span class="tag">Solutions</span>
+    <span class="tag">Git integration</span>
+    <span class="tag">GitHub Actions</span>
+    <span class="tag">Managed Environments</span>
+    <span class="tag">Governance</span>
+  </div>
+
+  <footer class="foot">
+    Compiled from public Microsoft documentation and release plans, July 2026. This is guidance, not a contract — features described as preview or planned may change or ship on different dates. Confirm current product behaviour, licensing terms, and process against the official documentation before making architectural commitments. &middot; <a href="index.html">All resources</a>
+  </footer>
+</div>
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
