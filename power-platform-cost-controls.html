@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Power Platform Cost Controls &amp; Billing Policies</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.seeded { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2 { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">&#128424; Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform &middot; Cost &amp; Billing Reference</p>
+    <h1>Cost Controls &amp; Billing Policies</h1>
+    <p class="sub">How Power Platform and Copilot Studio consumption bills to Azure, and where the guardrails that stop a runaway agent actually live. &middot; July 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> a billing policy binds to an <strong>environment</strong> &mdash; never to a user. There is no way to &ldquo;put a user on pay-as-you-go&rdquo;. You link rooms, not people.
+  </div>
+
+  <h2>1. The rule people get wrong</h2>
+  <p>Pay-as-you-go is not assigned like a licence. It is attached to environments through a <strong>billing policy</strong>, and an environment can be linked to <strong>exactly one</strong> billing policy at a time.</p>
+  <p>This catches out administrators who expect to enable consumption billing for a particular person or team. The unit of control is the environment, so your environment design <em>is</em> your cost-allocation design. If you need to separate spend between departments, you need separate environments.</p>
+
+  <h2>2. What a billing policy actually is</h2>
+  <p>A named link between <strong>one or more environments</strong> and <strong>one Azure subscription</strong>. Creating one provisions a <strong>Power Platform account resource</strong> in the Azure subscription&rsquo;s resource group, and every Power Platform meter bills against that resource.</p>
+  <ul>
+    <li>The resource is a <strong>hidden type</strong> in the Azure portal &mdash; enable <em>View hidden types</em> or you will not find it.</li>
+    <li>It can be <strong>tagged</strong> like any other Azure resource, so spend can be split across teams using resource groups and tags.</li>
+    <li>Pay-as-you-go is available for <strong>production and sandbox</strong> environments.</li>
+    <li>Deleting the policy in the admin center does <strong>not</strong> delete the Azure resource &mdash; clean that up separately.</li>
+  </ul>
+  <p>A common pattern is one policy per cost centre: the marketing team&rsquo;s environments billed to their subscription, and a finance team split into separate policies per sub-team so each one&rsquo;s spend reports cleanly.</p>
+
+  <h2>3. Who can set it up</h2>
+  <table>
+    <thead><tr><th>Role</th><th>Create a policy</th><th>Edit</th><th>Link environments</th></tr></thead>
+    <tbody>
+      <tr><td>Environment admin</td><td>Yes</td><td>Only policies they created</td><td>Only their own policies, and environments where they are admin</td></tr>
+      <tr><td>Power Platform admin</td><td>Yes</td><td>All in the tenant</td><td>All in the tenant</td></tr>
+      <tr><td>Global admin</td><td>Yes</td><td>All in the tenant</td><td>All in the tenant</td></tr>
+      <tr><td>Dynamics 365 admin</td><td>Yes</td><td>All in the tenant</td><td>All in the tenant</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>If the subscription is missing from the dropdown, it is an Azure problem, not a Power Platform one.</strong> You need rights to create resources and register resource providers in that subscription &mdash; normally owner or contributor. Administrators frequently waste time looking in the wrong portal for this.
+  </div>
+
+  <h2>4. Creating one</h2>
+  <p>In the Power Platform admin center: <strong>Licensing &rarr; Pay-as-you-go plans &rarr; New billing plan</strong>. Choose the Azure subscription, name the plan, pick the subscription and <strong>resource group</strong>, select which <strong>Power Platform products</strong> the meters apply to, then choose a region and the environments to include.</p>
+  <p>Makers can also enable pay-as-you-go directly from a canvas or model-driven app&rsquo;s settings without visiting the admin center. Two consequences are worth knowing before anyone does that:</p>
+  <ul>
+    <li>Connecting a subscription turns pay-as-you-go on for <strong>every app in that environment</strong>, not just the one you were looking at.</li>
+    <li>If <strong>app passes</strong> exist for the environment, they are <strong>ignored rather than consumed</strong> once pay-as-you-go is active &mdash; you may be paying twice without realising.</li>
+  </ul>
+
+  <h3>The Microsoft 365 Copilot Chat special case</h3>
+  <p>Choosing <strong>Microsoft 365 Copilot Chat</strong> instead of a standard Azure subscription plan automatically provisions an environment of that name, linked to the new plan, which is where the corresponding consumption reporting appears. This is how users without a paid Copilot licence get metered access to agents. Note that <strong>administrators cannot delete this environment</strong> &mdash; it can only be unlinked.</p>
+
+  <h2>5. Where the cost controls live</h2>
+  <p>Three layers, from coarse to fine. Most organisations only discover the third one after an unpleasant invoice.</p>
+  <ol>
+    <li><strong>Environment allocation</strong> &mdash; assign prepaid credits per environment under <em>Licensing &rarr; Copilot Studio &rarr; Manage capacity</em>.</li>
+    <li><strong>Overage behaviour</strong> &mdash; when an environment&rsquo;s allocation reaches zero, choose whether to draw from remaining tenant capacity or bill the overage to a linked pay-as-you-go plan.</li>
+    <li><strong>Per-agent monthly limits</strong> &mdash; under <em>Licensing &rarr; Copilot Studio &rarr; Manage Agents</em>, cap an individual agent whether the environment is prepaid or pay-as-you-go.</li>
+  </ol>
+  <div class="callout">
+    <strong>This is the answer to &ldquo;how do we stop one runaway agent running up the bill?&rdquo;</strong> Per-agent limits come with two guardrails: <strong>notifications</strong> to environment and tenant administrators as an agent approaches its limit, and an optional <strong>hard stop</strong> that switches the agent off when it reaches one. That is a far better instrument than blunt environment-level controls.
+  </div>
+
+  <h2>6. Prepaid and pay-as-you-go together</h2>
+  <p>These are not an either/or choice, and layering them is the resilient configuration.</p>
+  <table>
+    <thead><tr><th>Configuration</th><th>What happens when you run out</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Prepaid only</strong></td><td>Enforcement bites. Makers are blocked from creating and editing agents, running agents can deactivate, and new agent flow runs are blocked while the parent agent continues serving other interactions.</td></tr>
+      <tr><td><strong>Pay-as-you-go only</strong></td><td>Nothing stops. Usage simply bills to Azure &mdash; predictable continuity, less predictable cost.</td></tr>
+      <tr><td><strong>Prepaid + pay-as-you-go</strong> <span class="pill">recommended</span></td><td>Prepaid capacity is consumed first and pay-as-you-go absorbs the overage. Continuity without abandoning your committed discount.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>Prepaid alone is the configuration that fails at the worst possible moment</strong> &mdash; typically mid-month, on a business-critical agent, with no warning to the people relying on it. Unused prepaid credits also do <strong>not</strong> carry over month to month. If an agent matters to the business, put a pay-as-you-go safety net under it.
+  </div>
+
+  <h2>7. Monitoring what you are spending</h2>
+  <p>Under <strong>Licensing &rarr; Copilot Studio</strong> in the admin center:</p>
+  <ul>
+    <li><strong>Summary</strong> &mdash; active pay-as-you-go plans with month-to-date billed consumption, and prepaid capacity purchased, assigned and consumed.</li>
+    <li><strong>Capacity tab</strong> &mdash; consumption by product, a daily trend across three months, and the top environments by usage.</li>
+    <li><strong>Environments tab</strong> &mdash; per-environment credits drawn from prepaid versus billed to pay-as-you-go, whether the environment is in overage, and a per-agent breakdown distinguishing <strong>billed from non-billable</strong> consumption.</li>
+  </ul>
+  <p>Data retention runs to month-to-date, the previous two months daily, and twelve months of monthly figures &mdash; enough for budgeting and licence planning, but export anything you need for longer-term analysis.</p>
+
+  <h2>8. Turning it off</h2>
+  <p>Either remove the environment from the policy, or delete the policy entirely. The environment reverts to normal behaviour immediately: consumption already incurred still bills, but nothing further does. Remember to remove the orphaned Power Platform account resource in Azure afterwards.</p>
+
+  <h2>Quick self-check</h2>
+  <table>
+    <thead><tr><th>Question</th><th>Where it points</th></tr></thead>
+    <tbody>
+      <tr><td>Can I put a specific user on pay-as-you-go?</td><td>No. Billing policies attach to environments only.</td></tr>
+      <tr><td>How do I separate spend between departments?</td><td>Separate environments, separate policies, plus Azure resource groups and tags.</td></tr>
+      <tr><td>How do I stop one agent consuming everything?</td><td>Per-agent monthly limits with notifications and a hard stop.</td></tr>
+      <tr><td>Our agent is business-critical &mdash; what protects continuity?</td><td>Prepaid capacity with pay-as-you-go configured as the overage safety net.</td></tr>
+      <tr><td>Why can&rsquo;t I see my Azure subscription in the list?</td><td>Insufficient Azure permissions on that subscription &mdash; not a Power Platform issue.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview" target="_blank" rel="noopener">Pay-as-you-go plan overview (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up" target="_blank" rel="noopener">Set up pay-as-you-go (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity" target="_blank" rel="noopener">Manage Copilot Studio credits and capacity (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Copilot Studio licensing (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2085130" target="_blank" rel="noopener">Microsoft Power Platform Licensing Guide</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2085130</span></div>
+  </div>
+
+  <footer class="foot">
+    This page is general guidance, not a contract. Billing models, meters and enforcement behaviour change frequently &mdash; always confirm the current position against Microsoft Learn and the Power Platform Licensing Guide before making a purchasing decision.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>

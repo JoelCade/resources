@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CoE Starter Kit to Power Platform Admin Center &mdash; Migration Map</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.seeded { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2 { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">&#128424; Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform &middot; Governance Reference</p>
+    <h1>CoE Starter Kit &rarr; Power Platform Admin Center</h1>
+    <p class="sub">What the Center of Excellence Starter Kit used to do, where that capability lives natively today, and what has no replacement at all. &middot; July 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> the CoE Starter Kit is <strong>unmaintained &mdash; not retired</strong>. It still works, and nothing is being switched off. But it receives no new features and its issues are no longer reviewed, while the native admin center capabilities keep advancing. Plan a migration; don&rsquo;t panic into one.
+  </div>
+
+  <h2>1. What actually changed</h2>
+  <p>Microsoft has confirmed that the Power Platform CoE Starter Kit is <strong>no longer actively maintained</strong>. Its core capabilities are now delivered natively in the <strong>Power Platform admin center</strong> through the <strong>Inventory</strong>, <strong>Usage</strong>, <strong>Monitor</strong> and <strong>Actions</strong> experiences.</p>
+  <ul>
+    <li>The kit <strong>remains available</strong> for existing and new deployments.</li>
+    <li>It will <strong>not receive new capabilities</strong> or feature investment.</li>
+    <li><strong>Issues are no longer reviewed or addressed.</strong> Suspected security vulnerabilities should go to the Microsoft Security Response Center rather than the project&rsquo;s issue tracker.</li>
+    <li>Microsoft&rsquo;s stated direction is to use the admin center as the central experience for governance, monitoring and insights.</li>
+  </ul>
+  <div class="callout warn">
+    <strong>Language matters here.</strong> &ldquo;Unmaintained&rdquo; is not the same as &ldquo;deprecated&rdquo;, &ldquo;retired&rdquo; or &ldquo;end-of-life&rdquo;. If you are briefing stakeholders, overstating this costs you credibility; understating it leaves your organisation investing in a dead end. A working CoE deployment is not an emergency &mdash; it is a fork in the road that stops improving.
+  </div>
+
+  <h2>2. The capability map</h2>
+  <table>
+    <thead>
+      <tr><th>CoE Starter Kit capability</th><th>Native replacement</th><th>Where</th><th>Maturity</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Inventory sync &mdash; apps, flows, agents, environments, makers</td><td><strong>Inventory</strong></td><td>Manage &rarr; Inventory</td><td>GA</td></tr>
+      <tr><td>Adoption dashboards, top makers, most-used resources</td><td><strong>Usage</strong></td><td>Manage &rarr; Usage</td><td>Preview</td></tr>
+      <tr><td>Operational health, error tracking, resource performance</td><td><strong>Monitor</strong></td><td>Monitor</td><td>GA (some resources preview)</td></tr>
+      <tr><td>Governance &amp; compliance components, best-practice enforcement</td><td><strong>Actions</strong> (Advisor)</td><td>Actions</td><td>GA</td></tr>
+      <tr><td>DLP Editor, Set App Permissions, admin command centre</td><td>Native data policies + inline actions</td><td>Security / Actions</td><td>GA</td></tr>
+      <tr><td>Deleted-resource detection (periodic cleanup job)</td><td>Continuous inventory &mdash; changes reflected in minutes</td><td>Inventory</td><td>GA</td></tr>
+      <tr><td>Audit Log solution (custom connector)</td><td>Native telemetry + tenant-level analytics</td><td>Monitor &rarr; Logs</td><td>GA</td></tr>
+      <tr><td><strong>ALM Accelerator</strong></td><td><strong>No direct equivalent</strong> &mdash; use Power Platform Pipelines, Azure DevOps or GitHub Actions</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td><strong>Innovation Backlog</strong></td><td><strong>No native equivalent</strong></td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td><strong>Nurture components</strong> (maker onboarding, community)</td><td><strong>No native equivalent</strong> &mdash; this is programme work, not tooling</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td><strong>Theming components</strong></td><td><strong>No native equivalent</strong></td><td>&mdash;</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>Be honest about the bottom four rows.</strong> Anyone presenting the admin center as a drop-in replacement for the entire kit is wrong. Microsoft&rsquo;s own wording is deliberately &ldquo;<em>core</em> capabilities&rdquo;. ALM Accelerator, Innovation Backlog, nurture and theming have <strong>no native successor</strong> &mdash; volunteer that before your stakeholders discover it themselves.
+  </div>
+
+  <h2>3. What the native experiences give you</h2>
+
+  <h3>Inventory <span class="pill">GA</span></h3>
+  <p>A unified, tenant-wide view of agents, apps, flows, environments and environment groups &mdash; including Copilot Studio agents, canvas, model-driven, code and vibe apps, and agent flows.</p>
+  <ul>
+    <li><strong>Roughly 15-minute freshness</strong> on create, update and delete &mdash; compared with the daily and fortnightly sync jobs the kit relied on.</li>
+    <li><strong>Connector inventory (preview)</strong> shows which apps, flows and agents use a given connector or operation &mdash; which makes DLP scoping, premium-connector licence audits and deprecation planning query-driven rather than manual.</li>
+    <li>Filter and sort on any attribute, customise columns, and export to Excel.</li>
+    <li><strong>Programmatic access</strong> via the Power Platform inventory API, the Power Platform for Admins V2 connector, Azure Resource Graph (KQL) and the Power Platform CLI. This is the migration path for anyone who built custom reporting on the kit&rsquo;s Dataverse tables.</li>
+  </ul>
+  <div class="callout warn">
+    <strong>Access gotcha.</strong> Inventory access is granted through <strong>Microsoft Entra roles</strong> (Global admin, Power Platform admin, Dynamics 365 admin, Global reader; the AI admin and AI reader roles are scoped to AI resources only). The built-in Power Platform role-based access control roles are <strong>not supported</strong> here &mdash; a common troubleshooting dead end.
+  </div>
+  <p><strong>Known gaps:</strong> classic chatbots are excluded; unpublished model-driven apps are not captured; the owner column for flows shows the original creator rather than the current owner; environment filters need the full environment name.</p>
+
+  <h3>Usage <span class="pill">Preview</span></h3>
+  <p>Twenty-eight-day adoption trending &mdash; active users for Power Apps, run volume for Power Automate, and session counts for Copilot Studio agents &mdash; plus the highest-impact resources per product.</p>
+  <div class="callout warn">
+    <strong>This is the least mature of the four.</strong> It is still a preview feature, still rolling out by region, and its agent-session counts use a 28-day lookback that will <strong>not reconcile</strong> with the Copilot area of the admin center. Do not retire your existing adoption reporting on the strength of this experience alone.
+  </div>
+
+  <h3>Monitor <span class="pill">GA</span></h3>
+  <p>Operational health derived from aggregated daily runtime event logs &mdash; health metrics, recommendations, alerts and downloadable logs.</p>
+  <ul>
+    <li><strong>Tenant-level analytics must be switched on</strong>, or there are no metrics, no logs and no recommendations at all.</li>
+    <li><strong>Recommendations require a managed environment.</strong> Metrics and logs do not.</li>
+    <li>Metrics are <strong>not real-time</strong>, and unused resources never appear &mdash; the experience is driven by runtime activity.</li>
+    <li>Retention is short: <strong>logs for seven days, metrics for 28 days</strong>, with time-based metrics reported at the 75th percentile only.</li>
+  </ul>
+  <p>If you need longer retention, custom traces or cross-resource correlation, <strong>Application Insights is still required</strong> &mdash; Monitor does not replace it.</p>
+
+  <h3>Actions / Advisor <span class="pill">GA</span></h3>
+  <p>Recommendations across <strong>security</strong>, <strong>operational efficiency</strong>, <strong>licensing and capacity</strong>, and <strong>performance</strong>, with remediation available inline.</p>
+  <ul>
+    <li><strong>Full detail requires managed environments.</strong> Non-managed environments show only a summary; after enabling managed environments it can take up to <strong>72 hours</strong> for full resource detail to appear.</li>
+    <li>Non-security recommendations can be <strong>snoozed</strong> for up to two months; security recommendations can be <strong>dismissed</strong> with a recorded reason. Both are reversible and auditable.</li>
+    <li><strong>Action history</strong> tracks what was done and by whom; recommendations can be shared into Microsoft Teams, and a weekly summary card surfaces the top two.</li>
+    <li>Remediation can be <strong>automated</strong> through the Power Platform for Admins V2 connector &mdash; for example, emailing an app owner before an unused app is removed. This is also the supported export route.</li>
+  </ul>
+
+  <h2>4. The licensing dependency nobody mentions</h2>
+  <p>Three of the four native experiences are materially degraded without <strong>Managed Environments</strong>:</p>
+  <table>
+    <thead><tr><th>Experience</th><th>Without managed environments</th></tr></thead>
+    <tbody>
+      <tr><td>Inventory</td><td>Full capability</td></tr>
+      <tr><td>Usage</td><td>Full capability (preview caveats apply)</td></tr>
+      <tr><td><strong>Monitor</strong></td><td>Metrics and logs only &mdash; <strong>no recommendations</strong></td></tr>
+      <tr><td><strong>Actions</strong></td><td>Summary only &mdash; <strong>no resource detail and no remediation</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>This is the part to budget for.</strong> Managed Environments requires qualifying premium licensing for active usage in those environments. The CoE Starter Kit ran on a maker&rsquo;s existing licence &mdash; it was, in effect, the free-tier governance answer. So &ldquo;just use the admin center instead&rdquo; is not cost-neutral for a lightly-licensed estate: it is a licensing conversation wearing a governance hat. See the <a href="power-platform-licensing-managed-environments.html">Power Platform Licensing &amp; Managed Environments</a> guide for the detail.
+  </div>
+
+  <h2>5. A sensible migration approach</h2>
+  <ol>
+    <li><strong>Lead with the correction, not the alarm.</strong> Unmaintained, not retired. Nothing has to be torn out this quarter.</li>
+    <li><strong>Map what you actually use.</strong> Most deployments only ever used inventory and adoption dashboards &mdash; both fully native today. If that describes you, this is a genuinely easy move.</li>
+    <li><strong>Name the real gaps early.</strong> ALM Accelerator, Innovation Backlog and the nurture assets need their own plan.</li>
+    <li><strong>Check the licensing dependency</strong> before promising Monitor and Actions capability you are not licensed to see.</li>
+    <li><strong>Check sovereign cloud availability.</strong> Inventory is not currently available in US Government (GCC, GCC High, DoD), 21Vianet (China) or air-gapped clouds &mdash; those tenants must stay on the kit for now.</li>
+    <li><strong>Point your report builders at the APIs</strong>, not the portal, if they had built custom reporting on the kit&rsquo;s tables.</li>
+  </ol>
+
+  <div class="callout">
+    <strong>One more thing worth pre-empting:</strong> the admin center and the Microsoft 365 admin center will <strong>never</strong> agree on agent counts. Power Platform Inventory shows agents <em>built on</em> Power Platform, including drafts. The Microsoft 365 admin center shows agents <em>available in</em> the tenant &mdash; first-party, third-party and org-created, published only. Both numbers are correct in their own context. Clarify which question is being asked before anyone reports a figure upward.
+  </div>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/guidance/coe/starter-kit" target="_blank" rel="noopener">CoE Starter Kit transition to the Power Platform admin center (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/guidance/coe/starter-kit</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/power-platform-inventory" target="_blank" rel="noopener">Power Platform inventory (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/power-platform-inventory</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/usage" target="_blank" rel="noopener">Usage page &mdash; adoption and engagement (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/usage</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/monitoring/monitoring-overview" target="_blank" rel="noopener">Monitor the health of your resources (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/monitoring/monitoring-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/power-platform-advisor" target="_blank" rel="noopener">Actions overview &mdash; recommendations and remediation (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/power-platform-advisor</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/inventory-api" target="_blank" rel="noopener">Power Platform inventory API (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/inventory-api</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-overview" target="_blank" rel="noopener">Managed Environments overview (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-overview</span></div>
+  </div>
+
+  <footer class="foot">
+    This page is general guidance, not a contract. Product capabilities, preview status and licensing terms change frequently &mdash; always confirm the current position against Microsoft Learn and the Power Platform Licensing Guide before making a purchasing or architectural decision.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>

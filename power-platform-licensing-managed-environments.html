@@ -289,6 +289,34 @@ footer.foot {
     <strong>The trade-off:</strong> Managed Environments = ease of administration &amp; governance <em>vs.</em> the cost of premium licensing for the users in those environments. A common pattern: leave the <strong>default</strong> environment unmanaged for citizen makers (locked-down DLP, no premium), and reserve <strong>managed</strong> environments for a smaller community of enterprise builders who hold premium licenses.
   </div>
 
+  <h3>Building is free — only <em>running</em> needs a premium license</h3>
+  <p>This is the single most under-quoted rule, and it changes the economics of a rollout. <strong>Creating or previewing</strong> an app or flow in a managed developer environment requires <strong>no premium license</strong>. A premium license is required only to <strong>run</strong> one.</p>
+  <div class="callout">
+    <strong>Why it matters:</strong> if your security team has mandated that nothing may live in the default environment, routing every maker into their own personal managed developer environment costs <strong>nothing at the point of migration</strong>. Licensing cost arrives only when those makers&rsquo; apps and flows are actually run by someone. Organisations routinely over-price this migration by assuming a premium seat is needed on day one for every maker they move.
+  </div>
+
+  <h3>&ldquo;We have Microsoft 365 Copilot, so we&rsquo;re covered&rdquo; — the common trap</h3>
+  <p>Copilot Studio for Microsoft 365 Copilot <em>is</em> a qualifying entitlement, but the qualification matters: it covers <strong>Copilot Studio features only</strong>. It is a per-workload rule, not a per-environment one. In a managed environment:</p>
+  <table>
+    <thead><tr><th>Workload</th><th>Is a Microsoft 365 Copilot license enough?</th></tr></thead>
+    <tbody>
+      <tr><td>Copilot Studio agents used in Microsoft 365 Copilot, Teams or SharePoint</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Standalone Copilot Studio agent (own channels, premium connectors)</td><td><strong>No</strong> &mdash; requires standalone Copilot Studio</td></tr>
+      <tr><td>Running a <strong>Power App</strong></td><td><strong>No</strong> &mdash; requires Power Apps or Power Automate Premium</td></tr>
+      <tr><td>Running a <strong>Power Automate cloud flow</strong></td><td><strong>No</strong> &mdash; requires Power Apps or Power Automate Premium</td></tr>
+    </tbody>
+  </table>
+  <p>Guidance that flattens this into a single &ldquo;you need a premium Power Platform license <em>or</em> a Microsoft 365 Copilot license&rdquo; is the usual source of confusion. Ask which <em>workload</em> is being licensed, not which environment.</p>
+
+  <h3>Compliance notifications are now live</h3>
+  <p>The licensing requirement itself is not new, but Microsoft now surfaces non-compliance proactively rather than silently:</p>
+  <ul>
+    <li><strong>From March 2026</strong> &mdash; administrators are notified through the Microsoft 365 Message center and the Power Platform admin center.</li>
+    <li><strong>From April 2026</strong> &mdash; recommendations appear under <em>Actions &rarr; Recommendations</em> identifying affected users.</li>
+    <li><strong>From June 2026</strong> &mdash; end users see in-app notifications when they open an app in a managed environment without an appropriate license, escalating from <em>informational</em> to <em>warning</em> to <em>error</em> at seven-day intervals. Users can request a license directly from the notification.</li>
+  </ul>
+  <p>To audit your own position, download the <strong>&ldquo;Users requiring licenses in Managed Environments&rdquo;</strong> report from <em>Licensing &rarr; Power Apps &rarr; Summary &rarr; Download report</em>. Note that it only lists users who actually launched an app in the selected month. Enabling an <strong>auto-claim policy</strong> in the Microsoft 365 admin center can pre-empt the issue entirely, provided you hold sufficient license capacity.</p>
+
   <h2>5. Per-user vs per-app: which is cheaper?</h2>
   <p>Rule of thumb: if a user actively uses <strong>~10 or more</strong> apps, a <strong>per-user</strong> license is usually the better value. Below that, <strong>per-app</strong> licensing (allocated to the environment) tends to win. Model both against your actual usage — the break-even shifts with your mix.</p>
 
