@@ -248,7 +248,7 @@ footer.foot a:hover { text-decoration: underline; }
     <div class="card">
       <span class="pill">Unit of change</span>
       <h3>Solutions</h3>
-      <p>The container that carries your customisations — apps, flows, tables, agents, connectors, PCF controls, plug-ins. Everything downstream of dev moves as a <strong>managed</strong> solution.</p>
+      <p>The container that carries your customizations — apps, flows, tables, agents, connectors, PCF controls, plug-ins. Everything downstream of dev moves as a <strong>managed</strong> solution.</p>
     </div>
     <div class="card">
       <span class="pill">Stages</span>
@@ -275,7 +275,7 @@ footer.foot a:hover { text-decoration: underline; }
       <tr><td><strong>Unmanaged</strong></td><td>The editable, in-development form. Lives only in development environments. This is what you commit to source control.</td></tr>
       <tr><td><strong>Managed</strong></td><td>The built, locked artifact you deploy to test/UAT/production. Not editable in place — which is exactly the point. Uninstalling removes its components cleanly.</td></tr>
       <tr><td><strong>Publisher &amp; prefix</strong></td><td>Chosen once, effectively forever. Set a real publisher with a meaningful prefix (not <code>new_</code>) before you create your first table or column.</td></tr>
-      <tr><td><strong>Layering</strong></td><td>Multiple managed solutions can touch the same component; the resulting behaviour is resolved by layer order. In the target environment you can inspect layers and diff between them.</td></tr>
+      <tr><td><strong>Layering</strong></td><td>Multiple managed solutions can touch the same component; the resulting behavior is resolved by layer order. In the target environment you can inspect layers and diff between them.</td></tr>
       <tr><td><strong>Connection references</strong></td><td>Decouple a flow from a specific connection so each environment binds its own. Non-negotiable for clean promotion.</td></tr>
       <tr><td><strong>Environment variables</strong></td><td>Per-environment configuration (URLs, IDs, toggles) supplied at deployment time instead of hard-coded.</td></tr>
       <tr><td><strong>What solutions do <em>not</em> carry</strong></td><td>Dataverse <strong>data</strong>. Reference/config data needs a separate mechanism (e.g. the Configuration Migration tool or a data-seeding step in your build).</td></tr>
@@ -324,12 +324,12 @@ footer.foot a:hover { text-decoration: underline; }
 
   <h3>What pipelines deploy — and what they don't</h3>
   <table>
-    <thead><tr><th></th><th>Behaviour</th></tr></thead>
+    <thead><tr><th></th><th>Behavior</th></tr></thead>
     <tbody>
       <tr><td><strong>Deploys</strong></td><td>The solution plus target-environment configuration: connections, connection references, and environment variables — validated up front, before the deployment starts.</td></tr>
       <tr><td><strong>Backups</strong></td><td>Both managed and unmanaged artifacts are exported and retained in the host for every deployment.</td></tr>
       <tr><td><strong>Tamper-proofing</strong></td><td>The solution is exported once, when the maker hits Deploy. The <em>same</em> artifact is promoted through every subsequent stage — nothing can bypass QA or an approval gate.</td></tr>
-      <tr><td><strong>Import behaviour</strong></td><td>Defaults to <em>Upgrade</em> without <em>Overwrite customizations</em>. Not currently configurable per deployment.</td></tr>
+      <tr><td><strong>Import behavior</strong></td><td>Defaults to <em>Upgrade</em> without <em>Overwrite customizations</em>. Not currently configurable per deployment.</td></tr>
       <tr><td><strong>Rollback</strong></td><td>Redeploying a previous solution version is supported when the pipeline setting is enabled; otherwise only higher versions can go out.</td></tr>
       <tr><td><strong>Not supported</strong></td><td>Cross-tenant deployment · unmanaged deployment to non-dev · multiple solutions in one deployment · Power BI dashboards/datasets (preview) · Dataverse table data.</td></tr>
     </tbody>
@@ -337,12 +337,12 @@ footer.foot a:hover { text-decoration: underline; }
 
   <h3>Licensing shape</h3>
   <table>
-    <thead><tr><th>Environment purpose</th><th>Typical type</th><th>Standalone premium licence required?</th></tr></thead>
+    <thead><tr><th>Environment purpose</th><th>Typical type</th><th>Standalone premium license required?</th></tr></thead>
     <tbody>
       <tr><td>Pipelines host</td><td>Production</td><td>No — the host doesn't need to be a managed environment</td></tr>
       <tr><td>Development</td><td>Developer</td><td>No — dev environments needn't be managed</td></tr>
       <tr><td>QA</td><td>Developer</td><td>No</td></tr>
-      <tr><td>Production (target)</td><td>Production</td><td><strong>Yes</strong> — all non-dev pipeline environments must be managed environments, and managed environments require premium licences</td></tr>
+      <tr><td>Production (target)</td><td>Production</td><td><strong>Yes</strong> — all non-dev pipeline environments must be managed environments, and managed environments require premium licenses</td></tr>
     </tbody>
   </table>
   <div class="callout">
@@ -370,7 +370,7 @@ footer.foot a:hover { text-decoration: underline; }
     <span class="num">2</span>
     <div class="body">
       <h3>Delegated deployment</h3>
-      <p>The deployment runs as a <strong>service principal</strong> or the stage owner rather than the requesting maker — so makers need no access at all in production. Requires approval from an authorised identity. This is the single highest-value control for securing prod.</p>
+      <p>The deployment runs as a <strong>service principal</strong> or the stage owner rather than the requesting maker — so makers need no access at all in production. Requires approval from an authorized identity. This is the single highest-value control for securing prod.</p>
     </div>
   </div>
   <div class="step">
@@ -412,7 +412,7 @@ footer.foot a:hover { text-decoration: underline; }
     <li>Provisioning and de-provisioning environments (including spinning up ephemeral build environments).</li>
     <li>Static analysis via <strong>Power Apps solution checker</strong> as a PR quality gate.</li>
   </ul>
-  <p>Authentication is via <strong>service principal + client secret</strong> (supports MFA) or username/password (does not). Actions run on Windows or Linux runners, require a Dataverse environment with a database, and carry no extra licence cost beyond your GitHub plan.</p>
+  <p>Authentication is via <strong>service principal + client secret</strong> (supports MFA) or username/password (does not). Actions run on Windows or Linux runners, require a Dataverse environment with a database, and carry no extra license cost beyond your GitHub plan.</p>
 
   <h3>Pipelines vs. GitHub Actions — an honest split</h3>
   <table>
@@ -483,7 +483,7 @@ footer.foot a:hover { text-decoration: underline; }
       <li><strong>Publisher prefix left as <code>new_</code>.</strong> Fix it before the first table exists — it's effectively permanent.</li>
       <li><strong>Hard-coded connections.</strong> Use connection references and environment variables or every deployment needs manual post-processing.</li>
       <li><strong>Unmanaged solutions in production.</strong> Always deploy managed downstream; unmanaged belongs in dev and source control only.</li>
-      <li><strong>Unpublished customisations.</strong> Pipelines don't publish before export — publish as you save.</li>
+      <li><strong>Unpublished customizations.</strong> Pipelines don't publish before export — publish as you save.</li>
       <li><strong>Cross-geo assumptions.</strong> Host and environments must share a geography unless cross-geo solution deployments are enabled on the host.</li>
       <li><strong>Rollback disabled.</strong> Turn on redeploying previous versions <em>before</em> you need it, or you're editing <code>solution.xml</code> by hand at 2am.</li>
       <li><strong>One dev environment per solution.</strong> Pipelines assume a single dev environment per solution; multi-dev parallelism needs Git integration and branches.</li>
@@ -531,7 +531,7 @@ footer.foot a:hover { text-decoration: underline; }
   </div>
 
   <footer class="foot">
-    Compiled from public Microsoft documentation and release plans, July 2026. This is guidance, not a contract — features described as preview or planned may change or ship on different dates. Confirm current product behaviour, licensing terms, and process against the official documentation before making architectural commitments. &middot; <a href="index.html">All resources</a>
+    Compiled from public Microsoft documentation and release plans, July 2026. This is guidance, not a contract — features described as preview or planned may change or ship on different dates. Confirm current product behavior, licensing terms, and process against the official documentation before making architectural commitments. &middot; <a href="index.html">All resources</a>
   </footer>
 </div>
 <script>

@@ -385,7 +385,7 @@ footer.foot {
       <tr><td><strong>Result state</strong></td><td>Each case ends as <span class="ok">Pass</span>, <span class="no">Fail</span>, <em>Invalid</em> (grader configured but expected value missing), or <em>Error</em>.</td></tr>
       <tr><td><strong>User profile</strong></td><td>The identity the evaluation runs as. Determines which knowledge and connectors are reachable during the run.</td></tr>
       <tr><td><strong>Activity map</strong></td><td>The per-case trace of the agent's inputs, decisions, tool calls and outputs — the primary diagnostic artefact.</td></tr>
-      <tr><td><strong>Quality signal</strong></td><td>The capability a set is testing: safety, grounding, factual accuracy, tool invocation, routing, tone, escalation. Organise sets around these.</td></tr>
+      <tr><td><strong>Quality signal</strong></td><td>The capability a set is testing: safety, grounding, factual accuracy, tool invocation, routing, tone, escalation. Organize sets around these.</td></tr>
     </tbody>
   </table>
 
@@ -402,11 +402,11 @@ footer.foot {
       <tr><td>Repeatability</td><td>Hard to repeat identically</td><td>Same set, rerun on demand</td></tr>
       <tr><td>Conversation control</td><td>Full — you steer every turn</td><td>Lower — turns are pre-authored or generated</td></tr>
       <tr><td>Identity</td><td>You, as signed in</td><td>Any configured user profile</td></tr>
-      <tr><td>Best for</td><td>Exploration, debugging a specific behaviour</td><td>Regression detection, release gates, trend tracking</td></tr>
+      <tr><td>Best for</td><td>Exploration, debugging a specific behavior</td><td>Regression detection, release gates, trend tracking</td></tr>
     </tbody>
   </table>
 
-  <p>A practical pattern: explore in test chat until you find a behaviour worth locking down, then promote that conversation straight into a test set — Copilot Studio can generate a test set from your latest test chat, or you can start an evaluation directly from the test chat with the evaluate icon.</p>
+  <p>A practical pattern: explore in test chat until you find a behavior worth locking down, then promote that conversation straight into a test set — Copilot Studio can generate a test set from your latest test chat, or you can start an evaluation directly from the test chat with the evaluate icon.</p>
 
   <h2 id="testsets">4. Building test sets: the six creation paths</h2>
 
@@ -498,12 +498,12 @@ footer.foot {
   <h3>Choosing the right grader</h3>
   <p>Grader choice is the single biggest driver of false failures. Match the method to the quality signal:</p>
   <ul>
-    <li><strong>No single correct answer</strong> (open questions, synthesis, summarisation) &rarr; general quality, optionally with compare meaning.</li>
+    <li><strong>No single correct answer</strong> (open questions, synthesis, summarization) &rarr; general quality, optionally with compare meaning.</li>
     <li><strong>One correct idea, many valid phrasings</strong> &rarr; compare meaning. Do not use keyword match (All) here — it fails on legitimate synonyms.</li>
     <li><strong>Specific terms must appear</strong> (a product name, a disclaimer, a policy reference) &rarr; keyword match.</li>
     <li><strong>Wording itself is the requirement</strong> (legal text, regulated language) &rarr; text similarity, typically alongside compare meaning: similarity checks construction, compare meaning checks intent.</li>
     <li><strong>Short deterministic values</strong> (a code, a number, a fixed phrase) &rarr; exact match.</li>
-    <li><strong>The agent must call something</strong> &rarr; tool use. This is the only method that tests behaviour rather than text.</li>
+    <li><strong>The agent must call something</strong> &rarr; tool use. This is the only method that tests behavior rather than text.</li>
     <li><strong>A domain rule you can describe but not enumerate</strong> (HR compliance, brand voice, safety boundaries) &rarr; custom.</li>
   </ul>
 
@@ -628,7 +628,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
 
   <h2 id="suite">9. Designing the evaluation suite</h2>
 
-  <p>The effectiveness of everything downstream — scores, triage, remediation — depends on how you structure sets. Well-structured sets organised by <strong>quality signal</strong> produce interpretable scores. Mixed-signal sets produce noise and ambiguous diagnoses.</p>
+  <p>The effectiveness of everything downstream — scores, triage, remediation — depends on how you structure sets. Well-structured sets organized by <strong>quality signal</strong> produce interpretable scores. Mixed-signal sets produce noise and ambiguous diagnoses.</p>
 
   <div class="callout">
     <strong>Rule of thumb:</strong> one set per quality signal, not one giant set per agent. If a score is hard to interpret, restructure the sets <em>before</em> triaging individual failures.
@@ -731,14 +731,14 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
     <tbody>
       <tr><td>Evaluation setup issue</td><td>Evaluation author</td><td>The test case, expected answer or grader is wrong. The agent may be behaving correctly.</td></tr>
       <tr><td>Agent configuration issue</td><td>Agent builder</td><td>The agent produced an incorrect response that configuration can fix.</td></tr>
-      <tr><td>Platform limitation</td><td>Platform team</td><td>Platform behaviour causes the issue and configuration cannot resolve it.</td></tr>
+      <tr><td>Platform limitation</td><td>Platform team</td><td>Platform behavior causes the issue and configuration cannot resolve it.</td></tr>
     </tbody>
   </table>
 
   <h3>Pre-triage: check infrastructure health</h3>
   <p>Before diagnosing anything, confirm the run itself was valid — knowledge sources indexed and reachable, no connector errors, timeouts or rate limits, auth tokens valid throughout, and the evaluation environment matching the intended agent configuration. Triaging an unhealthy run produces confidently wrong conclusions.</p>
 
-  <h3>Step 0 — prioritise</h3>
+  <h3>Step 0 — prioritize</h3>
   <table>
     <thead><tr><th style="width:12%">Priority</th><th style="width:34%">Triage first</th><th>Why</th></tr></thead>
     <tbody>
@@ -780,7 +780,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
     <thead><tr><th style="width:46%">Question</th><th>If yes &rarr; root cause</th></tr></thead>
     <tbody>
       <tr><td colspan="2"><strong>Factual accuracy &amp; grounding</strong></td></tr>
-      <tr><td>Retrieved the wrong knowledge source?</td><td>Knowledge source configuration — wrong source indexed or prioritised</td></tr>
+      <tr><td>Retrieved the wrong knowledge source?</td><td>Knowledge source configuration — wrong source indexed or prioritized</td></tr>
       <tr><td>Right source, wrong information extracted?</td><td>Instruction gap — needs extraction guidance</td></tr>
       <tr><td>Source content itself incorrect or stale?</td><td>Knowledge source content — update the document</td></tr>
       <tr><td>Answered with no source at all?</td><td>Source accessibility, or query vocabulary mismatch</td></tr>
@@ -879,7 +879,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
 
   <h2 id="budget">13. The instruction budget &amp; rerun strategy</h2>
 
-  <p>Every remediation adds instructions. System prompts have finite effective capacity — past a point the model follows rules inconsistently and previously-solid behaviour regresses.</p>
+  <p>Every remediation adds instructions. System prompts have finite effective capacity — past a point the model follows rules inconsistently and previously-solid behavior regresses.</p>
 
   <div class="grid2">
     <div class="card">
@@ -896,7 +896,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
       <span class="pill">Remedies</span>
       <ul>
         <li><strong>Consolidate</strong> — merge overlapping rules into one well-written paragraph</li>
-        <li><strong>Prioritise</strong> — highest-priority instructions first and last; models attend most to those positions</li>
+        <li><strong>Prioritize</strong> — highest-priority instructions first and last; models attend most to those positions</li>
         <li><strong>Simplify</strong> — replace verbose rules with concise ones</li>
         <li><strong>Externalise</strong> — move static lists, policies and reference data into knowledge sources</li>
         <li><strong>Test holistically</strong> — rerun the full suite, not just the affected set</li>
@@ -938,7 +938,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
   </table>
 
   <h3>Multilingual agents</h3>
-  <p>If your agent supports multiple languages, pick the language for each evaluation run. Three behaviours to know:</p>
+  <p>If your agent supports multiple languages, pick the language for each evaluation run. Three behaviors to know:</p>
   <ul>
     <li><strong>Query generation</strong> defaults to the language you used for the inputs; subsequent runs produce output in the same language as the input.</li>
     <li><strong>Grader execution</strong> — compare meaning detects a language mismatch between expected and actual response and fails the case for language inconsistency.</li>
@@ -950,7 +950,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
   <div class="card">
     <p><strong>Setting up</strong></p>
     <ul class="checklist">
-      <li>Sets organised by quality signal, not one giant set per agent</li>
+      <li>Sets organized by quality signal, not one giant set per agent</li>
       <li>At least one set sourced from real production themes, not only generated questions</li>
       <li>Grader chosen to match each signal — no keyword match (All) on open questions</li>
       <li>Expected values present on every case using a non-general-quality grader (else: Invalid)</li>
@@ -968,12 +968,12 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
     <p><strong>Improving</strong></p>
     <ul class="checklist">
       <li>Infrastructure health confirmed before triaging any failure</li>
-      <li>Failures prioritised safety &rarr; core business &rarr; weakest set</li>
+      <li>Failures prioritized safety &rarr; core business &rarr; weakest set</li>
       <li>Evaluation setup ruled out before touching the agent</li>
       <li>Each fix stated as change X &rarr; rerun Y &rarr; expect Z</li>
       <li>Rerun scope matched to what changed; full suite after prompt changes</li>
       <li>Platform limitations documented with evidence, not tuned around</li>
-      <li>Instruction budget reviewed — consolidate, prioritise, simplify, externalise</li>
+      <li>Instruction budget reviewed — consolidate, prioritize, simplify, externalise</li>
     </ul>
   </div>
 
@@ -1051,7 +1051,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
   </div>
 
   <footer class="foot">
-    <p>Compiled from public Microsoft documentation, July 2026. This is guidance, not a contract — product capabilities, limits and preview status change frequently. Confirm current behaviour, limits and terms against Microsoft Learn before making design or release decisions. Features marked preview may change or be withdrawn.</p>
+    <p>Compiled from public Microsoft documentation, July 2026. This is guidance, not a contract — product capabilities, limits and preview status change frequently. Confirm current behavior, limits and terms against Microsoft Learn before making design or release decisions. Features marked preview may change or be withdrawn.</p>
   </footer>
 </div>
 <script>

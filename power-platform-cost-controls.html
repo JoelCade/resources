@@ -219,7 +219,7 @@ footer.foot {
   </div>
 
   <h2>1. The rule people get wrong</h2>
-  <p>Pay-as-you-go is not assigned like a licence. It is attached to environments through a <strong>billing policy</strong>, and an environment can be linked to <strong>exactly one</strong> billing policy at a time.</p>
+  <p>Pay-as-you-go is not assigned like a license. It is attached to environments through a <strong>billing policy</strong>, and an environment can be linked to <strong>exactly one</strong> billing policy at a time.</p>
   <p>This catches out administrators who expect to enable consumption billing for a particular person or team. The unit of control is the environment, so your environment design <em>is</em> your cost-allocation design. If you need to separate spend between departments, you need separate environments.</p>
 
   <h2>2. What a billing policy actually is</h2>
@@ -230,7 +230,7 @@ footer.foot {
     <li>Pay-as-you-go is available for <strong>production and sandbox</strong> environments.</li>
     <li>Deleting the policy in the admin center does <strong>not</strong> delete the Azure resource &mdash; clean that up separately.</li>
   </ul>
-  <p>A common pattern is one policy per cost centre: the marketing team&rsquo;s environments billed to their subscription, and a finance team split into separate policies per sub-team so each one&rsquo;s spend reports cleanly.</p>
+  <p>A common pattern is one policy per cost center: the marketing team&rsquo;s environments billed to their subscription, and a finance team split into separate policies per sub-team so each one&rsquo;s spend reports cleanly.</p>
 
   <h2>3. Who can set it up</h2>
   <table>
@@ -251,17 +251,17 @@ footer.foot {
   <p>Makers can also enable pay-as-you-go directly from a canvas or model-driven app&rsquo;s settings without visiting the admin center. Two consequences are worth knowing before anyone does that:</p>
   <ul>
     <li>Connecting a subscription turns pay-as-you-go on for <strong>every app in that environment</strong>, not just the one you were looking at.</li>
-    <li>If <strong>app passes</strong> exist for the environment, they are <strong>ignored rather than consumed</strong> once pay-as-you-go is active &mdash; you may be paying twice without realising.</li>
+    <li>If <strong>app passes</strong> exist for the environment, they are <strong>ignored rather than consumed</strong> once pay-as-you-go is active &mdash; you may be paying twice without realizing.</li>
   </ul>
 
   <h3>The Microsoft 365 Copilot Chat special case</h3>
-  <p>Choosing <strong>Microsoft 365 Copilot Chat</strong> instead of a standard Azure subscription plan automatically provisions an environment of that name, linked to the new plan, which is where the corresponding consumption reporting appears. This is how users without a paid Copilot licence get metered access to agents. Note that <strong>administrators cannot delete this environment</strong> &mdash; it can only be unlinked.</p>
+  <p>Choosing <strong>Microsoft 365 Copilot Chat</strong> instead of a standard Azure subscription plan automatically provisions an environment of that name, linked to the new plan, which is where the corresponding consumption reporting appears. This is how users without a paid Copilot license get metered access to agents. Note that <strong>administrators cannot delete this environment</strong> &mdash; it can only be unlinked.</p>
 
   <h2>5. Where the cost controls live</h2>
-  <p>Three layers, from coarse to fine. Most organisations only discover the third one after an unpleasant invoice.</p>
+  <p>Three layers, from coarse to fine. Most organizations only discover the third one after an unpleasant invoice.</p>
   <ol>
     <li><strong>Environment allocation</strong> &mdash; assign prepaid credits per environment under <em>Licensing &rarr; Copilot Studio &rarr; Manage capacity</em>.</li>
-    <li><strong>Overage behaviour</strong> &mdash; when an environment&rsquo;s allocation reaches zero, choose whether to draw from remaining tenant capacity or bill the overage to a linked pay-as-you-go plan.</li>
+    <li><strong>Overage behavior</strong> &mdash; when an environment&rsquo;s allocation reaches zero, choose whether to draw from remaining tenant capacity or bill the overage to a linked pay-as-you-go plan.</li>
     <li><strong>Per-agent monthly limits</strong> &mdash; under <em>Licensing &rarr; Copilot Studio &rarr; Manage Agents</em>, cap an individual agent whether the environment is prepaid or pay-as-you-go.</li>
   </ol>
   <div class="callout">
@@ -289,10 +289,10 @@ footer.foot {
     <li><strong>Capacity tab</strong> &mdash; consumption by product, a daily trend across three months, and the top environments by usage.</li>
     <li><strong>Environments tab</strong> &mdash; per-environment credits drawn from prepaid versus billed to pay-as-you-go, whether the environment is in overage, and a per-agent breakdown distinguishing <strong>billed from non-billable</strong> consumption.</li>
   </ul>
-  <p>Data retention runs to month-to-date, the previous two months daily, and twelve months of monthly figures &mdash; enough for budgeting and licence planning, but export anything you need for longer-term analysis.</p>
+  <p>Data retention runs to month-to-date, the previous two months daily, and twelve months of monthly figures &mdash; enough for budgeting and license planning, but export anything you need for longer-term analysis.</p>
 
   <h2>8. Turning it off</h2>
-  <p>Either remove the environment from the policy, or delete the policy entirely. The environment reverts to normal behaviour immediately: consumption already incurred still bills, but nothing further does. Remember to remove the orphaned Power Platform account resource in Azure afterwards.</p>
+  <p>Either remove the environment from the policy, or delete the policy entirely. The environment reverts to normal behavior immediately: consumption already incurred still bills, but nothing further does. Remember to remove the orphaned Power Platform account resource in Azure afterwards.</p>
 
   <h2>Quick self-check</h2>
   <table>
@@ -317,7 +317,7 @@ footer.foot {
   </div>
 
   <footer class="foot">
-    This page is general guidance, not a contract. Billing models, meters and enforcement behaviour change frequently &mdash; always confirm the current position against Microsoft Learn and the Power Platform Licensing Guide before making a purchasing decision.
+    This page is general guidance, not a contract. Billing models, meters and enforcement behavior change frequently &mdash; always confirm the current position against Microsoft Learn and the Power Platform Licensing Guide before making a purchasing decision.
   </footer>
 </div>
 
