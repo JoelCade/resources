@@ -300,7 +300,7 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot Studio &middot; Business Value Reference</p>
     <h1>Measuring the Business Value of Copilot Studio Agents</h1>
-    <p class="sub">How to define value before you build, capture a baseline that survives audit, read the numbers off the right surface, and apply Microsoft's published Agent Assisted Hours formula. Compiled from public Microsoft documentation &middot; July 2026.</p>
+    <p class="sub">How to define value before you build, capture a baseline that survives audit, read the numbers off the right surface, apply Microsoft's published Agent Assisted Hours formula, and build your own ROI reporting when the built-in surfaces are not enough. Compiled from public Microsoft documentation &middot; Updated August 2026.</p>
   </header>
 
   <div class="callout">
@@ -319,6 +319,7 @@ footer.foot {
       <li><a href="#kpis">The built-in KPIs and what they mean</a></li>
       <li><a href="#formula">Agent Assisted Hours and Agent Assisted Value</a></li>
       <li><a href="#surfaces">Where to read the numbers</a></li>
+      <li><a href="#custom">Building your own ROI reporting</a></li>
       <li><a href="#leading-lagging">Leading and lagging indicators</a></li>
       <li><a href="#stages">How value grows in stages</a></li>
       <li><a href="#scorecard">The one-page executive scorecard</a></li>
@@ -470,7 +471,7 @@ toward higher-value work. It belongs in the first business case.</div>
     </thead>
     <tbody>
       <tr><td><strong>Usage and outcomes</strong><br><span class="tag">No setup</span></td><td>Is my agent being used, and is it resolving work?</td><td>Copilot Studio analytics, built in to every published agent.</td></tr>
-      <tr><td><strong>Quality and governance</strong><br><span class="tag">Install required</span></td><td>Is my agent working correctly, and is it safe?</td><td>Copilot Studio Kit &mdash; batch tests, rubrics, compliance, cross-agent reporting.</td></tr>
+      <tr><td><strong>Quality and governance</strong><br><span class="tag">Install required</span></td><td>Is my agent working correctly, and is it safe?</td><td>Copilot Agent Kit &mdash; batch tests, rubrics, compliance, cross-agent reporting.</td></tr>
       <tr><td><strong>Deep telemetry</strong><br><span class="tag">Azure resource</span></td><td>What is my agent actually doing in the business process, end to end?</td><td>Azure Application Insights &mdash; structured traces, dependencies, custom events, KQL.</td></tr>
     </tbody>
   </table>
@@ -569,7 +570,7 @@ toward higher-value work. It belongs in the first business case.</div>
     </thead>
     <tbody>
       <tr><td><strong>Copilot Studio Analytics</strong></td><td>Per-agent KPIs, reactions, sentiment, themes, savings calculator, custom metrics.</td><td>Operating a single agent, weekly.</td></tr>
-      <tr><td><strong>Copilot Studio Kit</strong></td><td>Agent inventory, batch tests, rubrics, Conversation Analyzer, Conversation KPIs, compliance hub.</td><td>Running quality and governance across a portfolio.</td></tr>
+      <tr><td><strong>Copilot Agent Kit</strong></td><td>Agent inventory, batch tests, rubrics, Conversation Analyzer, Conversation KPIs, Agent Value, Agent Insights Hub, compliance hub.</td><td>Running quality and governance across a portfolio, or building your own reporting.</td></tr>
       <tr><td><strong>Azure Application Insights</strong></td><td>Structured traces, dependencies, custom business events, end-to-end latency, KQL.</td><td>The agent is one step inside a larger business process.</td></tr>
       <tr><td><strong>Copilot Studio agents report</strong><br><span class="tag">Viva Insights</span></td><td>Cross-agent rollups, Agent Assisted Hours and Value cards with an override calculator, trend charts beyond the native 30-day window, conversational and autonomous side by side.</td><td>Comparing ten agents at once instead of reading ten Analytics pages.</td></tr>
       <tr><td><strong>Copilot business impact report</strong><br><span class="tag">Viva Insights</span></td><td>Joins your own outcome data (deals closed, cases resolved, on-time delivery, claims processed) against Copilot usage.</td><td>Finance asks for evidence that Copilot moved a number on the income statement.</td></tr>
@@ -582,6 +583,97 @@ toward higher-value work. It belongs in the first business case.</div>
   <div class="callout">
     <strong>Prerequisite worth knowing early.</strong> The Copilot Studio agents report requires at least 50 Copilot licenses and one published agent in a production environment before it will populate. Check that before promising a sponsor a cross-agent rollup on a given date.
   </div>
+
+  <h2 id="custom">Building your own ROI reporting</h2>
+  <p>Every surface above is Microsoft-built and read-only. When you need your own value figures, history beyond the retention window, or a join to your own cost data, the path runs through Copilot Agent Kit and Dataverse.</p>
+
+  <div class="callout">
+    <strong>Naming.</strong> What Microsoft documentation previously called the <em>Copilot Studio Kit</em> is now the <strong>Copilot Agent Kit</strong>. It is the same solution, still built and maintained by the Power Customer Advisory Team. Older decks and articles use the former name.
+  </div>
+
+  <h3>The four components that matter for value</h3>
+  <table>
+    <thead>
+      <tr><th style="width:26%">Component</th><th>What it contributes to the ROI picture</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Conversation KPIs</strong></td><td>Aggregated conversation outcomes written to Dataverse, plus sample Power BI reports. The data foundation.</td></tr>
+      <tr><td><strong>Agent Value</strong></td><td>AI classification of every agent by type, behavior, and value benefit. The portfolio lens.</td></tr>
+      <tr><td><strong>Agent Insights Hub</strong></td><td>Copilot credit consumption, Application Insights telemetry, preview dashboards and forecasting. The cost denominator.</td></tr>
+      <tr><td><strong>Agent Inventory</strong></td><td>Tenant-wide agent list. Source for the scorecard's portfolio snapshot and the keep, fix, or retire decisions.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Conversation KPIs: the data foundation</h3>
+  <p>Conversation KPIs read raw transcripts and write aggregated outcome records into Dataverse, so nobody has to parse transcript JSON by hand. Each record carries sessions, turns, and a global conversation outcome: resolved, partially resolved, escalated, or abandoned.</p>
+  <p>Four properties make this the practical base for a custom report:</p>
+  <ul>
+    <li><strong>Sample Power BI reports ship with the kit</strong>, built on the aggregated tables. Treat them as a starting point, not a finished deliverable.</li>
+    <li><strong>Tracked variables</strong> let an agent set its own value variable (minutes saved, case value avoided, a custom NPS score) and have it land in the aggregated row, where it becomes a Power BI measure. This is the underrated feature: it is how your own unit economics enter the model instead of the published default multipliers.</li>
+    <li><strong>Storage is indefinite</strong>, which is the only supported escape from the 30-day transcript ceiling short of a data lake export.</li>
+    <li>Full transcripts can optionally be attached to the KPI record for the built-in transcript visualizer.</li>
+  </ul>
+  <p>Generation runs automatically twice daily, and on demand for a chosen date range. Throughput caps are 75,000 transcripts per automatic run and 50,000 per on-demand run.</p>
+
+  <h3>Agent Value: classification, not measurement</h3>
+  <p>The Agent Value component classifies agents from their metadata using AI prompts. Output lands in a dedicated Dataverse table.</p>
+  <table>
+    <thead>
+      <tr><th style="width:26%">Column</th><th>Values</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Agent Type</strong></td><td>Collaborator, Performer, Retriever, Orchestrator, Assistant, Advisor</td></tr>
+      <tr><td><strong>Agent Behavior</strong></td><td>Sense, Decide, Act, Collaborate, Reflect, Respond</td></tr>
+      <tr><td><strong>Agent Value Benefit</strong></td><td>One of ten defined value benefits</td></tr>
+      <tr><td><strong>Context</strong></td><td>Agent ID, name, classification date, environment ID and display name</td></tr>
+    </tbody>
+  </table>
+  <p>Setup: install the kit, set the environment variable <strong>Enable Value Component</strong> to Yes, turn on the cloud flows, then run the initialization flow manually once. A second flow classifies each new agent automatically as it appears.</p>
+
+  <div class="callout warn">
+    <strong>The trap.</strong> Only agents with <em>both</em> a description and instructions populated get classified. Everything else is skipped silently. Agent metadata hygiene is a hard prerequisite, so audit the portfolio before relying on the classification for a stakeholder review.
+  </div>
+
+  <p>The embedded classification prompt also returns a simple formula or signal for measuring the identified value, which is a useful opener when an organization has not yet defined its own ROI model.</p>
+
+  <h3>Agent Insights Hub: the cost denominator</h3>
+  <p>Agent Insights Hub aggregates three sources into Dataverse tables covering daily, topic, tool, action, error, and transcript metrics: Application Insights telemetry, conversation transcripts, and Power Platform admin center usage history.</p>
+  <p>The Usage history tab is the piece a value story needs. It reports billed and non-billed Copilot credits, consumption over time, credits by environment, and credits by feature. Pair that with Conversation KPI outcomes and you have cost per resolved session at the agent level, which is what converts a gross Agent Assisted Value figure into net ROI.</p>
+  <p>A preview dashboards and forecasting experience runs on the same synced data with no extra configuration: drag-and-drop charts from more than 100 metrics, forecasting up to 180 days, export to PDF, PowerPoint, Excel, or PNG, and filters for agent, time range, channel, and production versus test data. For an organization that does not want to stand up a Power BI workspace, this may be sufficient on its own.</p>
+
+  <div class="callout warn">
+    <strong>Setup is a real project task, not a checkbox.</strong> Agent Insights Hub requires Application Insights integration, a Microsoft Entra ID app registration for Application Insights access, and an Agent Inventory sync before agents can be configured. Budget for it.
+  </div>
+
+  <h3>Retention: the constraint that drives the architecture</h3>
+  <table>
+    <thead>
+      <tr><th style="width:40%">Source</th><th>Retention</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Application Insights telemetry</strong></td><td>90 days by default, configurable up to 730 days</td></tr>
+      <tr><td><strong>Conversation transcripts (Dataverse)</strong></td><td>30 days, removed by a bulk-delete system job</td></tr>
+      <tr><td><strong>Reactions (thumbs and free text)</strong></td><td>28 days</td></tr>
+      <tr><td><strong>Kit Conversation KPIs</strong></td><td>Indefinite</td></tr>
+    </tbody>
+  </table>
+  <p>Two consequences follow. Sync Agent Insights Hub on a regular cadence or transcript-derived data older than 30 days is gone permanently. And Conversation KPIs are the only component that gives multi-year trend data without a data lake export.</p>
+
+  <h3>If you do need the lake</h3>
+  <p>Three Dataverse tables underpin all of this: <span class="pill">bot</span> for agent metadata, <span class="pill">botcomponent</span> for topics, entities, and dialogs, and <span class="pill">conversationtranscript</span> for the session detail, which is the volume table. The recommended long-retention pattern is Azure Synapse Link for Dataverse into Azure Data Lake Storage Gen2, selecting the conversation transcript table. The other two do not support incremental sync.</p>
+
+  <div class="callout warn">
+    <strong>The trap that eats the data.</strong> Synapse Link mirrors by default, so the 30-day bulk-delete job propagates to the lake and removes the very history the lake was built to keep. Configure append-only writes, or take snapshots. Discovering this six months later is a total loss.
+  </div>
+
+  <h3>Recommended sequence</h3>
+  <ol>
+    <li>Install the kit and run an Agent Inventory sync for the portfolio baseline.</li>
+    <li>Enable Agent Value for classification and strategic alignment.</li>
+    <li>Turn on Conversation KPIs, with tracked variables carrying your own value figures.</li>
+    <li>Stand up Agent Insights Hub for credit cost and telemetry depth.</li>
+    <li>Start from the sample Power BI reports, then extend against the Dataverse KPI tables.</li>
+  </ol>
 
   <h2 id="leading-lagging">Leading and lagging indicators</h2>
   <p>Lagging indicators confirm outcomes after the fact. Leading indicators show whether you are on track early enough to change something. Carry at least one of each per value driver into every quarterly review, so a miss surfaces as a trend rather than as a surprise.</p>
@@ -677,7 +769,7 @@ toward higher-value work. It belongs in the first business case.</div>
     <ul class="checklist">
       <li>Copilot Studio Analytics live from the first conversation</li>
       <li>Application Insights connected from Settings &gt; Analytics</li>
-      <li>Copilot Studio Kit installed for quality and governance</li>
+      <li>Copilot Agent Kit installed for quality, governance, and custom KPI reporting</li>
       <li>Savings calculator inputs entered per run or per tool</li>
       <li>Hourly rate overridden to your fully loaded figure</li>
       <li>Reactions exported before the 28-day retention window closes</li>
@@ -725,8 +817,28 @@ toward higher-value work. It belongs in the first business case.</div>
       <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-custom-metrics</span>
     </div>
     <div class="ref">
-      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-overview">Copilot Studio Kit overview</a><br>
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-overview">Copilot Agent Kit overview</a><br>
       <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-conversation-kpi">Track agent performance with Conversation KPIs</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-conversation-kpi</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-agent-value-dashboard">Measure agent value with the Agent Value component</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-agent-value-dashboard</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-agent-insights-hub">Monitor agent performance with Agent Insights Hub</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-agent-insights-hub</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/custom-analytics-strategy">Develop a custom analytics strategy</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/custom-analytics-strategy</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-apps/maker/data-platform/export-to-data-lake">Azure Synapse Link for Dataverse</a><br>
+      <span class="u">https://learn.microsoft.com/power-apps/maker/data-platform/export-to-data-lake</span>
     </div>
     <div class="ref">
       <a href="https://learn.microsoft.com/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry">Capture telemetry with Azure Application Insights</a><br>
@@ -768,7 +880,7 @@ toward higher-value work. It belongs in the first business case.</div>
 
   <footer class="foot">
     <p>This page is guidance, not a contract. Product capabilities, default multipliers, licensing terms, and report prerequisites change over time. Confirm current behavior and terms in the official Microsoft documentation linked above before making a commitment or a business case decision.</p>
-    <p>Compiled from public Microsoft documentation, July 2026.</p>
+    <p>Compiled from public Microsoft documentation, August 2026.</p>
   </footer>
 </div>
 <script>
