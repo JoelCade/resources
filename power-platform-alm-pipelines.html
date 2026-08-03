@@ -398,7 +398,7 @@ footer.foot a:hover { text-decoration: underline; }
   </ul>
 
   <div class="callout">
-    <strong>Provider support (as of July 2026):</strong> native Dataverse Git integration works with <strong>Azure DevOps Git repositories</strong>. <strong>GitHub</strong> as a native Git provider is on the 2026 wave 1 release plan with public preview slated for <strong>August 2026</strong>, alongside performance improvements and new public APIs for both providers. Release-plan dates can move — validate before you architect around it. In the meantime, GitHub users reach the same outcome through <code>pac</code> CLI export/unpack inside a GitHub Actions workflow.
+    <strong>Provider support (rechecked August 2026):</strong> native Dataverse Git integration works with <strong>Azure DevOps Git repositories only</strong>. The setup documentation still lists an Azure DevOps subscription and project as a hard prerequisite, and there is no GitHub option in the <em>Connect to Git</em> flow. <strong>GitHub</strong> as a native Git provider was on the 2026 wave 1 release plan with public preview indicated for August 2026, but it has <strong>not appeared in the product documentation as of this review</strong>. Treat it as announced-but-unshipped and do not architect around it until Microsoft Learn documents it. GitHub users reach the same outcome today through <code>pac</code> CLI export/unpack inside a GitHub Actions workflow.
   </div>
 
   <h3>The code-first caveat worth knowing</h3>
@@ -512,8 +512,10 @@ footer.foot a:hover { text-decoration: underline; }
       <span class="u">learn.microsoft.com/power-platform/alm/devops-github-actions</span></p>
     <p class="ref"><a href="https://github.com/marketplace/actions/powerplatform-actions" target="_blank" rel="noopener">Power Platform Actions on the GitHub Marketplace</a>
       <span class="u">github.com/marketplace/actions/powerplatform-actions</span></p>
-    <p class="ref"><a href="https://github.com/microsoft/powerplatform-actions-lab" target="_blank" rel="noopener">GitHub Actions hands-on lab (sample workflows)</a>
-      <span class="u">github.com/microsoft/powerplatform-actions-lab</span></p>
+    <p class="ref"><a href="https://github.com/microsoft/powerplatform-actions" target="_blank" rel="noopener">Power Platform GitHub Actions source repository (samples and workflow reference)</a>
+      <span class="u">github.com/microsoft/powerplatform-actions</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/git-integration/connecting-to-git" target="_blank" rel="noopener">Dataverse Git integration setup (prerequisites and provider support)</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/git-integration/connecting-to-git</span></p>
     <p class="ref"><a href="https://learn.microsoft.com/power-platform/developer/cli/reference/pipeline" target="_blank" rel="noopener">pac pipeline — Power Platform CLI command group</a>
       <span class="u">learn.microsoft.com/power-platform/developer/cli/reference/pipeline</span></p>
     <p class="ref"><a href="https://aka.ms/powa" target="_blank" rel="noopener">Microsoft Power Platform Well-Architected</a>
