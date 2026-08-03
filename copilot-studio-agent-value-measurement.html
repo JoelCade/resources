@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Measuring the Business Value of Copilot Studio Agents</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+  scroll-margin-top: 64px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.alt { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+.num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.cost-lo { color: var(--cp-success); }
+.cost-hi { color: var(--cp-danger); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 14px 0; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.step .body { flex: 1; }
+.step .body h3 { margin-top: 3px; }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.math {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.toc { padding: 16px 20px 18px; }
+.toc h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 0 0 10px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding-left: 0;
+  margin: 0;
+  columns: 2;
+  column-gap: 28px;
+}
+@media (max-width: 680px) { .toc ol { columns: 1; } }
+.toc li {
+  counter-increment: toc;
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 26px;
+  position: relative;
+  font-size: 14px;
+}
+.toc li::before {
+  content: counter(toc);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toc a { color: var(--cp-text); }
+.toc a:hover { color: var(--cp-link); text-decoration: underline; }
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 26px; position: relative; margin: 7px 0; }
+.checklist li::before {
+  content: "\2610";
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+  color: var(--cp-accent);
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step, .math { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio &middot; Business Value Reference</p>
+    <h1>Measuring the Business Value of Copilot Studio Agents</h1>
+    <p class="sub">How to define value before you build, capture a baseline that survives audit, read the numbers off the right surface, and apply Microsoft's published Agent Assisted Hours formula. Compiled from public Microsoft documentation &middot; July 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> a value claim without a pre-launch telemetry baseline will not survive its first business review. Three numbers captured before go-live &mdash; time per task, error rate, and cost per interaction &mdash; carry the entire measurement story. Everything else on this page is scaffolding around those three numbers.
+  </div>
+
+  <nav class="card toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#why-hard">Why value gets harder to prove after launch</a></li>
+      <li><a href="#drivers">The four value drivers</a></li>
+      <li><a href="#before-build">Define value before you build</a></li>
+      <li><a href="#prioritize">Prioritize the portfolio: impact and effort</a></li>
+      <li><a href="#baseline">Capture the telemetry baseline</a></li>
+      <li><a href="#tiers">Three measurement tiers</a></li>
+      <li><a href="#kpis">The built-in KPIs and what they mean</a></li>
+      <li><a href="#formula">Agent Assisted Hours and Agent Assisted Value</a></li>
+      <li><a href="#surfaces">Where to read the numbers</a></li>
+      <li><a href="#leading-lagging">Leading and lagging indicators</a></li>
+      <li><a href="#stages">How value grows in stages</a></li>
+      <li><a href="#scorecard">The one-page executive scorecard</a></li>
+      <li><a href="#checklist">Measurement readiness checklist</a></li>
+      <li><a href="#refs">Reference materials</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="why-hard">Why value gets harder to prove after launch</h2>
+  <p>Most agent programs measure well during the pilot and badly in production. Three patterns explain nearly all of it. Design around them at the start, because none of the three is cheap to fix retroactively.</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Measurement that stops at pilot</h3>
+      <p>Instrumentation is tight while everyone is watching, then drifts once the agent moves to production. The fix is structural, not procedural: embed measurement in the deployment workflow itself so every production agent keeps emitting the signals the quarterly review depends on.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Activity that does not tie to outcomes</h3>
+      <p>Session counts and user counts show usage. Usage is not value. Every KPI on the scorecard should trace back to a value driver the business already cares about, or it does not belong on the scorecard.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>The time-savings trap</h3>
+      <p>Claiming value from theoretical time savings alone is the fastest way to lose finance. Build a chain of evidence instead: adoption, then operational KPIs, then business outcomes. Each link has to be observable in a system of record.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Watch for this in review.</strong> "We saved 4,000 hours" is an assertion. "Routine adoption reached 31 percent, resolution rate moved from 54 to 71 percent against a 90-day baseline, and cost per case fell from $6.10 to $3.40 in the ticketing export" is evidence. Only the second one gets funded twice.
+  </div>
+
+  <h2 id="drivers">The four value drivers</h2>
+  <p>Business value from agents almost always lands in one of four categories. Grouping every signal into one of them keeps the story coherent and gives finance a pricing method for each.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:15%">Value driver</th><th style="width:37%">What it measures</th><th>How to price it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Efficiency</strong></td><td>Productive hours the team gets back and reinvests in higher-value work.</td><td>Productive hours returned &times; fully loaded productive-hour value.</td></tr>
+      <tr><td><strong>Quality</strong></td><td>Error reduction, consistency, and compliance posture.</td><td>(Error rate before &minus; error rate after) &times; volume &times; cost per error.</td></tr>
+      <tr><td><strong>Revenue</strong></td><td>Top-line lift from retained, expanded, or new business.</td><td>Conversion or deflection delta &times; volume &times; unit revenue &times; attribution discount.</td></tr>
+      <tr><td><strong>Strategic</strong></td><td>Decision velocity, employee confidence, optionality, and resilience.</td><td>Option premium on capability, plus retention value of talent, plus resilience value.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The attribution discount in the revenue row is the honest part of the model. When an agent is one of several contributors to a closed deal or a retained customer, discount the claim rather than banking the whole number. Reviewers notice which teams do this, and it buys credibility for the claims you do not discount.</p>
+
+  <div class="callout">
+    <strong>Do not skip the strategic driver.</strong> Microsoft's guidance is explicit that organizations using AI to change <em>what</em> they measure, rather than only improving existing KPIs, realize stronger financial results over time. Redefining the business measure is where compounding value comes from.
+  </div>
+
+  <h2 id="before-build">Define value before you build</h2>
+  <p>The highest-leverage investment in an agent's business value happens before any configuration starts. Answer four questions in sequence.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Question 1</span>
+      <h3>Strategic goal</h3>
+      <p>What business challenge is this addressing? Name a board-visible objective: revenue growth, cost optimization, customer experience, compliance posture. If the goal does not fit on one slide, the agent will not clear its first budget review.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Question 2</span>
+      <h3>Stakeholder map</h3>
+      <p>Who benefits, and what does each of them measure? Identify the sponsor, the operator, the end user, and the governor. Each has a different KPI. Where those KPIs conflict, resolve it now, not at launch.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Question 3</span>
+      <h3>Success metrics</h3>
+      <p>Define the before-state quantitatively. "Handle time is 8 minutes, measured over 90 days, with a P90 of 16 minutes" is a baseline. "Our handle time is too long" is not.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Question 4</span>
+      <h3>Build readiness</h3>
+      <p>With a shared definition of success and a documented baseline, the technical team builds toward a target. Skip the first three and the fourth is a gamble dressed as a project.</p>
+    </div>
+  </div>
+
+  <h2 id="prioritize">Prioritize the portfolio: impact and effort</h2>
+  <p>Most organizations have more candidate use cases than build capacity. A short impact-and-effort review sorts the backlog in an afternoon.</p>
+
+  <h3>Estimating impact</h3>
+  <p>Impact is the projected annual value at target adoption, estimated from four inputs: the volume of work the agent touches, the share of that work it can resolve or accelerate, the unit value of each completed task, and the attribution discount where the agent is one contributor among several. High impact means the annual value is large enough to move a named KPI on the executive scorecard &mdash; for example $1 million or more in Agent Assisted Value per year, or a double-digit point shift in a function-level KPI.</p>
+
+  <h3>Estimating effort</h3>
+  <p>Effort is build cost plus change burden, measured in engineering weeks and person-hours rather than dollars. It follows from integration complexity, the depth of the knowledge corpus, the orchestration pattern (single topic, multi-turn, or generative orchestration), and the size of the enablement program. Low effort typically means build, test, and deploy inside a quarter with no new integrations and enablement delivered in one training cycle.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:24%">Quadrant</th><th style="width:44%">When to act</th><th>How to fund it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Quick wins</strong><br><span class="tag">High impact, low effort</span></td><td>Build first. Stand up three to five in parallel so the measurement program has real data inside two quarters.</td><td>Operating budget. Quick wins buy support for the strategic bets later.</td></tr>
+      <tr><td><strong>Strategic investments</strong><br><span class="tag">High impact, high effort</span></td><td>Fund one or two at a time, and only after at least one quick win has reached baseline.</td><td>Dedicated program funding. These are the agents that justify a center of excellence.</td></tr>
+      <tr><td><strong>Nice to have</strong><br><span class="tag">Low impact, low effort</span></td><td>Queue for the citizen-maker community or an internal agent-store listing.</td><td>No central funding. Let makers iterate as skill building.</td></tr>
+      <tr><td><strong>Reconsider</strong><br><span class="tag">Low impact, high effort</span></td><td>Do not fund now. Revisit in six months when better data or cheaper options may lower the effort.</td><td>Park and review.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="baseline">Capture the telemetry baseline</h2>
+  <p>Store at least 90 days of operational data alongside the agent artifacts, so the before-state cannot be overwritten by the after-state. A defensible baseline covers six things.</p>
+
+  <ul>
+    <li><strong>Volume</strong> &mdash; transaction or session counts broken out by category, channel, and priority.</li>
+    <li><strong>Cycle time</strong> &mdash; reported as median, P90, and P99, not as a single average.</li>
+    <li><strong>Error rate</strong> &mdash; broken out by error type, so you can later attribute the specific errors the agent actually reduced.</li>
+    <li><strong>Fully loaded cost per transaction</strong> &mdash; including benefits, overhead, and allocated infrastructure.</li>
+    <li><strong>A voice-of-customer signal</strong> &mdash; CSAT, NPS, or an equivalent recurring survey.</li>
+    <li><strong>Productive-hour value invested today</strong> &mdash; what the current process costs in people time.</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>Systems of record only.</strong> If the baseline does not come from a telemetry system, a ticketing export, or an ERP extract, it will not hold up in the first quarterly review. Surveys can supplement a baseline. They cannot replace one.
+  </div>
+
+  <h3>Why median, P90, and P99 together</h3>
+  <p>The median is the typical case, P90 is the slow tail, and P99 is the worst-case outlier. All three are needed because a healthy-looking median can coexist with a P90 slow enough to drive churn. A median handle time of four minutes with a P90 of 20 minutes says one case in ten runs five times longer than typical &mdash; and that tail is usually the thing the agent is being asked to fix.</p>
+
+  <h3>Calculating the productive time the process consumes today</h3>
+  <ol>
+    <li>Count the FTE headcount that touches the process, including supervisors, QA reviewers, and schedulers where they participate.</li>
+    <li>Pick a fully loaded compensation figure per role &mdash; typically base salary multiplied by 1.3 to 1.5 to cover benefits, payroll taxes, tools, training, and allocated overhead. Absent role-specific numbers, the published default is $72 per hour.</li>
+    <li>Estimate each person's share of time on the process from timesheets, workforce management data, or a structured sample.</li>
+    <li>Multiply. Productive hours per month equals FTEs involved times hours each spends per month; productive-hour value is that total times the fully loaded rate.</li>
+  </ol>
+
+  <div class="math">Worked example
+Five specialists x 30 hours per week x 4.3 weeks x $60 per hour
+  = $38,700 per month
+  = approximately $464,400 per year
+
+That is the productive-hour investment the agent helps redirect
+toward higher-value work. It belongs in the first business case.</div>
+
+  <h2 id="tiers">Three measurement tiers</h2>
+  <p>Copilot Studio measurement layers into three tiers. Each answers a different question and costs a different amount of setup. Start at tier one on day one; add tiers two and three as the portfolio matures.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:22%">Tier</th><th style="width:38%">Question it answers</th><th>Capability</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Usage and outcomes</strong><br><span class="tag">No setup</span></td><td>Is my agent being used, and is it resolving work?</td><td>Copilot Studio analytics, built in to every published agent.</td></tr>
+      <tr><td><strong>Quality and governance</strong><br><span class="tag">Install required</span></td><td>Is my agent working correctly, and is it safe?</td><td>Copilot Studio Kit &mdash; batch tests, rubrics, compliance, cross-agent reporting.</td></tr>
+      <tr><td><strong>Deep telemetry</strong><br><span class="tag">Azure resource</span></td><td>What is my agent actually doing in the business process, end to end?</td><td>Azure Application Insights &mdash; structured traces, dependencies, custom events, KQL.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Turn on tier one before launch, not after.</strong> Every day of missing telemetry is a gap that cannot be recovered later. Analytics start emitting from the first conversation, so there is no reason to defer.
+  </div>
+
+  <h3>A starting KQL query for tier three</h3>
+  <p>Once Application Insights is connected from the agent's <strong>Settings &gt; Analytics</strong> pane, this counts sessions and messages per day for the last 30 days &mdash; the usual first question about adoption shape.</p>
+
+  <div class="math">requests
+| where timestamp &gt; ago(30d)
+| summarize sessions = dcount(session_Id), messages = count() by bin(timestamp, 1d)
+| render timechart</div>
+
+  <p>The same pattern extends to top topics, escalation rate over time, agent-level latency, error recurrence, and peak-hour volume.</p>
+
+  <h2 id="kpis">The built-in KPIs and what they mean</h2>
+  <p>Every published agent emits these from the first conversation. Knowing the precise definition matters, because several of them are ratios of engaged sessions rather than of total sessions &mdash; a distinction that quietly changes the number a stakeholder sees.</p>
+
+  <h3>Conversational agent KPIs</h3>
+  <table>
+    <thead>
+      <tr><th style="width:26%">Metric</th><th>Definition</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Total sessions</td><td>Analytics sessions in the period. One conversation can produce several sessions as the user raises new questions.</td></tr>
+      <tr><td>Engagement rate</td><td>Share of sessions that triggered a custom topic, Escalate, Fallback, or Conversational Boosting.</td></tr>
+      <tr><td>Resolution rate</td><td>Share of <em>engaged</em> sessions that reached a resolved outcome, confirmed or implied.</td></tr>
+      <tr><td>Escalation rate</td><td>Share of <em>engaged</em> sessions handed off through Escalate or Transfer conversation.</td></tr>
+      <tr><td>Abandon rate</td><td>Share of <em>engaged</em> sessions that ended without resolution or escalation after 60 minutes.</td></tr>
+      <tr><td>CSAT</td><td>Average customer satisfaction score from End of Conversation survey responses, scored 1 to 5.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Autonomous agent KPIs</h3>
+  <p>For agents that run on event triggers rather than user chat, analytics report run outcomes, trigger use, tool use, and knowledge source use. Together they answer whether the autonomous agent is doing what it was designed to do &mdash; a different question from whether users like it.</p>
+
+  <h3>Quality and voice-of-customer signals</h3>
+  <ul>
+    <li><strong>Reactions</strong> &mdash; thumbs-up and thumbs-down plus free-text comments, retained for 28 days. Export before that window closes if you need them for a quarterly review.</li>
+    <li><strong>Sentiment</strong> &mdash; AI-scored negative-sentiment percentage across sessions.</li>
+    <li><strong>Themes</strong> &mdash; AI-grouped user questions that expose topic-coverage gaps, with one-select creation of evaluation test sets from any theme.</li>
+    <li><strong>Generated answer rate and quality</strong> &mdash; surfaces unanswered questions and response quality for remediation.</li>
+    <li><strong>AI-generated insights</strong> &mdash; daily recommendations on unanswered generative questions, with specific coverage fixes.</li>
+  </ul>
+
+  <h3>Savings calculator and custom metrics</h3>
+  <p>The <strong>Savings calculator</strong> on the agent's Analytics page takes an estimated time or money saved per run or per tool and computes totals in real time against successful runs in the period. It updates retroactively when inputs change, which produces a defensible ROI tile with no data engineering at all. Separately, up to three <strong>custom metrics</strong> per agent can be defined in natural language; Copilot Studio generates a prompt that scores a sampling of sessions and renders the result as a labeled donut graph.</p>
+
+  <h2 id="formula">Agent Assisted Hours and Agent Assisted Value</h2>
+  <p>Microsoft publishes a standard formula so value claims are comparable across agents and across organizations. It is the same calculation used in the Copilot Studio agents report in Viva Insights, and every multiplier in it is overridable.</p>
+
+  <h3>Conversational agents</h3>
+  <div class="math">Agent Assisted Hours =
+  (Knowledge references + Weighted sessions without knowledge references)
+  x Time savings multiplier / 60</div>
+  <ul>
+    <li>Each knowledge source reference counts once and is multiplied by the time savings multiplier.</li>
+    <li>Sessions without knowledge references are weighted by outcome: resolved counts as 1.0; escalated or abandoned counts as 0.7.</li>
+    <li>The default time savings multiplier is 6 minutes, sourced from Microsoft research on information retrieval tasks.</li>
+  </ul>
+
+  <h3>Autonomous agents</h3>
+  <div class="math">Agent Assisted Hours =
+  (Knowledge references x retrieval savings
+   + Action time savings
+   + Successful sessions without actions x generic savings) / 60</div>
+  <p>Use this variant when the agent runs on an event trigger and completes actions on its own. Retrieval, action, and generic multipliers are all customizable in the report calculator.</p>
+
+  <h3>Converting hours to money</h3>
+  <div class="math">Agent Assisted Value = Agent Assisted Hours x Hourly rate</div>
+  <p>The default hourly rate is $72, based on U.S. Bureau of Labor Statistics data on employer costs for employee compensation. Override it on the Agent Assisted Value card to reflect your own fully loaded compensation &mdash; and do override it, because an unadjusted default is the first thing a finance reviewer will challenge.</p>
+
+  <h3>Worked example</h3>
+  <p>A customer-service agent handles 10,000 engaged sessions in a month. Of those, 5,000 cite at least one knowledge source, averaging two references each. The remaining 5,000 cite none and split into 3,000 resolved and 2,000 escalated or abandoned.</p>
+  <div class="math">1. Knowledge references:   5,000 sessions x 2 refs      = 10,000
+2. Weighted sessions:     (3,000 x 1.0) + (2,000 x 0.7) =  4,400
+3. Total:                 10,000 + 4,400                = 14,400
+4. Hours:                 14,400 x 6 / 60               =  1,440 hours/month
+5. Value:                 1,440 x $72                   = $103,680/month
+                                                        = ~$1.24M/year</div>
+  <p>The agent returns roughly 1,440 hours of representative capacity every month. The narrative that matters to a sponsor is not the dollar figure on its own but what the capacity gets reinvested in: complex cases, proactive outreach, coaching, and the judgment-heavy work that moves retention.</p>
+
+  <div class="callout warn">
+    <strong>Cost sits on the other side of this ledger.</strong> Agent Assisted Value is a gross number. Net it against Copilot Credit consumption, build effort, and run cost before presenting it as ROI. Forecast the consumption side with the agent usage estimator during the business case, not after the first invoice.
+  </div>
+
+  <h2 id="surfaces">Where to read the numbers</h2>
+  <p>Different questions live on different surfaces. Sending a sponsor to the wrong one is a common reason value stories stall.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:30%">Surface</th><th style="width:40%">What it gives you</th><th>Use it when</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Copilot Studio Analytics</strong></td><td>Per-agent KPIs, reactions, sentiment, themes, savings calculator, custom metrics.</td><td>Operating a single agent, weekly.</td></tr>
+      <tr><td><strong>Copilot Studio Kit</strong></td><td>Agent inventory, batch tests, rubrics, Conversation Analyzer, Conversation KPIs, compliance hub.</td><td>Running quality and governance across a portfolio.</td></tr>
+      <tr><td><strong>Azure Application Insights</strong></td><td>Structured traces, dependencies, custom business events, end-to-end latency, KQL.</td><td>The agent is one step inside a larger business process.</td></tr>
+      <tr><td><strong>Copilot Studio agents report</strong><br><span class="tag">Viva Insights</span></td><td>Cross-agent rollups, Agent Assisted Hours and Value cards with an override calculator, trend charts beyond the native 30-day window, conversational and autonomous side by side.</td><td>Comparing ten agents at once instead of reading ten Analytics pages.</td></tr>
+      <tr><td><strong>Copilot business impact report</strong><br><span class="tag">Viva Insights</span></td><td>Joins your own outcome data (deals closed, cases resolved, on-time delivery, claims processed) against Copilot usage.</td><td>Finance asks for evidence that Copilot moved a number on the income statement.</td></tr>
+      <tr><td><strong>Copilot Dashboard</strong><br><span class="tag">Viva Insights</span></td><td>Adoption, Impact, and Value tabs; routine adoption rate by function, workplace pattern shifts, industry benchmarks.</td><td>Giving a sponsor a recurring readout on how work is changing.</td></tr>
+      <tr><td><strong>Viva Glint Copilot Impact Survey</strong></td><td>Four standardized items (productivity, speed, effort, quality) feeding sentiment back into the Copilot Dashboard.</td><td>Correlating sentiment with adoption to find the training gaps.</td></tr>
+      <tr><td><strong>Copilot Control System</strong></td><td>One framework spanning operational admin-center reports, strategic dashboard reports, and customizable analytics.</td><td>A stakeholder asks for a single place to see the whole story.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Prerequisite worth knowing early.</strong> The Copilot Studio agents report requires at least 50 Copilot licenses and one published agent in a production environment before it will populate. Check that before promising a sponsor a cross-agent rollup on a given date.
+  </div>
+
+  <h2 id="leading-lagging">Leading and lagging indicators</h2>
+  <p>Lagging indicators confirm outcomes after the fact. Leading indicators show whether you are on track early enough to change something. Carry at least one of each per value driver into every quarterly review, so a miss surfaces as a trend rather than as a surprise.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:16%">Value driver</th><th style="width:42%">Leading indicator</th><th>Lagging indicator</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Efficiency</strong></td><td>Routine adoption rate at 30 days; theme coverage for the top 10 user questions.</td><td>Annualized ROI; cost per transaction.</td></tr>
+      <tr><td><strong>Quality</strong></td><td>Rubric-graded groundedness score in testing; thumbs-down rate trend.</td><td>Error-rate delta versus baseline; audit findings avoided.</td></tr>
+      <tr><td><strong>Revenue</strong></td><td>Containment rate and first-contact resolution trend; advisor meetings per day.</td><td>Retention delta; pipeline conversion lift.</td></tr>
+      <tr><td><strong>Strategic</strong></td><td>Employee sentiment on AI; number of redesigned workflows in flight.</td><td>New capabilities shipped; EBIT contribution attributed to the agent portfolio.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Qualitative signals worth capturing</h3>
+  <p>Numbers miss the redesign ideas. Organize the qualitative program by the same four drivers: structured quarterly interviews with three or four frontline managers per agent for efficiency stories; thumbs and free-text comments for confidence in output; Conversation Analyzer against recent transcripts for the customer-experience narrative beyond CSAT; and employee sentiment plus hiring and exit signals for the strategic picture.</p>
+
+  <h2 id="stages">How value grows in stages</h2>
+  <p>Expect a shape, not a straight line. Declaring victory too early is the single most common way a promising program loses its sponsor.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:22%">Stage</th><th style="width:30%">What matters</th><th>What you see</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Day 1 to 90</strong><br><span class="tag">Immediate returns</span></td><td>Adoption mechanics and first-order efficiency.</td><td>Deflection rises, handle time drops, cost per case falls. The common mistake is declaring victory before routine adoption passes 25 percent.</td></tr>
+      <tr><td><strong>Day 91 to 1 year</strong><br><span class="tag">Operational impact</span></td><td>Quality and revenue value emerge.</td><td>Teams organize around the agent, error and rework rates decline, work shifts toward higher-value tasks.</td></tr>
+      <tr><td><strong>Year 2 and beyond</strong><br><span class="tag">Strategic value</span></td><td>Workflow redesign and compounding returns.</td><td>Decision velocity rises, new capabilities emerge, returns compound across use cases.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What actually moves the return</h3>
+  <p>The license is not the investment. Adoption is. Uneven ROI across a portfolio almost always points to gaps in training, role modeling, or workflow alignment rather than to a technology gap. In rough order of impact: make structured role-based training a prerequisite and train managers first; anchor every agent to a named high-volume workflow rather than to generic productivity; have executives visibly model adoption; maintain shared prompt libraries updated monthly from observed themes; publish guardrails users can see; and run expansion as a standing quarterly rhythm rather than a one-time project.</p>
+
+  <h2 id="scorecard">The one-page executive scorecard</h2>
+  <p>A dashboard is not a scorecard. A scorecard tells one story on one page. This structure works for a quarterly value review.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:22%">Section</th><th style="width:48%">What it contains</th><th>Source</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Headline</strong></td><td>One sentence summarizing the quarter's outcome and the Agent Assisted Value delivered.</td><td>Agent owner narrative.</td></tr>
+      <tr><td><strong>Portfolio snapshot</strong></td><td>Live, piloting, and retired agents, plus routine adoption rate across the portfolio.</td><td>Kit Agent Inventory; Copilot Dashboard.</td></tr>
+      <tr><td><strong>Value delivered</strong></td><td>Agent Assisted Hours and Value by driver, with deltas from last quarter and from baseline.</td><td>Copilot business impact report; Savings calculator.</td></tr>
+      <tr><td><strong>Agent scorecard</strong></td><td>Top five agents by value, and the bottom two with an explicit keep, fix, or retire decision.</td><td>Kit Agent Inventory.</td></tr>
+      <tr><td><strong>Voice of the user</strong></td><td>Two or three verbatim quotes, CSAT trend, negative-sentiment trend.</td><td>Copilot Studio Analytics; Conversation Analyzer.</td></tr>
+      <tr><td><strong>Risk and governance</strong></td><td>Compliance cases opened, closed, in flight; Responsible AI reviews, incidents, open audit findings.</td><td>Kit Compliance Hub.</td></tr>
+      <tr><td><strong>Next quarter</strong></td><td>Two or three quick-wins candidates and the one workflow redesign you plan to ship.</td><td>Use case backlog from the impact and effort map.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>The bottom-two rule earns disproportionate trust.</strong> Naming the two weakest agents with a keep, fix, or retire decision signals that the portfolio is being managed rather than defended. It also makes the top-five numbers more believable.
+  </div>
+
+  <h2 id="checklist">Measurement readiness checklist</h2>
+
+  <div class="card">
+    <h3>Before you build</h3>
+    <ul class="checklist">
+      <li>Strategic goal named and fits on one slide</li>
+      <li>Sponsor, operator, end user, and governor identified, with conflicting KPIs resolved</li>
+      <li>Success metrics defined quantitatively, including the before-state</li>
+      <li>Use case placed on the impact and effort map and funded accordingly</li>
+      <li>Metric targets agreed for engagement, resolution, escalation, abandon, CSAT, and adoption</li>
+      <li>Consumption forecast produced with the agent usage estimator</li>
+      <li>Named executive accountable for the agent portfolio</li>
+      <li>Responsible AI impact assessment documented</li>
+      <li>Data residency confirmed and sensitivity labels applied to knowledge sources</li>
+      <li>Decommission criterion written into the agent record</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Before go-live</h3>
+    <ul class="checklist">
+      <li>90 days of baseline data stored with the agent artifacts</li>
+      <li>Cycle time captured as median, P90, and P99</li>
+      <li>Error rate broken out by error type</li>
+      <li>Fully loaded cost per transaction calculated</li>
+      <li>Voice-of-customer baseline captured (CSAT, NPS, or equivalent)</li>
+      <li>Productive-hour value of the current process calculated</li>
+      <li>Escalation path published and visible to users</li>
+      <li>30-day, 90-day, and 365-day value reviews scheduled on calendars</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>At launch and after</h3>
+    <ul class="checklist">
+      <li>Copilot Studio Analytics live from the first conversation</li>
+      <li>Application Insights connected from Settings &gt; Analytics</li>
+      <li>Copilot Studio Kit installed for quality and governance</li>
+      <li>Savings calculator inputs entered per run or per tool</li>
+      <li>Hourly rate overridden to your fully loaded figure</li>
+      <li>Reactions exported before the 28-day retention window closes</li>
+      <li>At 30 and 90 days, movement compared against baseline with the value driver named explicitly</li>
+      <li>Quarterly scorecard produced and reviewed with the named sponsor</li>
+    </ul>
+  </div>
+
+  <h2 id="refs">Reference materials</h2>
+  <div class="card">
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-define-value">Define value before you build your agent</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-define-value</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-measure-impact">Measure the impact of your agents</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-measure-impact</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-tell-value-story">Communicate the value story to stakeholders</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-tell-value-story</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-use-case-blueprints">Use case blueprints for measuring agent value (16 functions)</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/agent-business-value-use-case-blueprints</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview">Copilot Studio analytics overview</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-improve-agent-effectiveness">Analyze conversational agents</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-improve-agent-effectiveness</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-improve-agent-health">Analyze autonomous agents</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-improve-agent-health</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-cost-savings">Analyze time and cost savings for agents (Savings calculator)</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-cost-savings</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-custom-metrics">Custom metrics in Copilot Studio analytics</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-custom-metrics</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-overview">Copilot Studio Kit overview</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/kit-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry">Capture telemetry with Azure Application Insights</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/viva/insights/advanced/analyst/templates/copilot-studio-agents">Copilot Studio agents report (Viva Insights)</a><br>
+      <span class="u">https://learn.microsoft.com/viva/insights/advanced/analyst/templates/copilot-studio-agents</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/viva/insights/advanced/analyst/templates/copilot-business-impact">Copilot business impact report (Viva Insights)</a><br>
+      <span class="u">https://learn.microsoft.com/viva/insights/advanced/analyst/templates/copilot-business-impact</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/viva/insights/org-team-insights/copilot-dashboard">Copilot Dashboard in Viva Insights</a><br>
+      <span class="u">https://learn.microsoft.com/viva/insights/org-team-insights/copilot-dashboard</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/viva/glint/setup/copilot-impact-template">Viva Glint Copilot Impact Survey template</a><br>
+      <span class="u">https://learn.microsoft.com/viva/glint/setup/copilot-impact-template</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/copilot/copilot-control-system/measurement-reporting">Copilot Control System: measurement and reporting</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-365/copilot/copilot-control-system/measurement-reporting</span>
+    </div>
+    <div class="ref">
+      <a href="https://microsoft.github.io/copilot-studio-estimator/">Copilot Studio agent usage estimator</a><br>
+      <span class="u">https://microsoft.github.io/copilot-studio-estimator/</span>
+    </div>
+    <div class="ref">
+      <a href="https://go.microsoft.com/fwlink/?linkid=2320995">Microsoft Copilot Studio licensing guide</a><br>
+      <span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span>
+    </div>
+    <div class="ref">
+      <a href="https://www.bls.gov/news.release/ecec.t04.htm">U.S. Bureau of Labor Statistics: employer costs for employee compensation</a><br>
+      <span class="u">https://www.bls.gov/news.release/ecec.t04.htm</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p>This page is guidance, not a contract. Product capabilities, default multipliers, licensing terms, and report prerequisites change over time. Confirm current behavior and terms in the official Microsoft documentation linked above before making a commitment or a business case decision.</p>
+    <p>Compiled from public Microsoft documentation, July 2026.</p>
+  </footer>
+</div>
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
