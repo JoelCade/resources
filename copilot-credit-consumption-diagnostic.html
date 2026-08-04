@@ -324,7 +324,7 @@ footer.foot {
   <a class="backlink" href="index.html">&larr; All resources</a>
 
   <header class="masthead">
-    <p class="eyebrow">Microsoft Copilot Studio &middot; Diagnostic Battlecard</p>
+    <p class="eyebrow">Microsoft Copilot Studio &middot; Diagnostic Guide</p>
     <h1>Why Is a Non-Autonomous Agent Consuming Copilot Credits?</h1>
     <p class="sub">A structured walkthrough for diagnosing credit consumption on an agent that is used only by Microsoft 365 Copilot licensed employees. Compiled from public Microsoft documentation &middot; August 2026.</p>
   </header>
@@ -342,7 +342,7 @@ footer.foot {
       <li><a href="#walkthrough">Running the diagnosis live</a></li>
       <li><a href="#never">Never included, regardless of license</a></li>
       <li><a href="#prevent">Preventive controls</a></li>
-      <li><a href="#objections">Handling the hard questions</a></li>
+      <li><a href="#questions">Common questions answered</a></li>
       <li><a href="#checklist">Diagnostic checklist</a></li>
       <li><a href="#references">Reference materials</a></li>
     </ol>
@@ -377,7 +377,7 @@ footer.foot {
   </table>
 
   <div class="callout warn">
-    <strong>The framing that defuses the conversation:</strong> agents are <em>included</em> with Microsoft 365 Copilot, not <em>free</em>. The inclusion was scoped to employees using agents under their own identity. It was never scoped to cover anonymous channels, non-agent-triggered automation, computer use, voice minutes, or maker build activity. Establishing that distinction early prevents a second round of surprise later.
+    <strong>The distinction that matters:</strong> agents are <em>included</em> with Microsoft 365 Copilot, not <em>free</em>. The inclusion was scoped to employees using agents under their own identity. It was never scoped to cover anonymous channels, non-agent-triggered automation, computer use, voice minutes, or maker build activity. Understanding that boundary up front is what makes the rest of this page predictable rather than surprising.
   </div>
 
   <h2 id="triage">Sixty-second triage</h2>
@@ -386,7 +386,7 @@ footer.foot {
 
   <table>
     <thead>
-      <tr><th style="width:4%">#</th><th style="width:42%">Ask the customer</th><th style="width:32%">If the answer is</th><th style="width:22%">Go to</th></tr>
+      <tr><th style="width:4%">#</th><th style="width:42%">Question</th><th style="width:32%">If the answer is</th><th style="width:22%">Go to</th></tr>
     </thead>
     <tbody>
       <tr><td class="num-cell">1</td><td>Which channels is this agent published to?</td><td>Anything other than Teams or Microsoft 365 Copilot</td><td class="rc-id"><a href="#rc1">RC-1</a></td></tr>
@@ -480,10 +480,10 @@ footer.foot {
   </table>
 
   <div class="callout">
-    <strong>Where to start:</strong> in practice <a href="#rc1">RC-1</a> (a demo website left switched on after a pilot) and <a href="#rc4">RC-4</a> (agent flow trigger mismatch) account for the large majority of these conversations, with <a href="#rc5">RC-5</a> (auto-greet on load) as the quiet third. Test those three before going deeper.
+    <strong>Where to start:</strong> in practice <a href="#rc1">RC-1</a> (a demo website left switched on after a pilot) and <a href="#rc4">RC-4</a> (agent flow trigger mismatch) account for the large majority of cases, with <a href="#rc5">RC-5</a> (auto-greet on load) as the quiet third. Test those three before going deeper.
   </div>
 
-  <h2 id="walkthrough">Running the diagnosis live</h2>
+  <h2 id="walkthrough">Running the diagnosis</h2>
 
   <div class="step">
     <div class="num">1</div>
@@ -527,7 +527,7 @@ footer.foot {
 
   <h2 id="never">Never included, regardless of license</h2>
 
-  <p>Say this part early. It prevents the follow-up escalation.</p>
+  <p>These stay metered even when every user is licensed, so account for them separately rather than treating them as anomalies.</p>
 
   <div class="grid2">
     <div class="card">
@@ -561,12 +561,12 @@ footer.foot {
   <p>Environments with an explicit allocation are shielded when the shared tenant pool goes into overage. Environments with no allocation draw from the shared pool and are the first to be enforced. Capacity does not roll over: credits reset on the first of the month, not on the license anniversary.</p>
 
   <h3>Use pay-as-you-go as an availability control</h3>
-  <p>A pay-as-you-go billing plan on a business-critical environment means overage bills to Azure instead of disabling the agent. Frame this to the customer as a resilience decision, not purely a billing one.</p>
+  <p>A pay-as-you-go billing plan on a business-critical environment means overage bills to Azure instead of disabling the agent. That makes it a resilience decision, not purely a billing one.</p>
 
   <h3>Forecast before you build</h3>
   <p>The Copilot Studio agent usage estimator models expected credit volume from agent type, traffic, orchestration approach, knowledge sources, and tools. Running it during design is far cheaper than running this diagnostic later.</p>
 
-  <h2 id="objections">Handling the hard questions</h2>
+  <h2 id="questions">Common questions answered</h2>
 
   <div class="card">
     <h3>"We were told agents are free with Microsoft 365 Copilot."</h3>
@@ -574,13 +574,13 @@ footer.foot {
   </div>
 
   <div class="card">
-    <h3>"Nothing changed on our side."</h3>
-    <p>Something changed on a date. Pull the billing trend, find the inflection point, and work backwards to a publish, a share, a channel toggle, or a licensing change. The burn has a birthday in essentially every case.</p>
+    <h3>"Nothing in our configuration changed, so why did the burn start?"</h3>
+    <p>Something changed on a date, even if it was not an obvious one. Pull the billing trend, find the inflection point, and work backwards to a publish, a sharing change, a channel toggle, or a licensing change. The burn almost always has a birthday.</p>
   </div>
 
   <div class="card">
     <h3>"Can we just turn credits off?"</h3>
-    <p>No, and you would not want to. At 125% of capacity agents are disabled outright, which is a production outage rather than a cost saving. Use per-agent caps for control and pay-as-you-go for resilience.</p>
+    <p>No, and it is not desirable anyway. At 125% of capacity agents are disabled outright, which is a production outage rather than a cost saving. Use per-agent caps for control and pay-as-you-go for resilience.</p>
   </div>
 
   <div class="card">
@@ -650,7 +650,7 @@ footer.foot {
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation (verified August 2026). Copilot Credit rates, inclusion conditions, fair use limits, enforcement thresholds, and channel behavior change frequently, and Microsoft explicitly reserves the right to update the fair use limits behind the Microsoft 365 Copilot inclusion. Always confirm current terms against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. This battlecard is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation (verified August 2026). Copilot Credit rates, inclusion conditions, fair use limits, enforcement thresholds, and channel behavior change frequently, and Microsoft explicitly reserves the right to update the fair use limits behind the Microsoft 365 Copilot inclusion. Always confirm current terms against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. This page is guidance, not a contract.
   </footer>
 </div>
 <script>
