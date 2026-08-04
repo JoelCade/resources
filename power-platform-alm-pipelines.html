@@ -236,7 +236,7 @@ footer.foot a:hover { text-decoration: underline; }
   <header class="masthead">
     <p class="eyebrow">Microsoft Power Platform · Enablement Reference</p>
     <h1>Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy</h1>
-    <p class="sub">The ins and outs of application lifecycle management on Power Platform — solutions, environments, pipelines, Dataverse Git integration — and exactly where GitHub and Azure DevOps fit alongside them. Prepared as an enablement reference · July 2026.</p>
+    <p class="sub">The ins and outs of application lifecycle management on Power Platform — solutions, environments, pipelines, Dataverse Git integration — and exactly where GitHub and Azure DevOps fit alongside them. Prepared as an enablement reference &middot; Updated August 2026.</p>
   </header>
 
   <div class="callout">
@@ -398,7 +398,7 @@ footer.foot a:hover { text-decoration: underline; }
   </ul>
 
   <div class="callout">
-    <strong>Provider support (rechecked August 2026):</strong> native Dataverse Git integration works with <strong>Azure DevOps Git repositories only</strong>. The setup documentation still lists an Azure DevOps subscription and project as a hard prerequisite, and there is no GitHub option in the <em>Connect to Git</em> flow. <strong>GitHub</strong> as a native Git provider was on the 2026 wave 1 release plan with public preview indicated for August 2026, but it has <strong>not appeared in the product documentation as of this review</strong>. Treat it as announced-but-unshipped and do not architect around it until Microsoft Learn documents it. GitHub users reach the same outcome today through <code>pac</code> CLI export/unpack inside a GitHub Actions workflow.
+    <strong>Provider support (rechecked August 2026):</strong> native Dataverse Git integration works with <strong>Azure DevOps Git repositories only</strong>. The setup documentation still lists an Azure DevOps subscription and project as a hard prerequisite, and there is no GitHub option in the <em>Connect to Git</em> flow. <strong>GitHub</strong> as a native Git provider has been discussed publicly, but as of this review it appears in <strong>no Microsoft Learn documentation and no published Power Platform release plan</strong> &mdash; so there is no citable ship date. Treat it as unshipped, and do not architect around it until Microsoft Learn documents it. GitHub users reach the same outcome today through <code>pac</code> CLI export/unpack inside a GitHub Actions workflow.
   </div>
 
   <h3>The code-first caveat worth knowing</h3>
@@ -510,6 +510,8 @@ footer.foot a:hover { text-decoration: underline; }
       <span class="u">learn.microsoft.com/power-platform/architecture/reference-architectures/enterprise-power-platform-alm</span></p>
     <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/devops-github-actions" target="_blank" rel="noopener">GitHub Actions for Microsoft Power Platform</a>
       <span class="u">learn.microsoft.com/power-platform/alm/devops-github-actions</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/alm/tutorials/github-actions-start" target="_blank" rel="noopener">Tutorial: get started with GitHub Actions for Power Platform (hands-on, 3 parts)</a>
+      <span class="u">learn.microsoft.com/power-platform/alm/tutorials/github-actions-start</span></p>
     <p class="ref"><a href="https://github.com/marketplace/actions/powerplatform-actions" target="_blank" rel="noopener">Power Platform Actions on the GitHub Marketplace</a>
       <span class="u">github.com/marketplace/actions/powerplatform-actions</span></p>
     <p class="ref"><a href="https://github.com/microsoft/powerplatform-actions" target="_blank" rel="noopener">Power Platform GitHub Actions source repository (samples and workflow reference)</a>
