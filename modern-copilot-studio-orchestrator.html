@@ -241,12 +241,43 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot Studio · Enablement Reference</p>
     <h1>Modern Copilot Studio: The New Orchestrator On-Ramp</h1>
-    <p class="sub">A builder's guide to the new agent-and-workflow paradigm in Copilot Studio — what changed, what to build, and how to bring classic agents forward. Understand it, see it, upgrade it. · July 2026.</p>
+    <p class="sub">A builder's guide to the new agent-and-workflow paradigm in Copilot Studio &mdash; what changed, what to build, and how to bring classic agents forward. Understand it, see it, upgrade it. · Updated August 2026.</p>
   </header>
 
   <div class="callout">
     <strong>The one thing to remember:</strong> Every behavior belongs in the smallest component that makes it reliable and inspectable. <strong>Instructions</strong> carry what's always true, <strong>Knowledge</strong> the searchable facts, <strong>Tools</strong> the system actions, <strong>Memory</strong> the persistent context, <strong>Skills</strong> the situational procedures, and <strong>connected agents</strong> the real specialist domains. A modern agent shouldn't be one instruction blob with 43 tools and a prayer.
   </div>
+
+  <div class="callout warn">
+    <strong>It now has a name: the GitHub Copilot harness.</strong> What this page calls "the new Copilot Studio experience" became <strong>generally available on August 3, 2026</strong> as the <strong>GitHub Copilot harness</strong>, one of three harnesses in Copilot Studio. Two things follow that were not true when this guide was first written, and both change how you should approach it.
+    <ul>
+      <li><strong>You choose a harness when you create the agent, and you cannot change it later.</strong> An agent created on one harness cannot be transferred to another. The "re-architect, don't port" advice below is no longer just good practice &mdash; it is the only available path.</li>
+      <li><strong>This harness bills from the moment you start building.</strong> On the standard harness, cost begins at publish. Here, natural-language authoring, previewing and testing, and generating agent evaluations all consume Copilot Credits &mdash; including on an agent that never ships. Usage is billed regardless of Microsoft 365 Copilot licensing.</li>
+    </ul>
+    Budget the build phase before you start experimenting. See <a href="copilot-studio-credit-optimization.html#harness">the harness section of the credit optimization playbook</a>.
+  </div>
+
+  <h3>The three harnesses at a glance</h3>
+  <p>A <em>harness</em> is the runtime between what you author and the model that reasons: it decides when to call the model, what to send it, how to interpret what comes back, and which tools to invoke. Everything you build in Copilot Studio runs on one.</p>
+  <table>
+    <thead><tr><th>Harness</th><th>Best for</th><th>Billing</th></tr></thead>
+    <tbody>
+      <tr><td><strong>GitHub Copilot</strong><br>(this page)</td><td>Reasoning-heavy, multi-step business processes that can't be fully mapped up front</td><td>Usage-based Copilot Credits, from build time onward</td></tr>
+      <tr><td><strong>Standard</strong></td><td>Rule-based agents, structured conversations, agent flows</td><td>Rate card, or included in a Microsoft 365 Copilot license</td></tr>
+      <tr><td><strong>Copilot chat</strong></td><td>Extending Microsoft 365 Copilot Chat with enterprise knowledge</td><td>Consumption, or included in a Microsoft 365 Copilot license</td></tr>
+    </tbody>
+  </table>
+  <p>The standard and Copilot chat harnesses are unchanged by this launch. Existing agents keep running, new agents can still be created on them, and license inclusion continues &mdash; so this is an opt-in capability and cost trade, not a migration mandate.</p>
+
+  <h3>What else is confirmed at general availability</h3>
+  <ul>
+    <li><strong>Orchestration is not configurable here.</strong> On the standard harness, orchestration behavior is a setting you choose. On this harness the enhanced reasoning runtime is used for every agent, with no opt-out.</li>
+    <li><strong>Native Office file authoring.</strong> It creates and edits Word, Excel, PowerPoint, and PDF files directly, and reasons over their contents.</li>
+    <li><strong>Every task runs in a secure sandbox</strong> governed by Copilot Studio.</li>
+    <li><strong>Four tabs, not a topic tree.</strong> <em>Build</em> (identity, knowledge, tools, skills, model), <em>Preview</em> (interactive test), <em>Evaluate</em> (test sets for quality), <em>Monitor</em> (tasks, files accessed, activity).</li>
+    <li><strong>You describe the agent in natural language</strong> and the platform generates the underlying configuration &mdash; there is no explicit topic-and-branch authoring to fall back on.</li>
+    <li><strong>Credit consumption is visible per agent</strong> on its Monitor page, and across an environment or tenant under <em>Licensing &gt; Copilot Studio</em> in the Power Platform admin center.</li>
+  </ul>
 
   <h2>Why this matters</h2>
   <p>The new Copilot Studio experience — and the orchestration stack underneath it — is a genuine shift in how you design agents and automation. It's a new paradigm on two fronts: <strong>agents</strong> are far more adaptive and sophisticated, and <strong>workflows</strong> let you build automated processes on a visual canvas with much more control over which steps are handled by AI. That's a lot of new capability, and it changes the questions you ask: What actually changed? What do I build, and where? And what happens to my existing classic agents?</p>
@@ -367,7 +398,7 @@ from tenant &lt;TENANT_ID&gt;</code></pre>
   </div>
 
   <h3>Migrate capabilities, not components</h3>
-  <p>The migration mental model is <strong>re-architect, don't port</strong>. Ask what tasks the agent must accomplish, then map each responsibility to a loop-native component:</p>
+  <p>The migration mental model is <strong>re-architect, don't port</strong> &mdash; and since agents cannot be transferred between harnesses, this is the only route available. Ask what tasks the agent must accomplish, then map each responsibility to a loop-native component:</p>
   <table>
     <thead><tr><th>Classic construct</th><th>Modern target(s)</th></tr></thead>
     <tbody>
@@ -405,6 +436,10 @@ from tenant &lt;TENANT_ID&gt;</code></pre>
 
   <h2>Public reference materials</h2>
   <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview" target="_blank" rel="noopener">Choose a harness &mdash; standard, Copilot chat, GitHub Copilot (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/overview" target="_blank" rel="noopener">Agents powered by the GitHub Copilot harness &mdash; overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Billing for agents powered by the GitHub Copilot harness (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits" target="_blank" rel="noopener">Enforcement policy for agents consuming Copilot Credits (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits</span></div>
     <div class="ref"><a href="https://aka.ms/CopilotStudioDeepDiveDeck" target="_blank" rel="noopener">Copilot Studio — Technical Deep Dive deck</a><br><span class="u">https://aka.ms/CopilotStudioDeepDiveDeck</span></div>
     <div class="ref"><a href="https://aka.ms/MCSTechGuide" target="_blank" rel="noopener">Copilot Studio technical guide mini-site (BlastBox Omega sample &amp; scenarios)</a><br><span class="u">https://aka.ms/MCSTechGuide</span></div>
     <div class="ref"><a href="https://github.com/microsoft/copilot-studio-plugin" target="_blank" rel="noopener">Copilot Studio plugin for AI coding agents (GitHub)</a><br><span class="u">https://github.com/microsoft/copilot-studio-plugin</span></div>
@@ -413,7 +448,7 @@ from tenant &lt;TENANT_ID&gt;</code></pre>
   </div>
 
   <footer class="foot">
-    Compiled from the public Microsoft Copilot Acceleration Team (CAT) blog post "New orchestrator resources" and the public Copilot Studio Technical Deep Dive deck (verified July 2026). Modern Copilot Studio — the new orchestrator, workflows, and the migration plugin — is evolving quickly; some capabilities noted above are in active development or planned. Always confirm current features and supported scenarios against the official Microsoft references before designing production agents. This overview is guidance, not a contract.
+    Compiled from the public Microsoft Copilot Acceleration Team (CAT) blog post "New orchestrator resources" and the public Copilot Studio Technical Deep Dive deck (verified July 2026), updated against Microsoft Learn following the GitHub Copilot harness general availability on August 3, 2026. Modern Copilot Studio &mdash; the new orchestrator, workflows, and the migration plugin &mdash; is evolving quickly; some capabilities noted above are in active development or planned, and the gaps listed here were accurate at the time of writing and are actively being closed. Because this harness meters usage from build time onward, confirm the current billing terms alongside the feature set before designing production agents. This overview is guidance, not a contract.
   </footer>
 </div>
 
