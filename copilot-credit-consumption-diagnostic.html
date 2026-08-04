@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diagnosing Unexpected Copilot Credit Consumption</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+  scroll-margin-top: 64px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.alt { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.hot { background: rgba(220,38,38,0.10); color: var(--cp-danger); border-color: var(--cp-danger); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+.num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.rc-id { font-weight: 700; color: var(--cp-accent); white-space: nowrap; }
+.cost-lo { color: var(--cp-success); }
+.cost-hi { color: var(--cp-danger); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 14px 0; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.step .body { flex: 1; }
+.step .body h3 { margin-top: 3px; }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.math {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.toc { padding: 16px 20px 18px; }
+.toc h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 0 0 10px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding-left: 0;
+  margin: 0;
+  columns: 2;
+  column-gap: 28px;
+}
+@media (max-width: 680px) { .toc ol { columns: 1; } }
+.toc li {
+  counter-increment: toc;
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 26px;
+  position: relative;
+  font-size: 14px;
+}
+.toc li::before {
+  content: counter(toc);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toc a { color: var(--cp-text); }
+.toc a:hover { color: var(--cp-link); text-decoration: underline; }
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 26px; position: relative; margin: 7px 0; }
+.checklist li::before {
+  content: "\2610";
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+  color: var(--cp-accent);
+}
+
+.gate { list-style: none; padding-left: 0; margin: 10px 0; counter-reset: gate; }
+.gate li {
+  counter-increment: gate;
+  padding-left: 34px;
+  position: relative;
+  margin: 9px 0;
+}
+.gate li::before {
+  content: counter(gate);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step, .math { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio &middot; Diagnostic Battlecard</p>
+    <h1>Why Is a Non-Autonomous Agent Consuming Copilot Credits?</h1>
+    <p class="sub">A structured walkthrough for diagnosing credit consumption on an agent that is used only by Microsoft 365 Copilot licensed employees. Compiled from public Microsoft documentation &middot; August 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> the Microsoft 365 Copilot inclusion does not follow the <em>agent</em>. It follows the <em>identity</em>. If the platform cannot see an authenticated Microsoft 365 Copilot licensed user at the moment of the call, it meters the call at the standard rate, no matter how simple, internal, or non-autonomous the agent is.
+  </div>
+
+  <nav class="card toc" aria-label="Table of contents">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#rule">The rule that governs everything</a></li>
+      <li><a href="#triage">Sixty-second triage</a></li>
+      <li><a href="#causes">The twelve root causes</a></li>
+      <li><a href="#walkthrough">Running the diagnosis live</a></li>
+      <li><a href="#never">Never included, regardless of license</a></li>
+      <li><a href="#prevent">Preventive controls</a></li>
+      <li><a href="#objections">Handling the hard questions</a></li>
+      <li><a href="#checklist">Diagnostic checklist</a></li>
+      <li><a href="#references">Reference materials</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="rule">The rule that governs everything</h2>
+
+  <p>Microsoft's billing documentation grants a <strong>"No charge"</strong> column against every credit rate for usage by a Microsoft 365 Copilot licensed user. That column is real, but it is conditional. The footnote behind it sets out four conditions, and <strong>all four must hold at once</strong>:</p>
+
+  <ol class="gate">
+    <li><strong>Employee-facing (B2E) scenario.</strong> The inclusion covers business-to-employee usage. Customer-facing and public-facing traffic is outside it entirely.</li>
+    <li><strong>The user is licensed</strong> with Microsoft 365 Copilot.</li>
+    <li><strong>The agent operates using that authenticated user's identity.</strong> This is the condition that quietly fails most often.</li>
+    <li><strong>Usage stays within fair use limits.</strong> Microsoft explicitly reserves the right to update these limits as usage patterns emerge.</li>
+  </ol>
+
+  <p>Break any one condition and the interaction bills at the standard published rate:</p>
+
+  <table>
+    <thead>
+      <tr><th>Agent feature</th><th>Standard rate</th><th>Used by an M365 Copilot licensed user</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Classic answer</td><td class="num-cell">1 credit</td><td class="cost-lo">No charge</td></tr>
+      <tr><td>Generative answer</td><td class="num-cell">2 credits</td><td class="cost-lo">No charge</td></tr>
+      <tr><td>Agent action</td><td class="num-cell">5 credits</td><td class="cost-lo">No charge (except computer use)</td></tr>
+      <tr><td>Tenant graph grounding</td><td class="num-cell">10 credits</td><td class="cost-lo">No charge</td></tr>
+      <tr><td>Agent flow actions, per 100 actions</td><td class="num-cell">13 credits</td><td class="cost-lo">No charge (agent-invoked trigger only)</td></tr>
+      <tr><td>Text and generative AI tools (basic / standard / premium)</td><td class="num-cell">1 / 15 / 100 credits</td><td class="cost-lo">No charge</td></tr>
+      <tr><td>Content processing tools, per page</td><td class="num-cell">8 credits</td><td class="cost-lo">No charge</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>The framing that defuses the conversation:</strong> agents are <em>included</em> with Microsoft 365 Copilot, not <em>free</em>. The inclusion was scoped to employees using agents under their own identity. It was never scoped to cover anonymous channels, non-agent-triggered automation, computer use, voice minutes, or maker build activity. Establishing that distinction early prevents a second round of surprise later.
+  </div>
+
+  <h2 id="triage">Sixty-second triage</h2>
+
+  <p>Five questions will land the majority of cases before you open a single admin center.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:4%">#</th><th style="width:42%">Ask the customer</th><th style="width:32%">If the answer is</th><th style="width:22%">Go to</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="num-cell">1</td><td>Which channels is this agent published to?</td><td>Anything other than Teams or Microsoft 365 Copilot</td><td class="rc-id"><a href="#rc1">RC-1</a></td></tr>
+      <tr><td class="num-cell">2</td><td>What is the agent's authentication setting?</td><td>"No authentication" or manual / custom</td><td class="rc-id"><a href="#rc2">RC-2</a></td></tr>
+      <tr><td class="num-cell">3</td><td>Is every user in the audience Microsoft 365 Copilot licensed?</td><td>No, or "not sure"</td><td class="rc-id"><a href="#rc3">RC-3</a></td></tr>
+      <tr><td class="num-cell">4</td><td>Do any agent flows use a trigger other than "When an agent calls the flow"?</td><td>Yes</td><td class="rc-id"><a href="#rc4">RC-4</a></td></tr>
+      <tr><td class="num-cell">5</td><td>Does the agent greet the user or initialize before anyone types?</td><td>Yes</td><td class="rc-id"><a href="#rc5">RC-5</a></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="causes">The twelve root causes</h2>
+
+  <table>
+    <thead>
+      <tr><th style="width:7%">ID</th><th style="width:27%">Root cause</th><th style="width:24%">What you see in the data</th><th style="width:42%">Where to verify and how to fix</th></tr>
+    </thead>
+    <tbody>
+      <tr id="rc1">
+        <td class="rc-id">RC-1</td>
+        <td><strong>Published to a non-B2E channel.</strong> Custom website, demo site, Direct Line, SMS, or a public portal. Employees arriving through those channels are anonymous, so no license is detectable.</td>
+        <td>Steady burn that does not track licensed headcount. Classic and generative answers dominate the cost distribution.</td>
+        <td>Copilot Studio &gt; <strong>Channels</strong>. Look for a demo website left enabled after a pilot. Disable unused channels and route employees through Teams or Microsoft 365 Copilot.</td>
+      </tr>
+      <tr id="rc2">
+        <td class="rc-id">RC-2</td>
+        <td><strong>Identity is not flowing.</strong> Authentication set to "No authentication" or to a manual / custom provider rather than "Authenticate with Microsoft". The agent runs, but not <em>as</em> the licensed user, so condition 3 fails.</td>
+        <td>Credits accrue even from Teams usage by users you know are licensed.</td>
+        <td>Copilot Studio &gt; <strong>Settings &gt; Security &gt; Authentication</strong>. Set "Authenticate with Microsoft", configure Entra ID single sign-on for the Teams channel, republish, then re-baseline over 48 hours.</td>
+      </tr>
+      <tr id="rc3">
+        <td class="rc-id">RC-3</td>
+        <td><strong>Mixed license population.</strong> A single unlicensed user meters at the full rate. Microsoft's own worked example: 50 licensed plus 100 unlicensed users equals 4,800 credits per day, driven entirely by the 100.</td>
+        <td>Burn scales with total headcount, not with licensed headcount.</td>
+        <td>Cross-reference the agent's sharing scope in Copilot Studio against Microsoft 365 Copilot license assignment in the Microsoft 365 admin center. Gate sharing to a licensed-only security group, or budget for the metered tail deliberately.</td>
+      </tr>
+      <tr id="rc4">
+        <td class="rc-id">RC-4</td>
+        <td><strong>Agent flow trigger mismatch.</strong> The inclusion covers <em>only</em> the <strong>"When an agent calls the flow"</strong> trigger. Scheduled, Dataverse row-created, HTTP request, and every other trigger bills at the standard rate regardless of who the user is.</td>
+        <td>The "Agent flow actions" line is non-zero in the PPAC consumption grid.</td>
+        <td>PPAC &gt; Licensing &gt; Copilot Studio &gt; Environments &gt; select the environment &gt; <strong>Copilot credit consumption details</strong>. Re-plumb the flow to be agent-invoked, or move the work to a <strong>Power Automate cloud flow</strong>, which uses Power Automate licensing and consumes no Copilot Credits at all.</td>
+      </tr>
+      <tr id="rc5">
+        <td class="rc-id">RC-5</td>
+        <td><strong>Session initialization and proactive greeting.</strong> Microsoft states that if the agent is triggered to be <em>ready</em> for a conversation, it consumes credits as a classic answer, whether or not a greeting is sent and whether or not the user ever replies.</td>
+        <td>High billed volume against a low engaged-conversation count.</td>
+        <td>Compare billed credits with engaged conversations on the Analytics page. Remove auto-greet on page load and stop auto-instantiating the agent when an app or portal loads. This is the abandoned-session tax.</td>
+      </tr>
+      <tr id="rc6">
+        <td class="rc-id">RC-6</td>
+        <td><strong>Computer Use Agents.</strong> Explicitly <em>not</em> included in the Microsoft 365 Copilot license, and billed at the agent action rate.</td>
+        <td>Agent actions line unexpectedly high at 5 credits per action.</td>
+        <td>Review the tools attached to the agent for computer use. This is expected behavior, so budget for it or remove the capability.</td>
+      </tr>
+      <tr id="rc7">
+        <td class="rc-id">RC-7</td>
+        <td><strong>Voice channel.</strong> Metered per minute at 10 (classic voice), 35 (GenAI voice), or 75 (premium GenAI voice) credits. Core agent activity is bundled into that minute rate.</td>
+        <td>Burn tracks call minutes rather than message counts.</td>
+        <td>Check the voice configuration in the channels list. Expected behavior, and not a B2E Copilot-included scenario.</td>
+      </tr>
+      <tr id="rc8">
+        <td class="rc-id">RC-8</td>
+        <td><strong>Preview features.</strong> Capabilities in preview bill at the published rate and count against purchased capacity. There is no preview discount.</td>
+        <td>A new line item appears shortly after someone enables something new.</td>
+        <td>Correlate the consumption trend against your change log, then set expectations or disable the preview feature.</td>
+      </tr>
+      <tr id="rc9">
+        <td class="rc-id">RC-9</td>
+        <td><strong>Build-time billing on the GitHub Copilot harness.</strong> Unlike the standard harness, which bills after publish, this harness charges from the moment building starts: natural-language authoring, preview and test, and generating agent evaluations all consume credits.</td>
+        <td>Credits burning on an agent that was never published.</td>
+        <td>Confirm which harness the agent runs on. Expected behavior, so budget maker activity separately from runtime. Note the contrast: on the standard harness the embedded test chat does <em>not</em> bill.</td>
+      </tr>
+      <tr id="rc10">
+        <td class="rc-id">RC-10</td>
+        <td><strong>Bring your own model.</strong> Azure AI Foundry and other customer-supplied models are billed separately and sit outside the Copilot Credits rate table entirely.</td>
+        <td>Azure consumption appears alongside credit consumption.</td>
+        <td>Check the model configuration on the agent. Separate meter, separate budget line, expected behavior.</td>
+      </tr>
+      <tr id="rc11">
+        <td class="rc-id">RC-11</td>
+        <td><strong>Generative answer nuance.</strong> Generative answers incur charges <em>unless</em> the agent was created in Agent Builder in Microsoft 365 <strong>and</strong> the response does not use tenant graph grounding.</td>
+        <td>Generative answer charges on what looks like a simple Microsoft 365 agent.</td>
+        <td>Establish where the agent was authored and whether tenant graph grounding is on. Switch grounding off per agent where it is not earning its place: it is a 10-credit line item on its own.</td>
+      </tr>
+      <tr id="rc12">
+        <td class="rc-id">RC-12</td>
+        <td><strong>Copilot Studio for Teams versus standalone.</strong> Agents created inside the Teams environment never consume credits, for anyone. Agents built in standalone Copilot Studio and then deployed to the Teams channel do consume, though licensed users are not billed.</td>
+        <td>Two apparently similar agents with wildly different bills.</td>
+        <td>Check where each agent was authored. This explains the apparent inconsistency and is not a defect.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Where to start:</strong> in practice <a href="#rc1">RC-1</a> (a demo website left switched on after a pilot) and <a href="#rc4">RC-4</a> (agent flow trigger mismatch) account for the large majority of these conversations, with <a href="#rc5">RC-5</a> (auto-greet on load) as the quiet third. Test those three before going deeper.
+  </div>
+
+  <h2 id="walkthrough">Running the diagnosis live</h2>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Establish the shape of the spend in PPAC</h3>
+      <p>Power Platform admin center &gt; <strong>Licensing &gt; Copilot Studio &gt; Summary</strong> for tenant-level totals, then the <strong>Environments</strong> tab and the <strong>Copilot credit consumption details</strong> grid for the environment in question. Isolate which environment and which feature line is burning before forming any theory.</p>
+      <p>Consumption data aggregates daily and can lag. Read the "Last updated" tooltip before drawing conclusions, and never troubleshoot against the last sixty minutes.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Isolate the agent in Copilot Studio analytics</h3>
+      <p>Open the agent, go to <strong>Analytics</strong>, and read the <strong>Billing trend</strong> and <strong>Cost distribution</strong> charts. Cost distribution tells you the category of the burn, which maps directly onto the root cause table:</p>
+      <ul>
+        <li>Classic answers high, engaged conversations low, points to <a href="#rc5">RC-5</a></li>
+        <li>Agent flow actions non-zero, points to <a href="#rc4">RC-4</a></li>
+        <li>Agent actions high, points to <a href="#rc6">RC-6</a></li>
+        <li>Tenant graph grounding high, points to <a href="#rc11">RC-11</a></li>
+        <li>Generative answers high alongside anonymous traffic, points to <a href="#rc1">RC-1</a> or <a href="#rc2">RC-2</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Correlate against the trend line</h3>
+      <p>Find the date the burn started and match it to a publish event, a channel enablement, a sharing or security-group change, a licensing change, or a preview feature toggle. Unexplained consumption almost always has a birthday, and it is almost always a configuration change rather than a mystery.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>Prove the fix, one variable at a time</h3>
+      <p>Change one thing, republish, and hold a 48-hour observation window before changing anything else. Multiple simultaneous changes produce a result nobody can interpret, which is how these investigations end up running for a month.</p>
+    </div>
+  </div>
+
+  <h2 id="never">Never included, regardless of license</h2>
+
+  <p>Say this part early. It prevents the follow-up escalation.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill hot">Outside the inclusion</span>
+      <ul>
+        <li>Computer Use Agents</li>
+        <li>Agent flows on any trigger other than "When an agent calls the flow"</li>
+        <li>Voice minutes</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill hot">Outside the inclusion</span>
+      <ul>
+        <li>Bring-your-own-model consumption, billed separately by Azure AI Foundry</li>
+        <li>Any unauthenticated or customer-facing traffic</li>
+        <li>GitHub Copilot harness build, test, and evaluation activity</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="prevent">Preventive controls</h2>
+
+  <h3>Cap the blast radius per agent</h3>
+  <p>PPAC &gt; Licensing &gt; Copilot Studio &gt; <strong>Manage Agents</strong> lets you set a monthly consumption limit on an individual agent. This is the single most effective control, because it contains a misconfigured agent before tenant-level enforcement affects everything else.</p>
+
+  <h3>Understand enforcement before you meet it</h3>
+  <p>Tenant enforcement triggers at <strong>125% of prepaid capacity</strong> and it <em>disables custom agents</em>. In-flight conversations complete, then users see "There is a billing issue" or "This agent is currently unavailable. It has reached its usage limit." Administrators receive an email and a notification in PPAC.</p>
+  <p>Agent flow enforcement is separate and behaves differently: when prepaid capacity is exhausted it blocks new agent flow runs while leaving the agent functional for classic answers, generative answers, and agent actions. Runs already in progress complete normally.</p>
+
+  <h3>Allocate capacity per environment</h3>
+  <p>Environments with an explicit allocation are shielded when the shared tenant pool goes into overage. Environments with no allocation draw from the shared pool and are the first to be enforced. Capacity does not roll over: credits reset on the first of the month, not on the license anniversary.</p>
+
+  <h3>Use pay-as-you-go as an availability control</h3>
+  <p>A pay-as-you-go billing plan on a business-critical environment means overage bills to Azure instead of disabling the agent. Frame this to the customer as a resilience decision, not purely a billing one.</p>
+
+  <h3>Forecast before you build</h3>
+  <p>The Copilot Studio agent usage estimator models expected credit volume from agent type, traffic, orchestration approach, knowledge sources, and tools. Running it during design is far cheaper than running this diagnostic later.</p>
+
+  <h2 id="objections">Handling the hard questions</h2>
+
+  <div class="card">
+    <h3>"We were told agents are free with Microsoft 365 Copilot."</h3>
+    <p>Included, not free, and the inclusion is scoped. It covers employee-facing agents used by a licensed user operating under that user's own identity. Anonymous channels, non-agent-triggered automation, computer use, voice minutes, and maker build activity were never inside it.</p>
+  </div>
+
+  <div class="card">
+    <h3>"Nothing changed on our side."</h3>
+    <p>Something changed on a date. Pull the billing trend, find the inflection point, and work backwards to a publish, a share, a channel toggle, or a licensing change. The burn has a birthday in essentially every case.</p>
+  </div>
+
+  <div class="card">
+    <h3>"Can we just turn credits off?"</h3>
+    <p>No, and you would not want to. At 125% of capacity agents are disabled outright, which is a production outage rather than a cost saving. Use per-agent caps for control and pay-as-you-go for resilience.</p>
+  </div>
+
+  <div class="card">
+    <h3>"Our agent is not autonomous, so why is anything metered at all?"</h3>
+    <p>Autonomy is not the billing boundary. Identity is. A fully interactive, human-initiated agent still meters every turn where the platform cannot resolve an authenticated Microsoft 365 Copilot licensed user, and it meters every agent flow that starts from a trigger other than the agent itself.</p>
+  </div>
+
+  <h2 id="checklist">Diagnostic checklist</h2>
+
+  <div class="card">
+    <h3>Configuration</h3>
+    <ul class="checklist">
+      <li>Channel list reviewed, demo and website channels disabled unless deliberately in scope</li>
+      <li>Authentication set to "Authenticate with Microsoft"</li>
+      <li>Entra ID single sign-on configured for the Teams channel</li>
+      <li>Agent sharing scoped to a security group whose members are all licensed</li>
+      <li>Auto-greet and auto-instantiation on load removed</li>
+      <li>Every agent flow confirmed to use the "When an agent calls the flow" trigger, or moved to a Power Automate cloud flow</li>
+      <li>Tenant graph grounding switched off where it is not adding measurable value</li>
+      <li>Computer use, voice, and bring-your-own-model usage identified and budgeted separately</li>
+    </ul>
+    <h3>Measurement</h3>
+    <ul class="checklist">
+      <li>PPAC consumption grid reviewed at environment level, by feature line</li>
+      <li>Per-agent cost distribution reviewed in Copilot Studio analytics</li>
+      <li>Billed credits compared against engaged conversations</li>
+      <li>Consumption inflection point correlated to a specific configuration change date</li>
+      <li>One variable changed, then a 48-hour observation window held before the next change</li>
+    </ul>
+    <h3>Governance</h3>
+    <ul class="checklist">
+      <li>Per-agent monthly consumption limits set in PPAC</li>
+      <li>Capacity explicitly allocated to business-critical environments</li>
+      <li>Pay-as-you-go considered for environments where an outage is unacceptable</li>
+      <li>Administrators know what the 125% enforcement message looks like before users report it</li>
+      <li>New agents forecast with the usage estimator before build starts</li>
+    </ul>
+  </div>
+
+  <h2 id="references">Reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management, including the four inclusion footnotes (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing" target="_blank" rel="noopener">FAQ for Copilot Studio billing and licensing (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits" target="_blank" rel="noopener">Enforcement policy for agents consuming Copilot Credits (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity" target="_blank" rel="noopener">Manage Copilot Studio credits and capacity in PPAC (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-consumption" target="_blank" rel="noopener">View an agent's billing consumption and cost distribution (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-consumption</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Licensing for agents powered by the standard harness (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Billing for agents powered by the GitHub Copilot harness (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/flows-overview" target="_blank" rel="noopener">Agent flows overview, including triggers (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/flows-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/computer-use" target="_blank" rel="noopener">Computer use in Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/computer-use</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/configuration-end-user-authentication" target="_blank" rel="noopener">Configure user authentication in Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/configuration-end-user-authentication</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/cost-considerations" target="_blank" rel="noopener">Licensing and cost considerations for Copilot extensibility (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-365/copilot/extensibility/cost-considerations</span></div>
+    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator, the tool</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credit Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
+  </div>
+
+  <p style="margin-top:18px;">Once the root cause is identified, the companion page <a href="copilot-studio-credit-optimization.html">Evaluating &amp; Optimizing Copilot Credit Consumption</a> covers the eight optimization levers and their cost deltas in depth.</p>
+
+  <div class="feature-tags">
+    <span class="tag">Copilot Studio</span>
+    <span class="tag">Copilot Credits</span>
+    <span class="tag">Microsoft 365 Copilot</span>
+    <span class="tag">Troubleshooting</span>
+    <span class="tag">Licensing</span>
+    <span class="tag">PPAC</span>
+  </div>
+
+  <footer class="foot">
+    Compiled from Microsoft Learn public documentation (verified August 2026). Copilot Credit rates, inclusion conditions, fair use limits, enforcement thresholds, and channel behavior change frequently, and Microsoft explicitly reserves the right to update the fair use limits behind the Microsoft 365 Copilot inclusion. Always confirm current terms against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. This battlecard is guidance, not a contract.
+  </footer>
+</div>
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
