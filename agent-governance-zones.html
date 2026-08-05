@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zoned Agent Governance &mdash; Administering Agents Across Microsoft 365 and Power Platform</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 28px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 38px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 10px 0; }
+
+a { color: var(--cp-link); }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.card h3 { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.muted { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.warn { background: rgba(245,158,11,0.10); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin: 2px 0 4px; }
+.step .body p { margin: 4px 0; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .grid3, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft 365 &amp; Power Platform · Governance Reference</p>
+    <h1>Zoned Agent Governance</h1>
+    <p class="sub">How to administer AI agents across Microsoft 365 Copilot, Copilot Studio and Power Platform without either blocking the business or losing track of what got built. The three-zone model, the controls that implement it, and where each one is administered. &middot; August 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> agent governance is not a single switch. It is a set of policy tiers &mdash; <strong>zones</strong> &mdash; where the strength of the control matches the blast radius of the agent, not the enthusiasm of the person building it. A personal agent grounded in files someone already has access to needs almost nothing. An agent that writes to a system of record on behalf of thousands of people needs everything. Most governance failures come from applying one of those settings to both cases.
+  </div>
+
+  <h2>1. What a zone actually is</h2>
+  <p>A zone is a level of risk, expressed as a set of environments with matching policy. It is not a product, a license or a feature you turn on. Microsoft describes three, and they map cleanly to who is building, what the agent can reach, and how far it can spread.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <span class="pill">Zone 1</span>
+      <h3>Citizen development</h3>
+      <p>Anyone can build personal or small-team agents grounded in content they already have access to. Agents are read-only and stay private to the maker.</p>
+      <div class="feature-tags">
+        <span class="tag">Agent Builder</span>
+        <span class="tag">SharePoint agents</span>
+        <span class="tag">Developer environments</span>
+      </div>
+    </div>
+    <div class="card">
+      <span class="pill">Zone 2</span>
+      <h3>Partnered development</h3>
+      <p>Trained makers build for other teams and departments with a wider set of capabilities, under a review process and inside environments that IT provisions and manages.</p>
+      <div class="feature-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Managed environments</span>
+        <span class="tag">Pipelines</span>
+      </div>
+    </div>
+    <div class="card">
+      <span class="pill">Zone 3</span>
+      <h3>Professional development</h3>
+      <p>Professional developers and IT build mission-critical agents to organizational ALM standards, with the strongest security controls and, often, a service level agreement behind them.</p>
+      <div class="feature-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Foundry Agent Service</span>
+        <span class="tag">ALM</span>
+      </div>
+    </div>
+  </div>
+
+  <p>The zones are cumulative in rigor, not exclusive in tooling. Copilot Studio appears in both Zone 2 and Zone 3; what changes between them is the environment the agent lives in, the review it passes through and the identity it runs as.</p>
+
+  <h2>2. The three zones side by side</h2>
+  <table>
+    <thead>
+      <tr><th style="width:14%">&nbsp;</th><th>Zone 1 &mdash; Citizen</th><th>Zone 2 &mdash; Partnered</th><th>Zone 3 &mdash; Professional</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Purpose</strong></td>
+        <td>Personal use and experimentation with safe defaults.</td>
+        <td>Team and department agents built by trained makers with coaching and oversight.</td>
+        <td>Large, higher-risk agents built by professional developers and IT.</td>
+      </tr>
+      <tr>
+        <td><strong>Secure</strong></td>
+        <td>Microsoft 365 and Power Platform connectors only. Agents run in the user's context.</td>
+        <td>Zone-specific advanced connector policies. Access to approved data sources. Scaled through environment groups and rules.</td>
+        <td>Zone-specific advanced connector policies plus Microsoft Purview controls.</td>
+      </tr>
+      <tr>
+        <td><strong>Govern</strong></td>
+        <td>Personal agents in developer environments. Environment routing keeps them isolated to the maker. Sharing disabled.</td>
+        <td>Admin-approved environment provisioning, scoped roles and sharing policies, ALM pipelines for versioning, admin approval to publish.</td>
+        <td>Sharing managed centrally through Integrated Apps in the Microsoft 365 admin center.</td>
+      </tr>
+      <tr>
+        <td><strong>Monitor</strong></td>
+        <td>Agent usage in the Copilot area of the Power Platform admin center.</td>
+        <td colspan="2">Usage and security posture across the Microsoft 365 admin center, Microsoft Purview and the Power Platform admin center.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>The default environment is not Zone 1.</strong> It is a shared, tenant-wide space that everyone lands in by default, which makes it the single worst place for personal experimentation. Zone 1 means a personal <em>developer</em> environment per maker, provisioned automatically, isolated by design. Leaving personal building in the default environment is how organizations end up unable to answer "who owns this agent and what can it see?"
+  </div>
+
+  <h2>3. Policy, process and people come before the switches</h2>
+  <p>The platform controls are the easy part. The durable part of agent governance is non-technical, and it decides whether the controls get used well.</p>
+  <div class="grid3">
+    <div class="card">
+      <span class="pill muted">Policy</span>
+      <h3>What is allowed</h3>
+      <p>Which data classifications agents may touch, which channels they may be published to, when a human must stay in the loop, and what an acceptable-use statement says for AI specifically rather than software generally.</p>
+    </div>
+    <div class="card">
+      <span class="pill muted">Process</span>
+      <h3>How work moves</h3>
+      <p>How an agent gets reviewed, who approves publication, how it is promoted between environments, how it is retired, and what happens when it starts behaving differently from the day it shipped.</p>
+    </div>
+    <div class="card">
+      <span class="pill muted">People</span>
+      <h3>Who is accountable</h3>
+      <p>Named owners for every agent above Zone 1, a coaching or champion function for makers, and a small group that reviews anything crossing a zone boundary. Ownerless agents are the most common governance debt.</p>
+    </div>
+  </div>
+
+  <h2>4. Sharing and publishing are different problems</h2>
+  <p>These get conflated constantly, and the controls for them live in different places.</p>
+  <table>
+    <thead><tr><th style="width:22%">&nbsp;</th><th>Sharing</th><th>Publishing</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Question it answers</strong></td>
+        <td>Who is allowed to open, run or edit this agent?</td>
+        <td>Where does this agent appear, and to which audience?</td>
+      </tr>
+      <tr>
+        <td><strong>Typical levers</strong></td>
+        <td>Agent-level sharing (viewer or editor), security roles, environment access by security group, sharing limits in managed environments.</td>
+        <td>Channels (Teams, a website, a custom app), the organizational catalog, deployment and assignment to users and groups.</td>
+      </tr>
+      <tr>
+        <td><strong>Where administered</strong></td>
+        <td>Copilot Studio, Power Platform admin center, environment group rules.</td>
+        <td>Microsoft 365 admin center (Integrated Apps), Copilot Studio channel configuration.</td>
+      </tr>
+      <tr>
+        <td><strong>Zone 1 default</strong></td>
+        <td>Off. The agent stays with its maker.</td>
+        <td>None beyond the maker's own experience.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>The practical consequence: restricting sharing does nothing about an agent published to an unauthenticated public web channel, and blocking a channel does nothing about an agent quietly shared with two hundred colleagues as an editor. Both need setting.</p>
+
+  <h2>5. The controls that implement the zones</h2>
+
+  <h3>Environment groups and rules</h3>
+  <p>Environment groups are how a zone stops being a slide and becomes enforcement. You group environments, then apply rules to the group so every environment in it inherits the same posture. Rules available include sharing limits for agents with editor and viewer permissions, advanced connector policy, generative AI settings, external model access, access to conversation transcripts, release channel, backup retention, maker welcome content and a default deployment pipeline.</p>
+
+  <h3>Environment routing</h3>
+  <p>Routing is what prevents shadow AI. When a maker first opens Copilot Studio, Power Apps or Power Automate, routing creates or sends them to a personal developer environment inside the right group rather than dropping them in the default environment. Multi-rule routing extends this so different populations land in different groups. All routed environments are managed environments, which carries a premium licensing dependency worth confirming before you switch it on.</p>
+
+  <h3>Data policies and connector control</h3>
+  <p>Data policies (formerly DLP policies) classify connectors and block combinations that would move data across a boundary. Advanced connector policies, currently in preview, go further by restricting individual connector actions rather than whole connectors, which is what Zones 2 and 3 need when a connector is needed for reads but not for writes.</p>
+
+  <h3>Identity the agent runs as</h3>
+  <p>In Zone 1 an agent runs in the maker's context, which is the correct default: it can never see more than the person who built it. In Zones 2 and 3 that becomes a liability, because the agent inherits one person's access and breaks when they leave. Those zones should move to a service principal or managed identity scoped to least privilege, with the permissions documented as part of the review.</p>
+
+  <div class="callout">
+    <strong>Sequencing tip:</strong> turn on routing before you tighten anything else. If you restrict the default environment first, makers who have nowhere else to go will find another tool entirely, and you will have traded visible risk for invisible risk.
+  </div>
+
+  <h2>6. Where you actually watch it</h2>
+  <table>
+    <thead><tr><th style="width:26%">Surface</th><th>What it answers</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Power Platform inventory</strong></td>
+        <td>What exists across the tenant: agents, agentic apps, agent flows, environments and environment groups, with filtering, counts, column selection and export. Created, updated and deleted resources surface within about 15 minutes. Connector visibility, showing which connectors and operations each resource uses, is in preview.</td>
+      </tr>
+      <tr>
+        <td><strong>Power Platform security posture</strong></td>
+        <td>Whether the tenant is configured safely, with preconfigured defaults and a security action center that lists outstanding tasks.</td>
+      </tr>
+      <tr>
+        <td><strong>Copilot area in the admin center</strong></td>
+        <td>Agent usage and Copilot settings, including what Zone 1 makers are producing.</td>
+      </tr>
+      <tr>
+        <td><strong>Microsoft 365 admin center</strong></td>
+        <td>What is available to users: Microsoft first-party agents, third-party agents and organization-created agents. Lifecycle actions live here &mdash; publish, deploy, assign, remove and block, per agent and per group.</td>
+      </tr>
+      <tr>
+        <td><strong>Microsoft Purview</strong></td>
+        <td>The data-security and compliance layer across all of it: posture management for AI, data loss prevention, information protection, insider risk, communication compliance, eDiscovery, audit and oversharing assessment.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Agent counts will not match between surfaces, and that is expected.</strong> Each console answers a different question. Power Platform inventory shows what has been built in Power Platform. The Microsoft 365 admin center shows what is available to users, which includes first-party and third-party agents and agents authored outside Power Platform entirely. Reconciling the two numbers is a category error; read each for its own purpose.
+  </div>
+
+  <h3>Access to the inventory is role-scoped</h3>
+  <p>Visibility into Power Platform inventory depends on Microsoft Entra role. Global administrator, Power Platform administrator, Dynamics 365 administrator and Global reader see everything. The AI administrator and AI reader roles see only AI-related resources: agents, agentic apps, agent flows, environments and environment groups &mdash; canvas apps, model-driven apps and cloud flows are out of scope for them. These are Entra roles, not the built-in Power Platform roles, and the latter are not supported for inventory access.</p>
+
+  <h2>7. Standing it up</h2>
+
+  <div class="step">
+    <span class="num">1</span>
+    <div class="body">
+      <h3>Name an owner and a small review group</h3>
+      <p>Before any configuration. One accountable owner for agent governance, plus a handful of people who can review anything crossing into Zone 2 or 3. Without this, every later step becomes an unassigned ticket.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">2</span>
+    <div class="body">
+      <h3>Write the policy in plain language</h3>
+      <p>What data agents may use, what they may never do without a human, where they may be published, and who signs off. One page beats a framework nobody reads.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">3</span>
+    <div class="body">
+      <h3>Turn on environment routing</h3>
+      <p>Give every maker a personal developer environment inside a Zone 1 group. Confirm the managed-environment licensing implication first.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">4</span>
+    <div class="body">
+      <h3>Create the environment groups and apply rules</h3>
+      <p>One group per zone as a starting point. Set sharing limits, connector policy and generative AI settings at the group so new environments inherit posture automatically.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">5</span>
+    <div class="body">
+      <h3>Set the promotion path out of Zone 1</h3>
+      <p>Define what an agent must demonstrate to earn a managed environment, a shared audience and a named owner. Wire pipelines so promotion is a deployment, not a rebuild.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">6</span>
+    <div class="body">
+      <h3>Connect Purview and set spending alerts</h3>
+      <p>Data protection and cost are the two failure modes that show up after go-live rather than before. Both are cheaper to configure early than to retrofit.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">7</span>
+    <div class="body">
+      <h3>Review the inventory on a schedule</h3>
+      <p>Monthly is enough for most organizations. Look for ownerless agents, agents shared far beyond their zone, and anything in the default environment that should have been routed.</p>
+    </div>
+  </div>
+
+  <h2>8. Common failure patterns</h2>
+  <table>
+    <thead><tr><th style="width:34%">Pattern</th><th>What it causes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Governing by blocking</strong></td><td>Makers move to tools with no oversight at all. Risk does not reduce; it relocates and becomes invisible.</td></tr>
+      <tr><td><strong>Personal building in the default environment</strong></td><td>No isolation, no clear ownership, and a shared space that slowly becomes production by accident.</td></tr>
+      <tr><td><strong>One policy for all agents</strong></td><td>Either Zone 1 is strangled to protect against Zone 3 risks, or Zone 3 inherits Zone 1 permissiveness. Both are common; the second is worse.</td></tr>
+      <tr><td><strong>Agents running as a person indefinitely</strong></td><td>Access creep while they are there, and breakage when they leave. Move to a scoped service identity when the agent serves anyone but its maker.</td></tr>
+      <tr><td><strong>Controlling sharing but not publishing</strong></td><td>An agent locked down for editing but exposed on an unauthenticated channel.</td></tr>
+      <tr><td><strong>No retirement path</strong></td><td>Inventory grows monotonically. Every unused agent is still a permission set and a support expectation.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. Reference materials</h2>
+  <div class="card">
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/sec-gov-phase2" target="_blank" rel="noopener">Implement a zoned governance strategy</a>
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/guidance/sec-gov-phase2</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/environment-groups" target="_blank" rel="noopener">Environment groups</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/environment-groups</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/environment-groups-rules" target="_blank" rel="noopener">Rules for environment groups</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/environment-groups-rules</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/default-environment-routing" target="_blank" rel="noopener">Environment routing and multi-rule routing</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/default-environment-routing</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/advanced-connector-policies" target="_blank" rel="noopener">Advanced connector policies (preview)</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/advanced-connector-policies</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/power-platform-inventory" target="_blank" rel="noopener">Power Platform inventory</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/power-platform-inventory</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/managed-environment-sharing-limits" target="_blank" rel="noopener">Sharing limits in managed environments</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/managed-environment-sharing-limits</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/copilot/agent-essentials/m365-agents-admin-guide" target="_blank" rel="noopener">Agents admin guide for Microsoft 365</a>
+      <span class="u">learn.microsoft.com/microsoft-365/copilot/agent-essentials/m365-agents-admin-guide</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps" target="_blank" rel="noopener">Manage agents in Integrated Apps</a>
+      <span class="u">learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/security-and-governance" target="_blank" rel="noopener">Copilot Studio security and governance</a>
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/security-and-governance</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/purview/purview" target="_blank" rel="noopener">Microsoft Purview documentation</a>
+      <span class="u">learn.microsoft.com/purview/purview</span>
+    </div>
+  </div>
+
+  <p>Related on this site: <a href="power-platform-alm-pipelines.html">Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy</a> for the promotion mechanics referenced in Zones 2 and 3, <a href="power-platform-cost-controls.html">Cost Controls &amp; Billing Policies</a> for the spending side of the same environments, and <a href="coe-starter-kit-to-admin-center.html">CoE Starter Kit &rarr; Power Platform Admin Center</a> for where the older tooling maps today.</p>
+
+  <footer class="foot">
+    Compiled by Joel Cade from public Microsoft documentation, verified August 2026 &middot; hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Agent governance capabilities are changing quickly and several controls referenced here are in preview; treat this as guidance rather than a contract and confirm current behavior, availability and licensing terms in Microsoft documentation before relying on them.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
