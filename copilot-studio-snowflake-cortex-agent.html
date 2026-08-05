@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Copilot Studio &amp; Snowflake Cortex Agents &mdash; Connector-as-Tool Guide</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.warnpill { background: rgba(245,158,11,0.12); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout.danger { border-left-color: var(--cp-danger); background: rgba(220,38,38,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+pre {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+.step { display: flex; gap: 14px; margin: 18px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.step .step-body { flex: 1 1 auto; min-width: 0; }
+.step .step-body h3 { margin-top: 0; }
+
+.flowdiag {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  margin: 16px 0;
+}
+.flowdiag .node {
+  flex: 1 1 150px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 13px;
+}
+.flowdiag .node .n-title { font-weight: 600; display: block; margin-bottom: 3px; }
+.flowdiag .node .n-desc { color: var(--cp-text-muted); font-size: 12.3px; }
+.flowdiag .arrow { align-self: center; color: var(--cp-accent); font-weight: 700; font-size: 17px; }
+@media (max-width: 680px) { .flowdiag .arrow { display: none; } }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, pre, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio &middot; Snowflake Cortex</p>
+    <h1>Connecting Copilot Studio to Snowflake Cortex Agents</h1>
+    <p class="sub">How to let a Copilot Studio agent answer questions from Snowflake data by calling a Cortex Agent through the Snowflake connector, configured as a tool rather than a scripted topic. Covers the Entra External OAuth setup, the stored procedure bridge, and the production hardening the quickstart leaves out. &middot; August 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Snowflake Cortex Agents are not called directly by Copilot Studio. You wrap the Cortex Agent in a Snowflake stored procedure, then expose that procedure to your Copilot Studio agent as a <strong>tool</strong> that runs a single SQL statement. The hard part is not the wiring, it is the Microsoft Entra External OAuth trust between the two platforms.
+  </div>
+
+  <h2>What this pattern gives you</h2>
+
+  <p>Snowflake Cortex Agents orchestrate across structured and unstructured data. Cortex Analyst handles text-to-SQL over a semantic model, and Cortex Search handles retrieval over unstructured content. A Cortex Agent plans which of those tools to use, executes them, and returns a written answer.</p>
+
+  <p>Rather than rebuilding that reasoning inside Copilot Studio, you let Snowflake do the data reasoning and let Copilot Studio be the conversational surface your users already work in. The agent keeps all of its other capabilities, including Microsoft 365 knowledge, other tools, and other connected agents, and simply gains one more tool that happens to be very good at answering questions about your Snowflake estate.</p>
+
+  <div class="flowdiag">
+    <div class="node">
+      <span class="n-title">User</span>
+      <span class="n-desc">Asks a question in Teams or the agent's chat surface</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Copilot Studio agent</span>
+      <span class="n-desc">Generative orchestration decides the Snowflake tool is the right one</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Snowflake connector</span>
+      <span class="n-desc">Runs one SQL statement: a CALL to the stored procedure</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Stored procedure</span>
+      <span class="n-desc">Posts the question to the Cortex Agent REST endpoint</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Cortex Agent</span>
+      <span class="n-desc">Orchestrates Analyst and Search, returns an answer</span>
+    </div>
+  </div>
+
+  <h3>Why a tool and not a topic</h3>
+
+  <p>Snowflake's quickstart demonstrates this using a Copilot Studio <strong>topic</strong> with a trigger phrase such as "use cortex agent", followed by a question node. That works, but it forces the user to learn a magic phrase and then answer a second prompt before anything happens. It also sits outside the agent's own reasoning.</p>
+
+  <p>Configuring the same connector call as a <strong>tool</strong> is the better pattern. The agent reads the tool's description, decides on its own when a question belongs to Snowflake, passes the user's question straight through, and folds the result into its answer. No trigger phrase, no extra turn, and the tool composes naturally with everything else the agent can do. Snowflake's own guide notes that tools work with a similar flow.</p>
+
+  <table>
+    <thead>
+      <tr><th>&nbsp;</th><th>Topic with trigger phrase</th><th>Tool (recommended)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>How it fires</td><td>User types a specific phrase</td><td>Agent decides from the tool description</td></tr>
+      <tr><td>Turns to an answer</td><td>Two, because the agent asks what you want to know</td><td>One</td></tr>
+      <tr><td>Combines with other tools</td><td>Poorly, the topic takes over the conversation</td><td>Naturally, as part of orchestration</td></tr>
+      <tr><td>Question passed to Snowflake</td><td>Whatever the user typed at the prompt</td><td>A question the agent composes, including conversation context</td></tr>
+      <tr><td>Best suited to</td><td>Demonstrations and tightly scripted flows</td><td>Production assistants</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What you need before you start</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Microsoft side</span>
+      <ul>
+        <li>Copilot Studio with an agent using <strong>generative orchestration</strong></li>
+        <li>Premium connector entitlement, because the Snowflake connector is premium</li>
+        <li>Permission to register applications in Microsoft Entra ID, or an identity admin who can</li>
+        <li>A Power Platform environment where the connector is permitted by your data policies</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">Snowflake side</span>
+      <ul>
+        <li>An account with Cortex features available in your region</li>
+        <li>A Cortex Analyst semantic model, a Cortex Search service, or both</li>
+        <li>A Cortex Agent that uses them as tools</li>
+        <li>Rights to create a security integration, a role, a user, and a stored procedure</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Region and cloud availability.</strong> The Snowflake connector is not available in US Government (GCC, GCC High), Department of Defense, or China operated by 21Vianet regions. Cortex feature availability also varies by Snowflake region. Confirm both before you commit to this design.
+  </div>
+
+  <h2>Step 1 &mdash; Build the Cortex Agent in Snowflake</h2>
+
+  <p>This part is entirely Snowflake-side work and should be finished and tested before Microsoft enters the picture. In outline:</p>
+
+  <ul>
+    <li>Create a <strong>Cortex Search service</strong> over your unstructured content, such as call transcripts, tickets, or documents.</li>
+    <li>Create a <strong>Cortex Analyst semantic model</strong> over the structured tables you want queried in natural language.</li>
+    <li>Create a <strong>Cortex Agent</strong> that lists both as tools, and give it orchestration and response instructions.</li>
+  </ul>
+
+  <p>Response instructions matter more than people expect here. The answer is going to be rendered in a chat window, so instruct the agent to return concise text without visualizations. Snowflake's sample instructions ask for responses that are "concise and direct" and "suitable for all chat interfaces with no visualizations".</p>
+
+  <p>Test the agent inside Snowflake first. If it does not give good answers in Snowsight, it will not give good answers in Copilot Studio, and you will waste time debugging the wrong layer.</p>
+
+  <h2>Step 2 &mdash; Configure Entra External OAuth</h2>
+
+  <p>This is the step that takes real effort and needs both an Entra administrator and a Snowflake administrator. You are establishing a trust so that a token issued by Microsoft Entra ID is accepted by Snowflake as proof of identity.</p>
+
+  <p>You create <strong>two Entra app registrations</strong>. The first is the OAuth <em>resource</em>, which represents Snowflake itself and carries the Application ID URI and the role definitions. The second is the OAuth <em>client</em>, which represents the caller and holds the client ID and secret that the connector uses.</p>
+
+  <div class="step">
+    <span class="num">1</span>
+    <div class="step-body">
+      <h3>Create the OAuth resource application</h3>
+      <p>Single tenant. Set an Application ID URI in the form <code>api://&lt;application-id&gt;</code>. Then define how the Snowflake role travels in the token:</p>
+      <ul>
+        <li><strong>Service principal auth:</strong> add an app role in the manifest whose <code>value</code> is <code>session:role:&lt;role&gt;</code>, for example <code>session:role:analyst</code>.</li>
+        <li><strong>Delegated auth:</strong> expose a scope named <code>session:scope:&lt;role&gt;</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">2</span>
+    <div class="step-body">
+      <h3>Create the OAuth client application</h3>
+      <p>Also single tenant. Generate a client secret and record it, then grant this client permission against the resource application created in step 1 and grant admin consent. For delegated authentication you also add the redirect URI:</p>
+      <pre><code>https://global.consent.azure-apim.net/redirect/snowflakev2</code></pre>
+      <p>If that redirect URI is missing, the connection will simply fail to complete.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">3</span>
+    <div class="step-body">
+      <h3>Collect the values Snowflake needs</h3>
+      <p>From the resource application's endpoints, gather the issuer (the <code>entityID</code> from the federation metadata, in the form <code>https://sts.windows.net/&lt;tenant-id&gt;/</code>) and the signing key URL (the <code>jwks_uri</code> from the OpenID Connect metadata, in the form <code>https://login.microsoftonline.com/&lt;tenant-id&gt;/discovery/v2.0/keys</code>).</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">4</span>
+    <div class="step-body">
+      <h3>Validate the token before touching Snowflake</h3>
+      <p>Request a token and inspect it. For service principal authentication, the <code>sub</code> claim in that token becomes the login name of the Snowflake user you are about to create. Confirming this now saves a great deal of guesswork later.</p>
+      <pre><code>curl -X POST \
+  -H "Content-Type: application/x-www-form-urlencoded;charset=UTF-8" \
+  --data-urlencode "client_id=&lt;OAUTH_CLIENT_ID&gt;" \
+  --data-urlencode "client_secret=&lt;OAUTH_CLIENT_SECRET&gt;" \
+  --data-urlencode "grant_type=client_credentials" \
+  --data-urlencode "scope=api://&lt;APPLICATION_ID&gt;/.default" \
+  'https://login.microsoftonline.com/&lt;TENANT_ID&gt;/oauth2/v2.0/token'</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">5</span>
+    <div class="step-body">
+      <h3>Create the Snowflake security integration</h3>
+      <p>The <code>external_oauth_audience_list</code> value must match the Application ID URI exactly. Note the claim mapping differs between the two authentication modes: service principal maps on <code>sub</code>, delegated maps on <code>upn</code>.</p>
+      <pre><code>CREATE SECURITY INTEGRATION external_oauth_azure
+  TYPE = external_oauth
+  ENABLED = TRUE
+  EXTERNAL_OAUTH_TYPE = azure
+  EXTERNAL_OAUTH_ISSUER = '&lt;AZURE_AD_ISSUER&gt;'
+  EXTERNAL_OAUTH_JWS_KEYS_URL = '&lt;AZURE_AD_JWS_KEY_ENDPOINT&gt;'
+  EXTERNAL_OAUTH_AUDIENCE_LIST = ('&lt;APPLICATION_ID_URI&gt;')
+  EXTERNAL_OAUTH_TOKEN_USER_MAPPING_CLAIM = 'sub'
+  EXTERNAL_OAUTH_SNOWFLAKE_USER_MAPPING_ATTRIBUTE = 'login_name';</code></pre>
+      <p>Then create the Snowflake user whose <code>LOGIN_NAME</code> matches the claim you mapped, and grant it a purpose-built role.</p>
+      <pre><code>CREATE OR REPLACE USER AAD_SP_USER
+  LOGIN_NAME = '&lt;sub value from the decoded token&gt;'
+  DISPLAY_NAME = 'Entra service principal user'
+  COMMENT = 'Used by the Power Platform Snowflake connector';
+
+CREATE ROLE IF NOT EXISTS ANALYST;
+GRANT ROLE ANALYST TO USER AAD_SP_USER;</code></pre>
+      <p>Verify the trust end to end before moving on:</p>
+      <pre><code>SELECT SYSTEM$VERIFY_EXTERNAL_OAUTH_TOKEN('&lt;token&gt;');</code></pre>
+    </div>
+  </div>
+
+  <h3>Three things that commonly break this step</h3>
+
+  <ul>
+    <li><strong>The blocked role list.</strong> Snowflake places privileged roles on a blocked list for external OAuth by default. Describe the integration and confirm the role you intend to use is not blocked. Snowflake's quickstart disables this protection wholesale with <code>ALTER ACCOUNT SET EXTERNAL_OAUTH_ADD_PRIVILEGED_ROLES_TO_BLOCKED_LIST = FALSE</code>. That is a convenience for a sandbox. Prefer leaving the protection on and using a non-privileged role.</li>
+    <li><strong>An existing integration for another Microsoft service.</strong> If a security integration already exists for something such as Power BI, do not create a competing one blindly. Alter the existing integration to add the new audience, or set <code>requestedAccessTokenVersion</code> to <code>2</code> in the application manifest so the tokens carry a distinct issuer and a separate integration is viable.</li>
+    <li><strong>Case sensitivity.</strong> Warehouse, role, database, and schema values must be supplied in the same letter case as they exist in Snowflake.</li>
+  </ul>
+
+  <h2>Step 3 &mdash; Wrap the Cortex Agent in a stored procedure</h2>
+
+  <p>The connector executes SQL. Cortex Agents are invoked over a REST endpoint. The stored procedure is the bridge between those two facts: it accepts a question as a string, posts it to the agent's <code>:run</code> endpoint using Snowflake's internal request helper, parses the streamed response, and returns plain text.</p>
+
+  <p>First grant the role what it needs. Cortex access is granted through Snowflake database roles:</p>
+
+  <pre><code>GRANT USAGE ON DATABASE SALES_INTELLIGENCE TO ROLE ANALYST;
+GRANT USAGE ON SCHEMA SALES_INTELLIGENCE.DATA TO ROLE ANALYST;
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_AGENT_USER TO ROLE ANALYST;
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_ANALYST_USER TO ROLE ANALYST;
+GRANT USAGE ON CORTEX SEARCH SERVICE SALES_CONVERSATION_SEARCH TO ROLE ANALYST;
+GRANT SELECT ON TABLE SALES_INTELLIGENCE.DATA.SALES_METRICS TO ROLE ANALYST;
+GRANT USAGE ON WAREHOUSE SALES_INTELLIGENCE_WH TO ROLE ANALYST;</code></pre>
+
+  <div class="callout danger">
+    <strong>Do not copy the quickstart's <code>GRANT ROLE ACCOUNTADMIN TO ROLE ANALYST</code> into production.</strong> Snowflake's published sample includes that line to keep a demo moving. It hands full account administration to the identity your Copilot Studio agent authenticates as. Grant only the specific privileges listed above, and nothing more.
+  </div>
+
+  <p>Then create the procedure. The shape below follows Snowflake's published example:</p>
+
+  <pre><code>CREATE OR REPLACE PROCEDURE call_cortex_agent_proc(query STRING)
+RETURNS STRING
+LANGUAGE PYTHON
+RUNTIME_VERSION = '3.9'
+PACKAGES = ('snowflake-snowpark-python')
+HANDLER = 'call_agent'
+EXECUTE AS CALLER
+AS $$
+import json
+import _snowflake
+
+def call_agent(query: str):
+    API_ENDPOINT = "/api/v2/databases/SALES_INTELLIGENCE/schemas/DATA/agents/SALES_INTELLIGENCE_AGENT:run"
+    API_TIMEOUT = 15000  # milliseconds
+
+    payload = {
+        "messages": [
+            {"role": "user", "content": [{"type": "text", "text": query}]}
+        ]
+    }
+
+    try:
+        resp = _snowflake.send_snow_api_request(
+            "POST", API_ENDPOINT, {}, {}, payload, None, API_TIMEOUT
+        )
+
+        if resp["status"] != 200:
+            return f"Error: {resp['status']}"
+
+        response_content = json.loads(resp["content"])
+
+        collected = []
+        for event in response_content:
+            if event.get("event") == "response.text":
+                collected.append(event.get("data", {}).get("text", ""))
+            elif event.get("event") == "response.text.delta":
+                collected.append(
+                    event.get("data", {}).get("delta", {}).get("text", "")
+                )
+
+        answer = "".join(collected).strip()
+        return answer if answer else "No response within the time limit."
+
+    except Exception as e:
+        return f"Timeout or error: {str(e)}"
+$$;</code></pre>
+
+  <div class="callout">
+    <strong>One deliberate change from the published sample.</strong> Snowflake's version returns on the <em>first</em> text chunk it sees, which is a latency trick that can truncate the answer mid-sentence. The version above accumulates the full response before returning. If you need speed more than completeness, revert it, but do so knowingly.
+  </div>
+
+  <p>Test the procedure in a worksheet before going near Copilot Studio:</p>
+
+  <pre><code>CALL sales_intelligence.data.call_cortex_agent_proc('What is the SecureBank deal worth?');</code></pre>
+
+  <h2>Step 4 &mdash; Add the connector as a tool in Copilot Studio</h2>
+
+  <p>In your agent, go to <strong>Tools</strong>, add a new tool, and choose the Snowflake connector's <strong>Submit SQL Statement for Execution</strong> action. When prompted, create the connection using the values from your Entra configuration.</p>
+
+  <table>
+    <thead>
+      <tr><th>Connection field</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Tenant</td><td>Your Entra tenant ID</td></tr>
+      <tr><td>Client ID</td><td>The OAuth client application's ID</td></tr>
+      <tr><td>Client Secret</td><td>The secret generated on that client application</td></tr>
+      <tr><td>Resource URL</td><td>The Snowflake OAuth audience, matching the Application ID URI</td></tr>
+      <tr><td>Snowflake SaaS URL</td><td>Your account URL without the https prefix</td></tr>
+      <tr><td>Database, Warehouse, Role, Schema</td><td>Matching the case used in Snowflake exactly</td></tr>
+    </tbody>
+  </table>
+
+  <p>Then configure the tool itself. Three settings do most of the work:</p>
+
+  <h3>The statement</h3>
+  <p>The action's <code>statement</code> input carries the SQL. You want the agent to supply the question, so the statement becomes a call to your procedure with the question inserted:</p>
+  <pre><code>CALL sales_intelligence.data.call_cortex_agent_proc('&lt;the user question&gt;');</code></pre>
+  <p>Mark that inserted portion as an input the agent fills in at run time, rather than a fixed value. Keep the surrounding single quotes.</p>
+
+  <h3>The tool description</h3>
+  <p>This is the single most important field on the page, because generative orchestration uses it to decide whether to call the tool at all. Describe the data, not the plumbing. "Answers questions about sales pipeline, deal values, win rates, and the content of recorded sales calls" will route correctly. "Calls a Snowflake stored procedure" will not, because no user ever phrases a question that way.</p>
+
+  <h3>The input description</h3>
+  <p>Describe the input as the user's full question in natural language. This tells the orchestrator to pass the question through intact rather than reducing it to a keyword, which matters because the Cortex Agent is itself expecting natural language.</p>
+
+  <div class="callout warn">
+    <strong>Watch the timeout.</strong> A Cortex Agent that plans, runs a generated SQL query, and writes an answer can take longer than a simple connector call. The stored procedure has its own timeout, and the connector action has a separate one. Both must be generous enough for a real answer, and both should be shorter than the patience of the person waiting. Tightening the agent's response instructions is usually a better fix than raising timeouts indefinitely.
+  </div>
+
+  <h2>Security considerations worth designing for</h2>
+
+  <h3>The statement is assembled as text</h3>
+  <p>The connector action takes a SQL statement as a string, and there is no documented parameter binding. That means the user's question is being placed inside a quoted SQL literal. A question containing an apostrophe will break the statement, and a deliberately crafted input is a SQL injection consideration rather than a theoretical one.</p>
+  <p>Mitigate it in layers. Escape or strip single quotes before the value reaches the statement. Keep the Snowflake role minimal so that even a successful injection reaches almost nothing. Consider having the procedure validate its own input length and reject anything implausible. Do not rely on the model to sanitize on your behalf.</p>
+
+  <h3>Service principal means a shared identity</h3>
+  <p>With service principal authentication, every question reaches Snowflake as the same user, regardless of who asked it. Snowflake's row-level security and role-based access therefore apply to that shared identity, not to the individual. If different users are supposed to see different rows, service principal authentication alone will not deliver that, and you should evaluate delegated authentication so that each user's own identity flows through.</p>
+
+  <h3>Governance follows the connector</h3>
+  <p>This is an ordinary Power Platform connection, so tenant data loss prevention policies apply to it. Classify the connector deliberately before a pilot spreads, rather than discovering the policy conflict at rollout.</p>
+
+  <h2>A sensible order of work</h2>
+
+  <ol>
+    <li>Confirm region availability, premium licensing, and how the connector is classified in your data policies.</li>
+    <li>Build and test the Cortex Agent in Snowflake until the answers are genuinely good.</li>
+    <li>Book one working session with an Entra administrator and a Snowflake administrator and complete the OAuth trust end to end, verifying the token before you leave the session.</li>
+    <li>Create the least-privilege role and the stored procedure, and test the procedure from a worksheet.</li>
+    <li>Add the tool in Copilot Studio, then spend real time on the tool and input descriptions.</li>
+    <li>Test with questions phrased the way your users actually phrase them, not the way the documentation phrases them.</li>
+    <li>Harden before rollout: input handling, timeouts, role scope, and a decision on shared versus delegated identity.</li>
+  </ol>
+
+  <div class="callout">
+    <strong>Worth evaluating alongside this.</strong> If your organization's data strategy is consolidating on a governed semantic layer, compare this pattern against mirroring Snowflake into OneLake and using a Fabric data agent. Both surface the same data in Copilot Studio. The right answer depends on where you want the semantic model to live and who you want maintaining it.
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Reference materials</h3>
+    <div class="ref">
+      <a href="https://www.snowflake.com/en/developers/guides/getting-started-with-microsoft-copilot-studio-and-cortex-agents/" target="_blank" rel="noopener">Snowflake &mdash; Getting Started with Microsoft Copilot Studio and Cortex Agents</a><br />
+      <span class="u">www.snowflake.com/en/developers/guides/getting-started-with-microsoft-copilot-studio-and-cortex-agents/</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/connectors/snowflakev2/" target="_blank" rel="noopener">Microsoft Learn &mdash; Snowflake connector reference, including the full OAuth configuration steps and action list</a><br />
+      <span class="u">learn.microsoft.com/en-us/connectors/snowflakev2/</span>
+    </div>
+    <div class="ref">
+      <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents" target="_blank" rel="noopener">Snowflake Docs &mdash; Cortex Agents overview and cost considerations</a><br />
+      <span class="u">docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents</span>
+    </div>
+    <div class="ref">
+      <a href="https://docs.snowflake.com/en/user-guide/oauth-azure" target="_blank" rel="noopener">Snowflake Docs &mdash; External OAuth with Microsoft Entra ID</a><br />
+      <span class="u">docs.snowflake.com/en/user-guide/oauth-azure</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-plugin-actions" target="_blank" rel="noopener">Microsoft Learn &mdash; Adding connector actions as agent tools in Copilot Studio</a><br />
+      <span class="u">learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-plugin-actions</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-real-time-connectors" target="_blank" rel="noopener">Microsoft Learn &mdash; Snowflake as a real-time knowledge source, the alternative to this pattern</a><br />
+      <span class="u">learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-real-time-connectors</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention" target="_blank" rel="noopener">Microsoft Learn &mdash; Data loss prevention policies in Power Platform</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention</span>
+    </div>
+    <div class="feature-tags">
+      <span class="tag">Copilot Studio</span>
+      <span class="tag">Snowflake Cortex</span>
+      <span class="tag">Entra External OAuth</span>
+      <span class="tag">Agent tools</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Compiled from public Microsoft and Snowflake documentation, verified August 2026. Product capabilities in this area are evolving, and some referenced features are in preview; confirm current behavior, licensing terms, and regional availability against the vendor documentation before you build. Guidance only, not a contract. Hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
