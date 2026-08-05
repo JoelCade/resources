@@ -348,6 +348,50 @@ footer.foot {
 
   <p>Two practical consequences. First, <strong>identify the harness before you diagnose anything</strong> &mdash; credits burning against an agent that was never published is expected behavior on the GitHub Copilot harness and a genuine defect on the standard harness, and the remedy is completely different. Second, <strong>maker activity becomes a budget line of its own</strong>. A team doing heavy iteration or running large evaluation suites is generating real consumption before a single end user arrives, so forecast build-phase spend separately from runtime spend.</p>
 
+  <h3>What a GitHub Copilot harness task actually costs</h3>
+
+  <p>There is no per-event rate card, but Microsoft publishes <strong>planning bands</strong> in the Copilot Credits Guide. Runtime cost is driven by four factors &mdash; the <strong>models</strong> chosen for the task, the <strong>runtime</strong> orchestration that keeps work moving across steps, the <strong>context</strong> retrieved to ground the work, and the <strong>tools</strong> invoked to act on it.</p>
+
+  <table>
+    <thead>
+      <tr><th>Runtime band</th><th>Shape of the work</th><th>Est. credits per task</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Light</strong></td><td>Few sources, light reasoning, one or fewer outputs. For example: check an email, verify a workbook, post a status summary.</td><td class="num-cell">100 &ndash; 300</td></tr>
+      <tr><td><strong>Medium</strong></td><td>Many sources across varying timeframes, structured reasoning, two or more deliverables.</td><td class="num-cell">300 &ndash; 500</td></tr>
+      <tr><td><strong>Heavy</strong></td><td>Broad aggregation and deep reasoning over long timeframes, many outputs.</td><td class="num-cell cost-hi">&gt; 500</td></tr>
+    </tbody>
+  </table>
+
+  <p>Build-phase consumption has its own bands. <strong>Natural language authoring</strong> is estimated by conversation turns, meaning the number of messages you send in a single creation session &mdash; more turns generally means a more complex agent needing iterative refinement. <strong>Preview and evaluation consume credits at the same rate as runtime</strong>, which is what makes a large evaluation suite a real recurring line item rather than a one-off.</p>
+
+  <table>
+    <thead>
+      <tr><th>Authoring band</th><th>Conversation turns</th><th>Est. credits per session</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Light</strong></td><td>1 &ndash; 2</td><td class="num-cell cost-lo">1 &ndash; 20</td></tr>
+      <tr><td><strong>Medium</strong></td><td>3 &ndash; 5</td><td class="num-cell">21 &ndash; 60</td></tr>
+      <tr><td><strong>Heavy</strong></td><td>6 +</td><td class="num-cell">61 +</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Manual configuration is free.</strong> No credits are consumed for work performed in the Build and Monitor tabs. Only the model-powered maker experiences meter.</p>
+
+  <div class="callout warn">
+    <strong>Do this arithmetic before an account starts building.</strong> A light task at 100 to 300 credits is <strong>50 to 150 times</strong> the cost of a generative answer on the standard harness, which bills 2 credits. The capability difference is real and so is the cost difference. These are rough planning estimates published by Microsoft, not commitments &mdash; actual consumption varies with workflow and usage pattern, so treat them as a starting point for your own modeling rather than a quote.
+  </div>
+
+  <div class="callout">
+    <strong>Do not reuse these bands for Copilot Cowork.</strong> Cowork publishes bands with word-for-word identical descriptions but different figures: light 100 to 300, <strong>medium 300 to 700, heavy above 700</strong>. Quoting one workload's numbers for the other misprices the medium band by up to 40%. Check which product you are estimating.
+  </div>
+
+  <h3>Work IQ APIs bill separately, and can cut cost</h3>
+
+  <p>If your agents call the <strong>Work IQ APIs</strong>, that consumption is its own line and is not covered by a Microsoft 365 Copilot license. The <strong>Work IQ Tools API</strong> is a flat <strong>0.1 credit per API call</strong> for actions and tools. The <strong>Work IQ Chat and Context APIs</strong> are variable, billing query-style consumption for grounding, retrieval, and reasoning.</p>
+
+  <p>Two clarifications worth holding on to. Work IQ accessed <em>natively inside</em> Microsoft 365 Copilot carries <strong>no incremental charge</strong> &mdash; that covers Copilot Chat, the in-app experiences in Word, Excel and PowerPoint, and the included agents such as Researcher, Analyst and Facilitator. The charges apply only when an agent or AI solution calls the APIs directly. And there is a genuine optimization angle here: Microsoft states that shifting AI processing into the Work IQ runtime cuts the tokens needed for context retrieval and tool use <strong>by up to 80%</strong>, reducing credit consumption in agentic solutions. Treat that as a vendor figure to validate against your own workload, not a guarantee.</p>
+
   <p>Existing agents are unaffected. The standard and Copilot chat harnesses are unchanged by the August launch, agents built on them keep running, new agents can still be created on them, and license inclusion continues. There is also <strong>no automatic migration between harnesses</strong> &mdash; an agent created on one cannot be transferred to another, so harness choice is effectively a rebuild decision rather than a setting.</p>
 
   <h2 id="phase-0">Phase 0 — Understand the billing model</h2>
@@ -406,7 +450,11 @@ footer.foot {
       </ul>
     </div>
   </div>
-  <p>A one-year prepurchase option (Copilot Credit Commit Units, bought through the Azure portal) also exists. Pack sizes, pack pricing, and CCCU conversion rates are published in the licensing guides linked at the bottom of this page — confirm them there rather than relying on any secondhand figure.</p>
+  <p>A one-year pay-upfront option, the <strong>Copilot Credit Pre-Purchase Plan (P3)</strong>, also exists. Note the split provisioning surface that catches admins out: the <strong>pay-as-you-go meter is provisioned in the Power Platform admin center, while the Pre-Purchase Plan is provisioned in the Azure portal</strong>. P3 credits are deducted automatically from the purchased balance, and if usage exceeds it you either buy more or fall back to pay-as-you-go. <strong>Unused P3 credits expire at the end of the annual term</strong>, so oversizing a tier to reach a bigger discount can cost more than it saves.</p>
+
+  <div class="callout">
+    <strong>Both purchasing constructs decrement the Microsoft Azure Consumption Commitment.</strong> The Copilot Credits Guide states that pay-as-you-go and the Pre-Purchase Plan each draw down MACC. If your organization carries an Azure commitment, factor that in before treating credits as net-new spend &mdash; it often changes the funding conversation entirely.
+  </div>
 
   <div class="callout">
     <strong>Volume matters at scale.</strong> The public Copilot Credits Guide publishes a tiered discount on the Copilot Credit pre-purchase plan. If you are modeling a large deployment, the effective rate is not a flat $0.01 &mdash; check which tier your annual volume lands in before you build a business case on the headline number.
@@ -425,7 +473,7 @@ footer.foot {
       <tr><td>9</td><td class="num-cell">300,000,000</td><td class="num-cell">20%</td></tr>
     </tbody>
   </table>
-  <p>Source: Microsoft Copilot Credits Guide, July 2026. All pricing is in USD and subject to change &mdash; reconfirm against the current guide before quoting.</p>
+  <p>Source: Microsoft Copilot Credits Guide, August 2026. The guide publishes credit volumes and discount percentages only, not annual dollar prices. All pricing is in USD and subject to change &mdash; reconfirm against the current guide before quoting.</p>
 
   <h3>What is <em>not</em> billed — check this before optimizing anything</h3>
   <ul>
@@ -532,7 +580,7 @@ footer.foot {
       <tr><td>Premium / reasoning</td><td class="num-cell cost-hi">~10 credits / 1K tokens</td><td>Genuine multi-step reasoning only. <strong>100× the basic tier</strong> — require a demonstrated need.</td></tr>
     </tbody>
   </table>
-  <p>For very high token volumes, bringing your own model from Azure AI Foundry can be worth modelling: Copilot Studio then charges only the agent-action rate to invoke it, and the token cost is billed by Foundry under its own (often cheaper at scale) pricing.</p>
+  <p>For very high token volumes, bringing your own model from Azure AI Foundry can be worth modeling: Copilot Studio then charges only the agent-action rate to invoke it, and the token cost is billed by Foundry under its own (often cheaper at scale) pricing.</p>
 
   <h3>Lever 5 — Put the right workload in the right flow engine</h3>
   <p>Agent flows consume Copilot Credits at 13 per 100 actions. <strong>Power Automate cloud flows do not consume Copilot Credits at all</strong> — they draw on Power Automate licensing. For flows with very high action counts per run, moving the work to a Power Automate cloud flow removes it from your credit budget entirely; for short flows, the agent flow is usually cheaper. Model both against your actual action counts before deciding. Note that converting an agent flow to a cloud flow is a <strong>one-way change</strong>.</p>
@@ -672,10 +720,12 @@ footer.foot {
     <span class="tag">Governance</span>
     <span class="tag">Pay-as-you-go</span>
     <span class="tag">Harnesses</span>
+    <span class="tag">Work IQ</span>
+    <span class="tag">MACC</span>
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation (rate card verified July 2026; harness and usage-based billing sections verified August 2026). Copilot Credit rates, zero-rating conditions, enforcement thresholds, prepaid pack sizes, and pay-as-you-go meters change frequently &mdash; always confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. The GitHub Copilot harness became generally available on August 3, 2026 and its usage-based pricing is not expressed as a per-event rate card, so build-phase and runtime consumption should be estimated against your own workload rather than read off a table. Any credits-per-session figures you derive from this page are illustrative modelling, not published Microsoft benchmarks. This playbook is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation and the Microsoft Copilot Credits Guide, August 2026 (rate card verified July 2026; harness, credit band, and usage-based billing sections verified August 2026). Copilot Credit rates, zero-rating conditions, enforcement thresholds, prepaid pack sizes, and pay-as-you-go meters change frequently &mdash; always confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. The GitHub Copilot harness became generally available on August 3, 2026. Its usage-based pricing is not expressed as a per-event rate card, and the credit bands shown here are rough planning estimates published by Microsoft rather than commitments, so build-phase and runtime consumption should be estimated against your own workload. Any credits-per-session figures you derive from this page are illustrative modeling, not published Microsoft benchmarks. This playbook is guidance, not a contract.
   </footer>
 </div>
 <script>
