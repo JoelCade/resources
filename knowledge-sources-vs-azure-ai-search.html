@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>When Built-In Knowledge Sources Are Not Enough &mdash; Diagnosing Grounded Answers and Deciding to Move to Azure AI Search</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 28px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 38px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 10px 0; }
+
+a { color: var(--cp-link); }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.card h3 { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.muted { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.warn { background: rgba(245,158,11,0.10); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin: 2px 0 4px; }
+.step .body p { margin: 4px 0; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .grid3, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Copilot Studio &middot; Knowledge &amp; Retrieval</p>
+    <h1>When Built-In Knowledge Sources Are Not Enough</h1>
+    <p class="sub">Why grounded agents answer inconsistently, how to tell a configuration problem from an architecture problem, and the signals that mean it is time to move to a purpose-built Azure AI Search index. &middot; August 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> when an agent answers well sometimes and poorly other times, the model is almost never the problem. <strong>Retrieval is the problem.</strong> Built-in knowledge sources are optimized for fast setup, which means they make the retrieval decisions for you and expose almost no dials. That is the right trade for most agents. It stops being the right trade at a predictable point, and the skill is recognizing that point rather than reaching it by accident.
+  </div>
+
+  <h2>1. What actually happens when an agent answers from knowledge</h2>
+
+  <p>A grounded answer is not one operation. It is a short pipeline, and a failure anywhere in it produces the same symptom for the user: a vague answer, a wrong answer, or "I could not find anything."</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Ingest</h3>
+      <p>Content is read from the source and prepared. Depending on the source type, this means either copying and indexing the content, or relying on an existing search index that a different system maintains. Content that cannot be read at this stage is silently absent for everything that follows.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Chunk</h3>
+      <p>Documents are split into passages. Chunk boundaries decide what facts can appear together in a single retrievable unit. A definition separated from its exception by a chunk boundary can no longer be retrieved as one idea.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Retrieve and rank</h3>
+      <p>The user's question is turned into a query, candidate passages come back, and a small number of the highest-ranked passages are selected. This is the single most influential step, and it is the one built-in sources hide most completely.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>Trim by permission</h3>
+      <p>Results the asking user is not entitled to see are removed. This happens live against the source system, so two people asking the same question can legitimately get different answers, and one of them can get nothing.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">5</div>
+    <div class="body">
+      <h3>Generate, cite, and moderate</h3>
+      <p>The model composes an answer from the surviving passages and attaches citations. Content moderation can suppress the result, and in configurations that require grounding, an answer without a citation may be withheld even when it was correct.</p>
+    </div>
+  </div>
+
+  <p>Every one of those stages can fail quietly. That is why "unreliable" is the usual description rather than "broken."</p>
+
+  <h2>2. The silent failure modes</h2>
+
+  <p>Before concluding that the platform cannot do the job, rule out the failures that produce no error message. These are the ones that consume the most troubleshooting time precisely because nothing looks wrong.</p>
+
+  <table>
+    <thead>
+      <tr><th>Failure</th><th>What you see</th><th>How to confirm it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Content exceeds a processing size limit</strong></td>
+        <td>The item shows as connected and can even appear in search results, but its contents are never used in an answer</td>
+        <td>Check the size distribution of your content against the documented limit for the source type and licensing you have</td>
+      </tr>
+      <tr>
+        <td><strong>Protection blocks indexing</strong></td>
+        <td>The item shows as Ready and never answers</td>
+        <td>Look for sensitivity labels at Confidential or above, and for password protection</td>
+      </tr>
+      <tr>
+        <td><strong>Indexing has not completed</strong></td>
+        <td>Recently added content returns nothing</td>
+        <td>Status cycles through In Progress before returning to Ready; scheduled refresh cycles are measured in hours and cannot be forced</td>
+      </tr>
+      <tr>
+        <td><strong>Permission trimming</strong></td>
+        <td>Works for the maker, returns nothing for some users, no error</td>
+        <td>Test with a least-privileged account, and verify authentication scopes and consent</td>
+      </tr>
+      <tr>
+        <td><strong>Content moderation filtered the response</strong></td>
+        <td>No answer, no explanation</td>
+        <td>Only visible through application telemetry; it is invisible in the chat itself</td>
+      </tr>
+      <tr>
+        <td><strong>Citation missing, so the answer is withheld</strong></td>
+        <td>Intermittent. The same question answers on one attempt and not the next</td>
+        <td>Happens when grounded-only behavior is enforced and the model omits an in-text citation</td>
+      </tr>
+      <tr>
+        <td><strong>Unsupported question shape</strong></td>
+        <td>Consistent failure on a specific kind of question, while other questions work</td>
+        <td>Questions that name a file, count items, list folder contents, or filter on metadata are not what document retrieval does</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Instrument first.</strong> Connect the agent to application telemetry before you spend a week guessing. Moderation events, retrieval behavior, and filtered responses are not observable from the chat window. Without telemetry you are troubleshooting a pipeline you cannot see.
+  </div>
+
+  <h2>3. Triage before you re-architect</h2>
+
+  <p>Moving to a custom retrieval stack is a real project. Work through this first, because a meaningful share of "the knowledge source does not work" reports resolve here.</p>
+
+  <ol>
+    <li><strong>Confirm the content is actually eligible.</strong> Size, file type, protection status, and indexing state. Eligibility is binary and silent.</li>
+    <li><strong>Confirm the source system can find it.</strong> Search for the content directly in the underlying system using the same words the user used. If the source cannot find it, the agent will not either.</li>
+    <li><strong>Check which ingestion path you chose.</strong> Several platforms offer more than one way to connect the same repository, and they behave very differently in freshness, search quality, storage consumption, and citation granularity. Picking the wrong one is common and easily reversed.</li>
+    <li><strong>Separate question types.</strong> Sort failing questions into "should work" and "was never supported." Retrieval answers questions about content, not questions about the file system around the content.</li>
+    <li><strong>Scope the agent narrowly.</strong> One agent pointed at everything performs worse than several agents pointed at coherent bodies of content. Narrow scope improves ranking more reliably than prompt engineering does.</li>
+    <li><strong>Tune instructions for citation behavior.</strong> Ask explicitly for in-text citations, and remove instructions that impose rigid output formats, which can suppress the citation markers grounding depends on.</li>
+    <li><strong>Check licensing-dependent behavior.</strong> Some retrieval quality and size ceilings change based on what is licensed in the tenant. This can look like a product defect and is actually an entitlement setting.</li>
+  </ol>
+
+  <h2>4. The built-in ceiling: what you cannot tune</h2>
+
+  <p>If triage does not resolve it, the next question is not "how do we fix this" but "is this fixable here." Built-in knowledge sources deliberately hide the retrieval machinery. These are the dials you do not get.</p>
+
+  <table>
+    <thead>
+      <tr><th>Dial</th><th>Built-in knowledge sources</th><th>Why it matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Chunk size and overlap</td><td>Fixed</td><td>Determines whether a complete idea survives in one retrievable passage</td></tr>
+      <tr><td>Structure-aware chunking</td><td>Not configurable</td><td>Long, hierarchical documents lose their section context when split naively</td></tr>
+      <tr><td>Number of passages retrieved</td><td>Fixed and small</td><td>Caps how much evidence the model can reason over in one answer</td></tr>
+      <tr><td>Ranking strategy</td><td>Not selectable</td><td>Keyword ranking and vector ranking fail on different questions; you cannot choose or blend</td></tr>
+      <tr><td>Metadata filters and scoping</td><td>Very limited</td><td>No reliable way to restrict answers by document type, region, product, or effective date</td></tr>
+      <tr><td>Text extraction from images</td><td>Best effort, varies by path</td><td>Scanned and image-heavy content may be partly or entirely invisible</td></tr>
+      <tr><td>Refresh timing</td><td>Scheduled, not on demand</td><td>Content changes are not reflected immediately, and cannot be forced</td></tr>
+      <tr><td>Relevance measurement</td><td>Not exposed</td><td>You cannot prove an improvement, only sense one</td></tr>
+    </tbody>
+  </table>
+
+  <p>None of this is a defect. It is the cost of a knowledge source you can configure in ten minutes. The mistake is expecting an unconfigurable retrieval pipeline to perform like a tuned one on a corpus that needs tuning.</p>
+
+  <h2>5. Seven signals you have outgrown built-in knowledge</h2>
+
+  <p>Any one of these is a reasonable trigger for the conversation. Two or more, and the answer is usually already yes.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Signal 1</span>
+      <h3>Scale of the corpus</h3>
+      <p>You are approaching a platform cap on the number of knowledge objects or sources, or the body of content is growing steadily rather than being a fixed set.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Signal 2</span>
+      <h3>Answers need breadth</h3>
+      <p>Correct answers require evidence assembled from several documents at once, rather than from the single best-matching document.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Signal 3</span>
+      <h3>Documents are long and structured</h3>
+      <p>Policies, manuals, standards, and contracts, where a clause only means the right thing in the context of its section. Chunking strategy changes answer quality materially.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Signal 4</span>
+      <h3>You need filtering, not just searching</h3>
+      <p>Answers must be scoped by attributes such as document type, business unit, jurisdiction, product line, version, or effective date.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Signal 5</span>
+      <h3>The content is not clean text</h3>
+      <p>Scans, images, complex tables, and layout-dependent documents where you need explicit control over extraction rather than best-effort handling.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Signal 6</span>
+      <h3>Content spans many systems</h3>
+      <p>Knowledge lives across several repositories and you want it searched as one corpus, with consistent behavior, rather than as a set of separately configured sources.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Signal 7</span>
+      <h3>You need to prove quality</h3>
+      <p>Someone is accountable for accuracy and needs measurable retrieval quality, regression testing, and the ability to demonstrate that a change made things better.</p>
+    </div>
+    <div class="card">
+      <span class="pill muted">Not a signal</span>
+      <h3>One bad demo</h3>
+      <p>A handful of poor answers is a triage task, not an architecture decision. Re-platforming to fix problems that were configuration issues simply relocates them.</p>
+    </div>
+  </div>
+
+  <h2>6. What a purpose-built index gives you</h2>
+
+  <p>Azure AI Search is the retrieval layer you build when the defaults are no longer sufficient. The point is not that it is more powerful in the abstract. The point is that every hidden decision from section 4 becomes an explicit one you own.</p>
+
+  <table>
+    <thead>
+      <tr><th>Capability</th><th>What it changes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Configurable chunking</strong></td><td>Choose chunk size and overlap, or chunk along document structure so headings and sections stay with the text they govern</td></tr>
+      <tr><td><strong>Integrated vectorization</strong></td><td>Embeddings generated as part of the indexing pipeline, applied consistently to content and to queries</td></tr>
+      <tr><td><strong>Hybrid retrieval</strong></td><td>Keyword and vector search run together, so exact terminology and paraphrased intent both find their target</td></tr>
+      <tr><td><strong>Semantic ranking</strong></td><td>A reranking pass over candidates that materially improves which passages reach the model</td></tr>
+      <tr><td><strong>Filters and facets</strong></td><td>Scope and filter on any metadata you index, which is what makes "only current policies for this region" possible</td></tr>
+      <tr><td><strong>Document processing skills</strong></td><td>Layout-aware extraction and optical character recognition for scanned and image-based content</td></tr>
+      <tr><td><strong>Many sources, one index</strong></td><td>Indexers across multiple repositories producing a single searchable corpus with consistent behavior</td></tr>
+      <tr><td><strong>Measurable relevance</strong></td><td>You can evaluate retrieval quality, tune it, and show the difference</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. How it connects, and what you take on</h2>
+
+  <p>In Copilot Studio, an Azure AI Search index is reached through Azure OpenAI On Your Data, configured on a generative answers node under the <strong>Classic data</strong> option. Two consequences are worth deciding on deliberately rather than discovering later.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill warn">Plan for this</span>
+      <h3>Preview status</h3>
+      <p>The Azure OpenAI connection for generative answers is preview functionality. Confirm current status before committing a production timeline to it, and design so the knowledge layer can be re-pointed if the integration path changes.</p>
+    </div>
+    <div class="card">
+      <span class="pill warn">Plan for this</span>
+      <h3>Orchestration constraint</h3>
+      <p>Classic data sources are not available to generative orchestration. They live inside a topic-level generative answers node. If the agent relies on generative orchestration today, this is a design decision, not a detail.</p>
+    </div>
+  </div>
+
+  <p>You are also taking ownership of things the built-in sources handled for you:</p>
+
+  <ul>
+    <li><strong>The pipeline.</strong> Indexers, schedules, failure handling, and re-indexing when the content or the schema changes.</li>
+    <li><strong>Freshness.</strong> Index currency becomes your responsibility and your service level, not a platform default.</li>
+    <li><strong>Security trimming.</strong> Permission behavior must be designed into the index rather than inherited from the source system. Decide early whether the index carries access control or whether the corpus is uniformly accessible to the agent's audience.</li>
+    <li><strong>Cost.</strong> A search tier, embedding and chat model deployments, document processing where needed, and the operational time to run it.</li>
+    <li><strong>Evaluation.</strong> The upside of measurable relevance is that someone now has to measure it.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Realistic effort.</strong> A working, tuned index is typically a matter of weeks rather than days, and most of that time goes into content preparation and relevance tuning rather than into standing up the service. Budget for iteration, because the first index is rarely the one you keep.
+  </div>
+
+  <h2>8. The middle path</h2>
+
+  <p>The choice is not binary. Several moves sit between "accept the defaults" and "build a custom retrieval stack," and they are usually worth exhausting first.</p>
+
+  <ul>
+    <li><strong>Switch ingestion path.</strong> Where a platform offers more than one way to connect the same repository, moving from a keyword-search-backed path to a vector-indexed one can change answer quality substantially with no architectural work.</li>
+    <li><strong>Resolve licensing-dependent ceilings.</strong> Some size limits and search quality improvements are unlocked by entitlements already available in the tenant.</li>
+    <li><strong>Split one agent into several.</strong> Narrower agents over coherent bodies of content retrieve better than one agent over everything, and they are easier to evaluate.</li>
+    <li><strong>Use connected agents.</strong> Route a question to the agent that owns that domain, instead of asking one retriever to rank across unrelated corpora.</li>
+    <li><strong>Fix the content.</strong> Deduplicate, retire superseded documents, and add the structure and metadata that retrieval can use. Cleaning a corpus often outperforms upgrading the retriever, and it is work you will need to do anyway.</li>
+  </ul>
+
+  <h2>9. Decision summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Situation</th><th>Do this</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Some content answers, some never does</td>
+        <td>Eligibility problem. Check size, protection, file type, and indexing state before anything else</td>
+      </tr>
+      <tr>
+        <td>Answers vary between users</td>
+        <td>Permissions and authentication scopes, not retrieval</td>
+      </tr>
+      <tr>
+        <td>Same question answers inconsistently over time</td>
+        <td>Citation and moderation behavior. Instrument with telemetry and tune instructions</td>
+      </tr>
+      <tr>
+        <td>Answers are shallow but the corpus is small and clean</td>
+        <td>Change ingestion path, narrow the agent's scope, improve the content</td>
+      </tr>
+      <tr>
+        <td>Answers need evidence from many documents at once</td>
+        <td>Move to a purpose-built index. This is a retrieval-depth limit you cannot configure around</td>
+      </tr>
+      <tr>
+        <td>You need scoping, filtering, or versioned answers</td>
+        <td>Move to a purpose-built index with the metadata modeled deliberately</td>
+      </tr>
+      <tr>
+        <td>Someone is accountable for accuracy</td>
+        <td>Move to a stack where retrieval quality can be measured and regression tested</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>A useful rule of thumb:</strong> built-in knowledge sources are the right answer when the corpus is bounded, reasonably clean, and the questions are about what a document says. A purpose-built index becomes the right answer when the corpus is open-ended, uneven, or the questions are about what the body of content collectively says.
+  </div>
+
+  <h2>Reference materials</h2>
+
+  <div class="card">
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Knowledge sources summary &mdash; Microsoft Copilot Studio</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Quotas and limits &mdash; Microsoft Copilot Studio</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data">Unstructured data as a knowledge source &mdash; Microsoft Copilot Studio</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-generative-answers-azure-openai">Connect your data to Azure OpenAI for generative answers &mdash; Microsoft Copilot Studio</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-generative-answers-azure-openai</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview">Retrieval-augmented generation in Azure AI Search</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-chunk-documents">Chunk large documents for RAG and vector search in Azure AI Search</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-chunk-documents</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/search/vector-search-integrated-vectorization">Integrated vectorization in Azure AI Search</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/search/vector-search-integrated-vectorization</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/search/semantic-search-overview">Semantic ranking in Azure AI Search</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/search/semantic-search-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/search/hybrid-search-overview">Hybrid search in Azure AI Search</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/search/hybrid-search-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/search/cognitive-search-skill-document-intelligence-layout">Chunk and vectorize with the Document Layout skill</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/search/cognitive-search-skill-document-intelligence-layout</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/use-your-data">Azure OpenAI On Your Data</a>
+      <span class="u">https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/use-your-data</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p>This page is general guidance, not a contract. Product capabilities, limits, and preview status change frequently &mdash; confirm current behavior against the linked Microsoft Learn documentation before making a design or purchasing decision. Some functionality referenced here is in preview at the time of writing and is not intended for production use.</p>
+    <p><a href="index.html">&larr; All resources</a></p>
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
