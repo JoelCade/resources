@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What Changed in Copilot Studio Billing &mdash; The GitHub Copilot Harness</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-link: #0078d4;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-shadow: 0 18px 48px rgba(0,0,0,0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-link: #4da6ff;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-shadow: 0 18px 48px rgba(0,0,0,0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 36px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 24px 0 8px; }
+p { margin: 0 0 13px; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 0 0 6px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 20px;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid var(--cp-border);
+  padding: 9px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: var(--cp-surface-soft);
+  font-weight: 600;
+}
+tbody tr:nth-child(even) { background: var(--cp-accent-soft); }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 13px 17px;
+  margin: 18px 0;
+  font-size: 14px;
+}
+.callout.warn {
+  border-left-color: var(--cp-warning);
+  background: rgba(245,158,11,0.10);
+}
+.callout p:last-child { margin-bottom: 0; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+.card h3 { margin-top: 4px; }
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+.grid2 .card { margin: 0; }
+
+.pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+}
+.pill.warn { background: rgba(245,158,11,0.12); color: var(--cp-warning); border-color: var(--cp-warning); }
+.pill.ok { background: rgba(22,163,74,0.12); color: var(--cp-success); border-color: var(--cp-success); }
+
+.feature-tags { margin: 22px 0 0; }
+.tag {
+  display: inline-block;
+  font-size: 12px;
+  padding: 3px 10px;
+  margin: 0 6px 6px 0;
+  border-radius: 999px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 13px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.step .step-body { flex: 1; }
+.step .step-body p:last-child { margin-bottom: 0; }
+.step h3 { margin: 0 0 5px; }
+
+.ref { margin: 0 0 13px; font-size: 14px; }
+.ref a { color: var(--cp-link); text-decoration: none; font-weight: 600; }
+.ref a:hover { text-decoration: underline; }
+.ref .u {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12px;
+  color: var(--cp-text-soft);
+  word-break: break-all;
+}
+
+.toolbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 10px 0; margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 0.625rem; padding: 9px 18px;
+  border: 1px solid var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px; padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft); font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+nav.toc { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 14px; padding: 14px 20px; margin: 18px 0 8px; }
+nav.toc h2 { font-size: 15px; margin: 4px 0 8px; border: 0; padding: 0; }
+nav.toc ol { margin: 0; padding-left: 20px; font-size: 14px; }
+nav.toc a { color: var(--cp-link); text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card, table, .callout { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio &middot; Licensing &amp; Billing</p>
+    <h1>What Changed in Copilot Studio Billing</h1>
+    <p class="sub">The GitHub Copilot harness became generally available on August 3, 2026 and brought a second billing model with it. What changed, what did not, and the decisions that now sit in front of every agent you build. &middot; August 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Copilot Studio now has two billing models, and <strong>the harness you choose decides which one applies</strong>. Agents on the GitHub Copilot harness bill on usage, start consuming credits the moment you begin building rather than when you publish, and carry <strong>no Microsoft 365 Copilot license inclusion</strong>. Everything you already know about Copilot Studio billing still holds &mdash; but only for the standard and Copilot chat harnesses.
+  </div>
+
+  <nav class="toc">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#what-changed">What actually changed</a></li>
+      <li><a href="#harnesses">Three harnesses, two billing models</a></li>
+      <li><a href="#assumptions">Four assumptions that break</a></li>
+      <li><a href="#cost">What a task costs</a></li>
+      <li><a href="#unchanged">What did not change</a></li>
+      <li><a href="#enforcement">What happens when credits run out</a></li>
+      <li><a href="#decide">How to decide, and what to do now</a></li>
+      <li><a href="#references">Reference materials</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="what-changed">What actually changed</h2>
+
+  <p>Until August 2026, Copilot Studio billing was a single story. Agents consumed <strong>Copilot Credits</strong> against a published per-event rate card, employee-facing usage by a Microsoft 365 Copilot licensed user was included at no charge, and metering began when you published.</p>
+
+  <p>That story is intact. What changed is that it is <strong>no longer the only story</strong>. Copilot Studio is now a multi-harness platform. A <em>harness</em> is the runtime sitting between what you author and the model that reasons &mdash; it decides when to call the model, what context to send it, how to interpret the response, and which tools to invoke. There are three, you pick one when the agent is created, and that choice sets the billing model for the life of the agent.</p>
+
+  <div class="callout warn">
+    <strong>The name is the most common misread.</strong> The GitHub Copilot harness <strong>does not require GitHub Copilot</strong>. There are no GitHub Copilot licenses to buy and no GitHub configuration involved. The name refers to the orchestration lineage the runtime came from, not a dependency or a prerequisite. If someone in the room hears "GitHub" and assumes a separate purchase, correct it early.
+  </div>
+
+  <h2 id="harnesses">Three harnesses, two billing models</h2>
+
+  <table>
+    <thead>
+      <tr><th>Harness</th><th>Built for</th><th>How it bills</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Standard</strong></td>
+        <td>Rule-based agents and structured, predictable conversations. You define the topics, prompts, and paths.</td>
+        <td>Copilot Credits on the published <strong>per-event rate card</strong>. Microsoft 365 Copilot license inclusion applies.</td>
+      </tr>
+      <tr>
+        <td><strong>Copilot chat</strong></td>
+        <td>Extending Microsoft 365 Copilot Chat with your organization's knowledge. Publishes to internal teams.</td>
+        <td>Consumption-based, or included in the Microsoft 365 Copilot user subscription license.</td>
+      </tr>
+      <tr>
+        <td><strong>GitHub Copilot</strong></td>
+        <td>Reasoning-heavy, multistep business processes. Takes a goal, breaks it into steps, calls tools, and recovers when a step fails.</td>
+        <td><strong>Usage-based Copilot Credits. Always billed. No license inclusion.</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The practical consequence is that <strong>"how much does a Copilot Studio agent cost" is no longer answerable without first asking which harness it runs on</strong>. Agents are labeled in the Copilot Studio agent inventory, so this is a question anyone can answer for their own estate in a couple of minutes.</p>
+
+  <div class="callout warn">
+    <strong>There is no migration between harnesses.</strong> An agent created on one harness cannot be transferred to another. Capabilities are optimized per harness and are not portable, so moving an agent means rebuilding it. Treat harness selection as a near-irreversible design decision rather than a setting you can revisit later.
+  </div>
+
+  <h2 id="assumptions">Four assumptions that break</h2>
+
+  <p>If your understanding of Copilot Studio billing was formed before August 2026, four things you reasonably believe are no longer universally true. Each one holds on the standard harness and fails on the GitHub Copilot harness.</p>
+
+  <div class="step">
+    <span class="num">1</span>
+    <div class="step-body">
+      <h3>Billing no longer starts at publish</h3>
+      <p>This is the reversal that catches teams out, and it is the single most important line on this page. On the standard harness, cost begins when the agent goes live. On the GitHub Copilot harness, <strong>credits are consumed from the moment you start building</strong>. Microsoft names three build-time activities explicitly: creating a solution with natural language, previewing and testing the agent, and generating and creating agent evaluations.</p>
+      <p>The implication for planning is direct. A team iterating heavily or running large evaluation suites is generating real consumption <strong>on an agent that may never ship</strong>. Build-phase spend has to be forecast as its own budget line, separate from runtime.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">2</span>
+    <div class="step-body">
+      <h3>The Microsoft 365 Copilot license inclusion does not carry over</h3>
+      <p>On the standard harness, employee-facing usage by a Microsoft 365 Copilot licensed user, running under that user's authenticated identity and within fair-use limits, is included at no charge. That rule is the commercial premise behind a great many Copilot Studio business cases.</p>
+      <p><strong>It does not apply to the GitHub Copilot harness.</strong> Usage is billed regardless of what the end user is licensed for. If an existing business case rests on license inclusion, moving that scenario to the GitHub Copilot harness invalidates the economics behind it.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">3</span>
+    <div class="step-body">
+      <h3>There is no per-event rate card to optimize against</h3>
+      <p>The familiar table of fixed prices per event does not describe this harness. Consumption is usage-based and measured against the work performed. Microsoft states that credits are charged for large language model tokens, for tools (including knowledge sources and MCP servers), <strong>and for the harness itself</strong>.</p>
+      <p>So the optimization technique of counting events and multiplying by a published rate does not transfer. You are modeling work performed, not events fired.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">4</span>
+    <div class="step-body">
+      <h3>Running out of credits stops your builders, not just your users</h3>
+      <p>Enforcement on the standard harness disables agents. On the GitHub Copilot harness it reaches further back into the lifecycle. When an environment has no credits available, end users stop getting responses <strong>and makers lose the ability to author with natural language, to preview and test, and to generate or create evaluations</strong>.</p>
+      <p>On a shared build environment this matters a great deal: one team exhausting the pool halts everyone's authoring, not only production traffic.</p>
+    </div>
+  </div>
+
+  <h2 id="cost">What a task costs</h2>
+
+  <p>Because there is no per-event rate card, Microsoft publishes <strong>planning bands</strong> instead. Runtime cost is driven by four inputs &mdash; the <strong>models</strong> selected for the task, the <strong>runtime</strong> orchestration coordinating the work across steps, the <strong>context</strong> retrieved to ground it, and the <strong>tools</strong> invoked to act on it. Those same four inputs are the right diagnostic frame when someone asks why a particular task cost what it did.</p>
+
+  <h3>Runtime, per agent task</h3>
+  <table>
+    <thead>
+      <tr><th>Band</th><th>Shape of the task</th><th>Estimated credits</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="pill ok">Light</span></td><td>Few sources, light reasoning, one output or fewer. Reading an email, verifying a workbook, posting a status summary.</td><td><strong>100 to 300</strong></td></tr>
+      <tr><td><span class="pill">Medium</span></td><td>Many sources across timeframes, structured reasoning, two or more outputs. Compiling an end-of-day operations summary and posting it.</td><td><strong>300 to 500</strong></td></tr>
+      <tr><td><span class="pill warn">Heavy</span></td><td>Broad aggregation, deep reasoning, many outputs. A multi-year compliance audit producing a full report distributed across several channels.</td><td><strong>Over 500</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Natural language authoring, per creation session</h3>
+  <table>
+    <thead>
+      <tr><th>Band</th><th>Conversation turns</th><th>Estimated credits</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="pill ok">Light</span></td><td>1 to 2</td><td><strong>1 to 20</strong></td></tr>
+      <tr><td><span class="pill">Medium</span></td><td>3 to 5</td><td><strong>21 to 60</strong></td></tr>
+      <tr><td><span class="pill warn">Heavy</span></td><td>6 or more</td><td><strong>61 or more</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Do this arithmetic before you start building.</strong> A light task at 100 to 300 credits is <strong>50 to 150 times</strong> the cost of a generative answer on the standard harness, which bills 2 credits. The capability difference is real and so is the cost difference. These are rough planning estimates published by Microsoft, not commitments &mdash; actual consumption varies with workflow and usage pattern, so treat them as the starting point for your own modeling rather than a quote.
+  </div>
+
+  <h2 id="unchanged">What did not change</h2>
+
+  <p>It is worth being precise about the blast radius here, because the change is narrower than the noise around it suggests.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="pill ok">Unchanged</span></h3>
+      <ul>
+        <li>Standard and Copilot chat harness billing is <strong>exactly as it was</strong>.</li>
+        <li>Existing agents keep running. Nothing is switched off.</li>
+        <li>New agents can still be created on the standard harness.</li>
+        <li>Microsoft 365 Copilot license inclusion continues for eligible employee-facing standard harness scenarios.</li>
+        <li>Copilot Credits remain the common currency across the platform.</li>
+        <li>Purchasing vehicles are unchanged: prepaid packs, pay-as-you-go, and prepurchase plans.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="pill warn">New, and opt-in</span></h3>
+      <ul>
+        <li>A third harness exists, selected per agent at creation.</li>
+        <li>That harness bills on usage with no license inclusion.</li>
+        <li>Build-time activity meters on that harness.</li>
+        <li>Enforcement on that harness also blocks authoring.</li>
+      </ul>
+      <p style="margin-top:12px;"><strong>There is no requirement to move anything.</strong> The standard harness remains available precisely so teams can keep the economics they already have. Frame this as a capability and cost trade you opt into, never as a migration mandate.</p>
+    </div>
+  </div>
+
+  <h2 id="enforcement">What happens when credits run out</h2>
+
+  <p>The two models also diverge on what enforcement looks like in practice.</p>
+
+  <table>
+    <thead>
+      <tr><th></th><th>Standard harness</th><th>GitHub Copilot harness</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Trigger</strong></td>
+        <td>Tenant reaches 125% of prepaid capacity.</td>
+        <td>Environment has no credits allocated or has consumed its allocation.</td>
+      </tr>
+      <tr>
+        <td><strong>Effect on end users</strong></td>
+        <td>Custom agents are disabled. In-flight conversations finish; subsequent attempts are rejected.</td>
+        <td>Agents stop responding to requests.</td>
+      </tr>
+      <tr>
+        <td><strong>Effect on makers</strong></td>
+        <td>None. Authoring continues.</td>
+        <td><strong>Authoring stops too</strong> &mdash; no natural language authoring, no preview or test, no generating evaluations.</td>
+      </tr>
+      <tr>
+        <td><strong>Grace</strong></td>
+        <td colspan="2">Microsoft permits a degree of overage as a buffer rather than cutting off instantly, so business processes are not blocked the moment a threshold is crossed.</td>
+      </tr>
+      <tr>
+        <td><strong>Recovery</strong></td>
+        <td colspan="2">Three options in both cases: reallocate capacity from elsewhere in the tenant, purchase more capacity, or attach a consumptive or pay-as-you-go meter.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Worth noting separately: <strong>agent flow enforcement behaves differently again</strong>. When prepaid capacity is fully consumed, new agent flow runs are blocked rather than the parent agent being disabled. Runs already in progress complete, the agent continues to serve non-flow interactions, and enforcement resets monthly when credits renew. Power Automate cloud flows are not affected at all &mdash; they bill on Power Automate licensing and sit outside Copilot Studio enforcement entirely.</p>
+
+  <h2 id="decide">How to decide, and what to do now</h2>
+
+  <h3>The working rule for harness selection</h3>
+
+  <div class="step">
+    <span class="num">1</span>
+    <div class="step-body">
+      <p>Customizing Microsoft 365 Copilot itself, so employees get grounded answers without leaving their everyday tools? <strong>Copilot chat harness.</strong></p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">2</span>
+    <div class="step-body">
+      <p>Deterministic, rules-driven, topic-based work where you want predictable answers? <strong>Standard harness.</strong> This is also the right answer whenever <strong>Microsoft 365 Copilot license inclusion is the commercial premise</strong> of the project.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">3</span>
+    <div class="step-body">
+      <p>Genuinely agentic work &mdash; many steps, many sources, ambiguous decisions, documents to create and reason over, recovery when a step fails? <strong>GitHub Copilot harness</strong>, and only once usage-based billing has been understood and accepted.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Capability alone should never select the harness.</strong> The billing model is a co-equal gate. The most expensive mistake available here is choosing the GitHub Copilot harness for its capabilities, discovering the cost profile afterwards, and finding there is no migration path back.
+  </div>
+
+  <h3>A short checklist</h3>
+  <ul>
+    <li><strong>Inventory what you have.</strong> Agents are labeled by harness in the Copilot Studio agent inventory. Know the split before you plan anything.</li>
+    <li><strong>Separate build spend from runtime spend</strong> in any forecast that includes the GitHub Copilot harness. They are genuinely different line items now.</li>
+    <li><strong>Allocate credits per environment</strong> rather than letting everything draw on an undifferentiated tenant pool. Environment design is the practical governance boundary.</li>
+    <li><strong>Set per-agent monthly limits</strong> in the Power Platform admin center under Licensing, Copilot Studio, Manage Agents, so a single agent cannot drain the pool before anyone notices.</li>
+    <li><strong>Watch shared build environments especially.</strong> Exhausting credits there stops authoring for every team using it.</li>
+    <li><strong>Check consumption where it is actually reported.</strong> Per-agent figures sit on the agent's Monitor page; environment and tenant rollups sit under Licensing, Copilot Studio in the Power Platform admin center.</li>
+    <li><strong>Re-verify the numbers before you commit to them.</strong> Rates, bands, thresholds, and inclusions in this space change frequently.</li>
+  </ul>
+
+  <h2 id="references">Reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview" target="_blank" rel="noopener">Choose a harness &mdash; how the three differ (Microsoft Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Overview of billing for agents powered by the GitHub Copilot harness (Microsoft Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits" target="_blank" rel="noopener">Enforcement policy for agents consuming Copilot Credits (Microsoft Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management &mdash; the standard harness rate card (Microsoft Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Licensing for agents powered by the standard harness (Microsoft Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-overview" target="_blank" rel="noopener">Agents overview &mdash; three harnesses, three approaches (Microsoft Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-overview</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credits Guide</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
+    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator &mdash; model credit volume before you build</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+  </div>
+
+  <p style="margin-top:20px;">Related pages on this site: <a href="copilot-studio-credit-optimization.html">Evaluating &amp; Optimizing Copilot Credit Consumption</a> for the four-phase measure, diagnose, optimize, govern playbook, and <a href="copilot-credit-consumption-diagnostic.html">Why Is a Non-Autonomous Agent Consuming Copilot Credits?</a> for the standard harness license-inclusion conditions in detail.</p>
+
+  <div class="feature-tags">
+    <span class="tag">Copilot Studio</span>
+    <span class="tag">Copilot Credits</span>
+    <span class="tag">GitHub Copilot harness</span>
+    <span class="tag">Usage-based billing</span>
+    <span class="tag">Licensing</span>
+    <span class="tag">Governance</span>
+    <span class="tag">Printable</span>
+  </div>
+
+  <footer class="foot">
+    Compiled from public Microsoft Learn documentation, the Microsoft Copilot Studio Licensing Guide, and the Copilot Credits Guide, verified August 2026. The GitHub Copilot harness became generally available on August 3, 2026. Its usage-based pricing is not expressed as a per-event rate card, and the credit bands shown here are rough planning estimates published by Microsoft rather than commitments, so build-phase and runtime consumption should be modeled against your own workload. Copilot Credit rates, license inclusion conditions, enforcement thresholds, prepaid pack sizes, and pay-as-you-go meters change frequently &mdash; always confirm current figures against the Copilot Credits Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. This page is guidance, not a contract. Curated by Joel Cade &middot; hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
