@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Builder to Copilot Credits Sizing Calculator</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+  scroll-margin-top: 64px;
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.alt { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.hot { background: rgba(220,38,38,0.10); color: var(--cp-danger); border-color: var(--cp-danger); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+.num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; text-align: right; }
+th.num-cell { text-align: right; }
+.cost-lo { color: var(--cp-success); }
+.cost-hi { color: var(--cp-danger); }
+.cost-flat { color: var(--cp-text-muted); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.math {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* ---- calculator specifics ---- */
+.assumptions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 760px) { .assumptions { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--cp-text-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+.field .hint { font-size: 12px; color: var(--cp-text-soft); font-weight: 400; text-transform: none; letter-spacing: 0; }
+input[type="number"] {
+  font-family: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--cp-border-strong);
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  width: 100%;
+  text-align: right;
+}
+input[type="number"]:focus { outline: 2px solid var(--cp-accent); outline-offset: 1px; border-color: var(--cp-accent); }
+input.vol { max-width: 150px; }
+td.input-cell { text-align: right; white-space: nowrap; }
+
+.table-scroll { overflow-x: auto; }
+table.calc { font-size: 13.5px; }
+table.calc th, table.calc td { padding: 7px 9px; }
+table.calc tbody tr.zero td { opacity: 0.45; }
+table.calc tfoot td { font-weight: 700; background: var(--cp-accent-soft); border-top: 2px solid var(--cp-accent); }
+.cap-name { font-weight: 600; }
+.cap-unit { display: block; font-size: 11.5px; color: var(--cp-text-soft); font-weight: 400; }
+
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 14px 0; }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .kpis { grid-template-columns: 1fr; } }
+.kpi {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+.kpi .k-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cp-text-soft); font-weight: 600; margin: 0 0 4px; }
+.kpi .k-value { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; line-height: 1.2; }
+.kpi .k-note { font-size: 12px; color: var(--cp-text-soft); margin: 4px 0 0; }
+
+.btnrow { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 0; }
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+button.btn.ghost { background: transparent; color: var(--cp-accent); }
+button.btn.ghost:hover { background: var(--cp-accent-soft); }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+.toc { padding: 16px 20px 18px; }
+.toc h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 0 0 10px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.toc ol { list-style: none; counter-reset: toc; padding-left: 0; margin: 0; columns: 2; column-gap: 28px; }
+@media (max-width: 680px) { .toc ol { columns: 1; } }
+.toc li {
+  counter-increment: toc;
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 26px;
+  position: relative;
+  font-size: 14px;
+}
+.toc li::before {
+  content: counter(toc);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toc a { color: var(--cp-text); }
+.toc a:hover { color: var(--cp-link); text-decoration: underline; }
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 26px; position: relative; margin: 7px 0; }
+.checklist li::before {
+  content: "\2610";
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+  color: var(--cp-accent);
+}
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink, .btnrow { display: none !important; }
+  .card, .kpi { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .math, .kpis { break-inside: avoid; }
+  input[type="number"] { border: none; background: transparent; padding: 0; text-align: right; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Power Platform &middot; Licensing Calculator</p>
+    <h1>AI Builder to Copilot Credits Sizing Calculator</h1>
+    <p class="sub">Model what an existing AI Builder workload costs once it is metered in Copilot Credits &mdash; per capability, with the real published rates. Compiled from public Microsoft documentation &middot; August 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> there is no conversion rate. Microsoft does not exchange AI Builder credits for Copilot Credits, and no entitlement transfers from one currency into the other. The two currencies price the same capabilities at independently published rates, so the only meaningful question is what a given workload costs in each. That is what this page calculates.
+  </div>
+
+  <nav class="card toc" aria-label="Table of contents">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#how">How to use it</a></li>
+      <li><a href="#assumptions">Price assumptions</a></li>
+      <li><a href="#calculator">The calculator</a></li>
+      <li><a href="#reading">Reading the result</a></li>
+      <li><a href="#gotchas">Gotchas that change the answer</a></li>
+      <li><a href="#checklist">Discovery checklist</a></li>
+      <li><a href="#references">Reference materials</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="how">How to use it</h2>
+
+  <p>Everything on this page runs in the browser. Nothing is uploaded, stored, or transmitted, so it is safe to run against real consumption figures.</p>
+
+  <div class="step-list">
+    <p><strong>1. Pull the real numbers.</strong> In the Power Automate portal, open <em>AI Builder &rarr; Activity</em> and filter to a representative month. That page now reports consumption in both currencies, broken down by capability, which is exactly the shape this calculator expects.</p>
+    <p><strong>2. Enter monthly volume per capability</strong> in the units the rate card publishes &mdash; thousands of tokens for prompts, pages for document work, thousands of characters for text analysis, images for vision. Leave a row at zero if it is not in use.</p>
+    <p><strong>3. Check the price assumptions</strong> against the actual contract. The defaults reflect public list pricing, and a negotiated discount moves the answer materially.</p>
+    <p><strong>4. Read the multiplier column, not just the total.</strong> The total tells you the size of the problem. The multiplier tells you which workload caused it.</p>
+  </div>
+
+  <h2 id="assumptions">Price assumptions</h2>
+
+  <p>Both currencies are converted to money before comparison, because a raw credit-to-credit ratio is misleading &mdash; a credit is not the same size in each currency. Adjust these to match the contract in front of you.</p>
+
+  <div class="card">
+    <div class="assumptions">
+      <div class="field">
+        <label for="aibPrice">AI Builder credit price (USD)</label>
+        <input type="number" id="aibPrice" value="0.0005" min="0" step="0.0001" />
+        <span class="hint">List: the tier 1 capacity add-on is roughly $500 per month for 1,000,000 credits, which works out to $0.0005 per credit.</span>
+      </div>
+      <div class="field">
+        <label for="ccPrice">Copilot Credit price (USD)</label>
+        <input type="number" id="ccPrice" value="0.01" min="0" step="0.001" />
+        <span class="hint">List: pay-as-you-go meters Copilot Credits at about $0.01 each. Prepaid credit packs price lower per credit.</span>
+      </div>
+      <div class="field">
+        <label for="balance">Remaining AI Builder credit balance</label>
+        <input type="number" id="balance" value="0" min="0" step="1000" />
+        <span class="hint">Optional. Used to estimate runway. Enter 0 to skip.</span>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="btn ghost" id="resetBtn" type="button">Reset to defaults</button>
+      <button class="btn ghost" id="clearBtn" type="button">Clear all volumes</button>
+      <button class="btn ghost" id="copyBtn" type="button">Copy summary</button>
+    </div>
+  </div>
+
+  <h2 id="calculator">The calculator</h2>
+
+  <div class="kpis">
+    <div class="kpi">
+      <p class="k-label">Cost today (AI Builder)</p>
+      <p class="k-value" id="kpiAibCost">$0.00</p>
+      <p class="k-note" id="kpiAibCredits">0 credits per month</p>
+    </div>
+    <div class="kpi">
+      <p class="k-label">Cost in Copilot Credits</p>
+      <p class="k-value" id="kpiCcCost">$0.00</p>
+      <p class="k-note" id="kpiCcCredits">0 credits per month</p>
+    </div>
+    <div class="kpi">
+      <p class="k-label">Monthly delta</p>
+      <p class="k-value" id="kpiDelta">$0.00</p>
+      <p class="k-note" id="kpiDeltaPct">Enter volumes to model the change</p>
+    </div>
+    <div class="kpi">
+      <p class="k-label">Blended multiplier</p>
+      <p class="k-value" id="kpiMult">&mdash;</p>
+      <p class="k-note" id="kpiRunway">Runway not calculated</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-scroll">
+      <table class="calc" id="calcTable">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th class="num-cell">Monthly volume</th>
+            <th class="num-cell">AI Builder credits</th>
+            <th class="num-cell">Copilot Credits</th>
+            <th class="num-cell">Cost today</th>
+            <th class="num-cell">Cost after</th>
+            <th class="num-cell">Multiplier</th>
+          </tr>
+        </thead>
+        <tbody id="calcBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>Total</td>
+            <td class="num-cell">&mdash;</td>
+            <td class="num-cell" id="totAib">0</td>
+            <td class="num-cell" id="totCc">0</td>
+            <td class="num-cell" id="totAibCost">$0.00</td>
+            <td class="num-cell" id="totCcCost">$0.00</td>
+            <td class="num-cell" id="totMult">&mdash;</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--cp-text-soft);margin:10px 0 0;">Rates are the published per-unit rates for each currency. The AI Builder rate for prompts assumes a mixed input and output token profile, which is how Microsoft publishes it; a workload that is unusually output-heavy will consume more than the table implies.</p>
+  </div>
+
+  <h2 id="reading">Reading the result</h2>
+
+  <p>The multiplier is the whole story. At list pricing a Copilot Credit costs roughly twenty times what an AI Builder credit costs, so a capability only holds its value if its rate ratio is also about twenty to one. Where the ratio is tighter than that, the same work costs more.</p>
+
+  <div class="math">multiplier = (Copilot Credit rate x Copilot Credit price)
+             / (AI Builder rate x AI Builder credit price)
+
+below 1.0  cheaper after the move
+about 1.0  cost neutral
+above 1.0  more expensive after the move</div>
+
+  <p>At list prices the capabilities sort into three clear groups.</p>
+
+  <table>
+    <thead>
+      <tr><th>Group</th><th>Capabilities</th><th class="num-cell">Multiplier</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cost-lo">Improves or holds</td>
+        <td>Text recognition (OCR), simple text analysis</td>
+        <td class="num-cell cost-lo">0.7x to 1.0x</td>
+      </tr>
+      <tr>
+        <td class="cost-flat">Modest increase</td>
+        <td>Prompts on all three model tiers, text translation, advanced text analysis, custom document processing</td>
+        <td class="num-cell">1.1x to 1.6x</td>
+      </tr>
+      <tr>
+        <td class="cost-hi">Materially worse</td>
+        <td>Receipt, invoice, identity and contract processing (5x); object detection (20x)</td>
+        <td class="num-cell cost-hi">5x to 20x</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Object detection is the outlier that decides most business cases.</strong> It is the one capability rated identically in both currencies, at 8 credits per image. Because the currencies are not priced identically, an identical rate means a twenty times cost increase at list. Any workload built on high-volume image classification needs to be examined before, not after, the pricing conversation.
+  </div>
+
+  <h2 id="gotchas">Gotchas that change the answer</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill hot">Timing</span>
+      <h3>Seeded credits stop on November 1, 2026</h3>
+      <p>Credits that arrive seeded with Power Apps, Power Automate or Dynamics 365 licensing simply end. There is no transition grant and no replacement allocation. Purchased capacity add-ons continue to the end of their term, but they cannot be renewed or expanded after that date, so an add-on is a runway extension rather than a long-term answer.</p>
+    </div>
+    <div class="card">
+      <span class="pill alt">Scope</span>
+      <h3>The two currencies are not interchangeable</h3>
+      <p>Inside Power Apps and Power Automate, an environment draws down AI Builder credits first and falls back to Copilot Credits. Inside Copilot Studio, including agent flows, only Copilot Credits are accepted. An existing AI Builder balance therefore does nothing at all for agent work, which is usually the thing a customer is planning to build next.</p>
+    </div>
+    <div class="card">
+      <span class="pill alt">Operations</span>
+      <h3>Consumption reporting lags by five days or more</h3>
+      <p>Usage is computed daily but can be delayed several days. During that window the platform believes there is headroom and keeps accepting work. When the calculation catches up, overage is not billed &mdash; runs are blocked instead. This is an availability risk rather than a cost risk, and it deserves a monitoring threshold well below 100 percent of entitlement.</p>
+    </div>
+    <div class="card">
+      <span class="pill alt">Billing</span>
+      <h3>Connector metering is additive</h3>
+      <p>Every AI Builder action is a premium connector action. Under pay-as-you-go the flow run is metered on its own meter in addition to the credits the AI capability consumes. Modeling only the credit line understates the true cost of a high-frequency flow.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Lever</span>
+      <h3>Bring your own model changes the math</h3>
+      <p>When a text or generative AI tool runs against a customer-supplied model, no Copilot Credits are charged for the processing itself; only the surrounding agent action is metered, and token cost moves to the model host. For a high-volume prompt workload this is the single largest available lever, and it is worth modeling as a separate scenario.</p>
+    </div>
+    <div class="card">
+      <span class="pill alt">Volume</span>
+      <h3>Document processing is charged flat per page</h3>
+      <p>Content processing bills the same 8 credits per page or image regardless of how much content the page holds. A fifty page contract is four hundred credits. Workloads that process long documents should be sized on page count, never on document count.</p>
+    </div>
+  </div>
+
+  <h2 id="checklist">Discovery checklist</h2>
+
+  <p>Run this before quoting any number. The first item alone often changes the recommendation entirely.</p>
+
+  <ul class="checklist">
+    <li>Establish where the existing credits came from. Seeded entitlement and a purchased add-on have very different timelines.</li>
+    <li>Export a representative month from the AI Builder Activity page, broken down by capability rather than in total.</li>
+    <li>Confirm which capabilities are genuinely in production against which were trials that never retired.</li>
+    <li>Identify any object detection or prebuilt document processing usage first, since those dominate the delta.</li>
+    <li>Check whether the workload will be rebuilt as an agent, because that removes the AI Builder option entirely.</li>
+    <li>Confirm actual contracted pricing rather than list, in both currencies.</li>
+    <li>Set a consumption alert well below the entitlement ceiling to absorb the reporting lag.</li>
+    <li>Decide on add-on renewal timing ahead of the November 1, 2026 boundary.</li>
+  </ul>
+
+  <h2 id="references">Reference materials</h2>
+
+  <div class="card">
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/ai-builder/administer-licensing">AI Builder licensing and the capability rate table</a><br />
+      <span class="u">https://learn.microsoft.com/en-us/ai-builder/administer-licensing</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/ai-builder/endofaibcredits">End of AI Builder credits &mdash; frequently asked questions</a><br />
+      <span class="u">https://learn.microsoft.com/en-us/ai-builder/endofaibcredits</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/ai-builder/message-management">AI Builder consumption and message management</a><br />
+      <span class="u">https://learn.microsoft.com/en-us/ai-builder/message-management</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing">Microsoft Copilot Studio billing and licensing</a><br />
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing</span>
+    </p>
+    <div class="feature-tags">
+      <span class="tag">AI Builder</span>
+      <span class="tag">Copilot Credits</span>
+      <span class="tag">Licensing</span>
+      <span class="tag">Cost modeling</span>
+      <span class="tag">Calculator</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Rates and pricing compiled from public Microsoft documentation and are subject to change; this is guidance, not a contract. Confirm current rates and contracted pricing before committing to a number.
+  </footer>
+</div>
+
+<script>
+(() => {
+  const RATES = [
+    { id: "promptBasic",   name: "Prompt / generative AI tool, basic model",     unit: "per 1,000 tokens",      aib: 1.2, cc: 0.1 },
+    { id: "promptStd",     name: "Prompt / generative AI tool, standard model",  unit: "per 1,000 tokens",      aib: 24,  cc: 1.5 },
+    { id: "promptPrem",    name: "Prompt / generative AI tool, premium model",   unit: "per 1,000 tokens",      aib: 182, cc: 10 },
+    { id: "ocr",           name: "Text recognition (OCR)",                       unit: "per page",              aib: 3,   cc: 0.1 },
+    { id: "textSimple",    name: "Simple text analysis",                         unit: "per 1,000 characters",  aib: 2,   cc: 0.1 },
+    { id: "textAdvanced",  name: "Advanced text analysis and entity extraction", unit: "per 1,000 characters",  aib: 20,  cc: 1.5 },
+    { id: "translate",     name: "Text translation",                             unit: "per 1,000 characters",  aib: 22,  cc: 1.5 },
+    { id: "docCustom",     name: "Custom document processing",                   unit: "per page",              aib: 100, cc: 8 },
+    { id: "docPrebuilt",   name: "Receipt, invoice and identity document",       unit: "per page",              aib: 32,  cc: 8 },
+    { id: "docContract",   name: "Contract, health card, image description",     unit: "per page or image",     aib: 32,  cc: 8 },
+    { id: "objectDetect",  name: "Object detection",                             unit: "per image",             aib: 8,   cc: 8 }
+  ];
+
+  const DEFAULT_AIB_PRICE = 0.0005;
+  const DEFAULT_CC_PRICE = 0.01;
+
+  const money = (n) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+  const num = (n) =>
+    n.toLocaleString("en-US", { maximumFractionDigits: n < 100 ? 1 : 0 });
+
+  const body = document.getElementById("calcBody");
+  const aibPriceEl = document.getElementById("aibPrice");
+  const ccPriceEl = document.getElementById("ccPrice");
+  const balanceEl = document.getElementById("balance");
+
+  RATES.forEach((r) => {
+    const tr = document.createElement("tr");
+    tr.dataset.id = r.id;
+    tr.innerHTML =
+      '<td><span class="cap-name">' + r.name + '</span>' +
+        '<span class="cap-unit">' + r.unit + " &middot; " + r.aib + " AIB / " + r.cc + " CC</span></td>" +
+      '<td class="input-cell"><input class="vol" type="number" min="0" step="1" value="0" ' +
+        'id="vol-' + r.id + '" aria-label="Monthly volume for ' + r.name + '" /></td>' +
+      '<td class="num-cell" data-cell="aib">0</td>' +
+      '<td class="num-cell" data-cell="cc">0</td>' +
+      '<td class="num-cell" data-cell="aibCost">$0.00</td>' +
+      '<td class="num-cell" data-cell="ccCost">$0.00</td>' +
+      '<td class="num-cell" data-cell="mult">&mdash;</td>';
+    body.appendChild(tr);
+  });
+
+  const val = (el) => {
+    const n = parseFloat(el.value);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  };
+
+  function multClass(m) {
+    if (m < 0.98) return "cost-lo";
+    if (m <= 1.02) return "cost-flat";
+    return "cost-hi";
+  }
+
+  let last = null;
+
+  function recalc() {
+    const aibPrice = val(aibPriceEl);
+    const ccPrice = val(ccPriceEl);
+    const balance = val(balanceEl);
+
+    let totAib = 0, totCc = 0, totAibCost = 0, totCcCost = 0;
+    const lines = [];
+
+    RATES.forEach((r) => {
+      const tr = body.querySelector('tr[data-id="' + r.id + '"]');
+      const vol = val(document.getElementById("vol-" + r.id));
+      const aib = vol * r.aib;
+      const cc = vol * r.cc;
+      const aibCost = aib * aibPrice;
+      const ccCost = cc * ccPrice;
+      const mult = aibCost > 0 ? ccCost / aibCost : null;
+
+      tr.classList.toggle("zero", vol === 0);
+      tr.querySelector('[data-cell="aib"]').textContent = num(aib);
+      tr.querySelector('[data-cell="cc"]').textContent = num(cc);
+      tr.querySelector('[data-cell="aibCost"]').textContent = money(aibCost);
+      tr.querySelector('[data-cell="ccCost"]').textContent = money(ccCost);
+
+      const multCell = tr.querySelector('[data-cell="mult"]');
+      if (mult === null) {
+        multCell.textContent = "\u2014";
+        multCell.className = "num-cell";
+      } else {
+        multCell.textContent = mult.toFixed(2) + "x";
+        multCell.className = "num-cell " + multClass(mult);
+      }
+
+      totAib += aib;
+      totCc += cc;
+      totAibCost += aibCost;
+      totCcCost += ccCost;
+      if (vol > 0) lines.push({ name: r.name, vol, aib, cc, aibCost, ccCost, mult });
+    });
+
+    document.getElementById("totAib").textContent = num(totAib);
+    document.getElementById("totCc").textContent = num(totCc);
+    document.getElementById("totAibCost").textContent = money(totAibCost);
+    document.getElementById("totCcCost").textContent = money(totCcCost);
+
+    const blended = totAibCost > 0 ? totCcCost / totAibCost : null;
+    const totMultEl = document.getElementById("totMult");
+    totMultEl.textContent = blended === null ? "\u2014" : blended.toFixed(2) + "x";
+    totMultEl.className = "num-cell" + (blended === null ? "" : " " + multClass(blended));
+
+    document.getElementById("kpiAibCost").textContent = money(totAibCost);
+    document.getElementById("kpiAibCredits").textContent = num(totAib) + " AI Builder credits per month";
+    document.getElementById("kpiCcCost").textContent = money(totCcCost);
+    document.getElementById("kpiCcCredits").textContent = num(totCc) + " Copilot Credits per month";
+
+    const delta = totCcCost - totAibCost;
+    const deltaEl = document.getElementById("kpiDelta");
+    deltaEl.textContent = (delta >= 0 ? "+" : "-") + money(Math.abs(delta)).replace("$", "$");
+    deltaEl.className = "k-value " + (delta > 0.005 ? "cost-hi" : delta < -0.005 ? "cost-lo" : "");
+
+    const pctEl = document.getElementById("kpiDeltaPct");
+    if (totAibCost > 0) {
+      const pct = (delta / totAibCost) * 100;
+      pctEl.textContent =
+        (pct >= 0 ? "An increase of " : "A reduction of ") +
+        Math.abs(pct).toFixed(0) + " percent, or " +
+        money(Math.abs(delta) * 12) + " per year";
+    } else {
+      pctEl.textContent = "Enter volumes to model the change";
+    }
+
+    const multEl = document.getElementById("kpiMult");
+    multEl.textContent = blended === null ? "\u2014" : blended.toFixed(2) + "x";
+    multEl.className = "k-value" + (blended === null ? "" : " " + multClass(blended));
+
+    const runwayEl = document.getElementById("kpiRunway");
+    if (balance > 0 && totAib > 0) {
+      const months = balance / totAib;
+      runwayEl.textContent =
+        "Balance lasts about " + months.toFixed(1) + (months === 1 ? " month" : " months") + " at this rate";
+    } else if (balance > 0) {
+      runwayEl.textContent = "Enter volumes to estimate runway";
+    } else {
+      runwayEl.textContent = "Runway not calculated";
+    }
+
+    last = { lines, totAib, totCc, totAibCost, totCcCost, blended, delta, aibPrice, ccPrice, balance };
+  }
+
+  function buildSummary() {
+    if (!last || last.lines.length === 0) return "No volumes entered.";
+    const L = [];
+    L.push("AI Builder to Copilot Credits sizing summary");
+    L.push("Assumptions: AI Builder credit " + money(last.aibPrice) + ", Copilot Credit " + money(last.ccPrice));
+    L.push("");
+    last.lines.forEach((l) => {
+      L.push(
+        l.name + ": " + num(l.vol) + " units | " +
+        num(l.aib) + " AIB (" + money(l.aibCost) + ") -> " +
+        num(l.cc) + " CC (" + money(l.ccCost) + ") | " +
+        (l.mult === null ? "n/a" : l.mult.toFixed(2) + "x")
+      );
+    });
+    L.push("");
+    L.push("Monthly total today: " + money(last.totAibCost) + " (" + num(last.totAib) + " AI Builder credits)");
+    L.push("Monthly total after: " + money(last.totCcCost) + " (" + num(last.totCc) + " Copilot Credits)");
+    L.push("Monthly delta: " + (last.delta >= 0 ? "+" : "-") + money(Math.abs(last.delta)) +
+           " | Annual delta: " + (last.delta >= 0 ? "+" : "-") + money(Math.abs(last.delta) * 12));
+    if (last.blended !== null) L.push("Blended multiplier: " + last.blended.toFixed(2) + "x");
+    if (last.balance > 0 && last.totAib > 0) {
+      L.push("Runway on remaining balance: about " + (last.balance / last.totAib).toFixed(1) + " months");
+    }
+    L.push("");
+    L.push("Rates from public Microsoft documentation, August 2026. Guidance only, not a contract.");
+    return L.join("\n");
+  }
+
+  document.addEventListener("input", (e) => {
+    if (e.target.matches("input[type=number]")) recalc();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    aibPriceEl.value = DEFAULT_AIB_PRICE;
+    ccPriceEl.value = DEFAULT_CC_PRICE;
+    balanceEl.value = 0;
+    RATES.forEach((r) => { document.getElementById("vol-" + r.id).value = 0; });
+    recalc();
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    RATES.forEach((r) => { document.getElementById("vol-" + r.id).value = 0; });
+    recalc();
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    const text = buildSummary();
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = "Copied";
+      setTimeout(() => { btn.textContent = original; }, 1600);
+    };
+    try {
+      await navigator.clipboard.writeText(text);
+      done();
+    } catch (err) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e2) { window.prompt("Copy the summary below", text); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  recalc();
+})();
+</script>
+</body>
+</html>
