@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Copilot Studio and Microsoft Foundry &mdash; How the Two Halves Fit Together</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 28px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 38px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 10px 0; }
+
+a { color: var(--cp-link); }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.card h3 { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.muted { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.warn { background: rgba(245,158,11,0.10); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin: 2px 0 4px; }
+.step .body p { margin: 4px 0; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .grid3, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Copilot Studio &middot; Microsoft Foundry &middot; Architecture</p>
+    <h1>Copilot Studio and Microsoft Foundry: How the Two Halves Fit Together</h1>
+    <p class="sub">The five supported seams between the low-code agent platform and the pro-code AI platform, what each one is actually for, and how to choose between them without rebuilding your agent. &middot; August 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Copilot Studio and Microsoft Foundry are not two competing ways to build the same agent. Copilot Studio is the <strong>experience, orchestration and governance layer</strong> where an agent meets its users. Foundry is the <strong>model, retrieval, and evaluation layer</strong> underneath it. The strongest architectures use both, and there are five documented seams for wiring them together. Picking the right seam is the whole design decision.
+  </div>
+
+  <h2>A note on naming</h2>
+
+  <p>Microsoft documentation is mid-rename. Newer articles say <strong>Microsoft Foundry</strong>; older articles, product surfaces, and most existing customer material say <strong>Azure AI Foundry</strong>. They are the same platform. In this page, "Foundry" means both. Where a feature name still carries the old branding in the product UI &mdash; for example the <em>Azure AI Foundry models for prompts</em> feature inside Copilot Studio &mdash; the original name is kept so it is findable.</p>
+
+  <p>Note also that some of the connection surfaces described here are in <strong>preview</strong>. Preview features change. Confirm current state in the linked documentation before committing an architecture to a customer.</p>
+
+  <h2>Two layers, not two products</h2>
+
+  <p>The most common architectural mistake is to treat the choice as "Copilot Studio <em>or</em> Foundry" and then argue about which one is more capable. That framing produces bad designs in both directions: over-engineered Foundry builds that reinvent channel plumbing and authentication that Copilot Studio already ships, and over-stretched Copilot Studio builds that hit a genuine model, retrieval, or evaluation ceiling and have nowhere to go.</p>
+
+  <p>A cleaner frame is to ask which layer a given requirement belongs to.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Concern</th>
+        <th>Copilot Studio is the natural home</th>
+        <th>Foundry is the natural home</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Where users meet the agent</td>
+        <td>Microsoft 365 Copilot, Teams, web chat, voice, custom channels, Power Platform surfaces</td>
+        <td>Not its job. Foundry exposes endpoints, not end-user channels.</td>
+      </tr>
+      <tr>
+        <td>Identity and permissions</td>
+        <td>User authentication, connectors that respect the signed-in user, Dataverse security</td>
+        <td>Service-level identity, managed identity, key and certificate custody</td>
+      </tr>
+      <tr>
+        <td>Model selection</td>
+        <td>Platform-managed default models, good enough for most agents</td>
+        <td>Explicit choice from a large model catalog, versioning, capacity, fine-tuning</td>
+      </tr>
+      <tr>
+        <td>Retrieval and grounding</td>
+        <td>Built-in knowledge sources over SharePoint, Dataverse, files, public sites</td>
+        <td>Purpose-built indexes, hybrid and agentic retrieval, tuned relevance</td>
+      </tr>
+      <tr>
+        <td>Business logic</td>
+        <td>Topics, agent flows, connectors, human-in-the-loop approval steps</td>
+        <td>Custom code, arbitrary SDK logic, non-Microsoft frameworks</td>
+      </tr>
+      <tr>
+        <td>Evaluation and tracing</td>
+        <td>In-product testing, analytics, activity trace for a single conversation</td>
+        <td>Systematic evaluation runs, trace ingestion, telemetry across many agents</td>
+      </tr>
+      <tr>
+        <td>Lifecycle and shipping</td>
+        <td>Solutions, environments, pipelines, maker-accessible change control</td>
+        <td>Code repositories, deployment pipelines, engineering-owned release process</td>
+      </tr>
+      <tr>
+        <td>Metering</td>
+        <td>Copilot Credits, with a billing policy on the environment</td>
+        <td>Azure consumption against a subscription</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Read that table as a routing rule rather than a scorecard. A requirement that sits firmly in the right-hand column does not mean the agent belongs in Foundry. It means <em>that one capability</em> should come from Foundry and be attached to a Copilot Studio agent through one of the seams below.</p>
+
+  <h2>The five seams</h2>
+
+  <p>These are the documented, supported integration points as of August 2026. They are listed roughly in order of how invasive they are, from "change a dropdown" to "instrument your whole estate."</p>
+
+  <div class="step">
+    <span class="num">1</span>
+    <div class="body">
+      <h3>Foundry models inside Copilot Studio prompts</h3>
+      <p>Also called <em>bring your own model</em>. The <strong>Azure AI Foundry models for prompts</strong> feature lets a prompt inside Copilot Studio &mdash; and also inside Power Apps and Power Automate &mdash; run against a model you choose from the Foundry model catalog rather than the platform default. Microsoft cites frontier OpenAI models, Llama, DeepSeek, and more than 1,800 models in the catalog.</p>
+      <p><strong>Use it when</strong> the default model is the specific thing failing you: you need a reasoning model for a hard extraction task, a small cheap model for a high-volume classification step, an open-weight model for a licensing or sovereignty reason, or a domain-specific model that simply knows the vocabulary better.</p>
+      <p><strong>Do not use it</strong> as a first move when an agent gives poor answers. Most poor answers are a retrieval or instruction problem, not a model problem, and swapping the model hides the real defect.</p>
+      <div class="feature-tags"><span class="tag">Lowest effort</span><span class="tag">No Azure plumbing for the maker</span><span class="tag">Prompt-scoped</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">2</span>
+    <div class="body">
+      <h3>Foundry IQ knowledge bases as a tool</h3>
+      <p>A Foundry IQ <strong>knowledge base</strong> bundles one or more enterprise data sources with retrieval and relevance settings into a single reusable asset built in Foundry. Copilot Studio connects to it as a <strong>tool</strong> on the agent's Build tab, authenticating with an API key, a client certificate, a service principal, or integrated Microsoft Entra ID. Retrieval then happens in Foundry and the returned items are handed back for the agent to compose its answer &mdash; visible as a distinct retrieval step in the activity trace.</p>
+      <p><strong>Use it when</strong> grounding quality is the ceiling: built-in knowledge sources answer inconsistently, the corpus needs chunking or relevance tuning you cannot express in Copilot Studio, or several agents must share one governed, centrally maintained retrieval asset instead of each configuring their own sources.</p>
+      <p><strong>Practical constraints:</strong> an agent can hold only one Foundry IQ connection, and tuning belongs in the knowledge base itself, not in Copilot Studio. If results are wrong, fix the knowledge base with its owner rather than adding instructions to compensate.</p>
+      <div class="feature-tags"><span class="tag">Shared retrieval asset</span><span class="tag">One connection per agent</span><span class="tag">Tune in Foundry</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">3</span>
+    <div class="body">
+      <h3>A Foundry agent as a connected agent <span class="pill warn">Preview</span></h3>
+      <p>An agent built in Foundry Agent Service can be attached to a Copilot Studio agent as a <strong>connected agent</strong>. From the Agents page you choose <em>Add an agent</em>, then <em>Connect to an external agent</em>, then Microsoft Foundry. The connection needs the <strong>Foundry project endpoint URL</strong>, and the connected agent needs the <strong>agent ID</strong> plus a name and description. The parent agent uses that description to decide when to delegate, so the description is functional configuration, not documentation.</p>
+      <p><strong>Use it when</strong> real engineering work already exists in Foundry &mdash; custom code, a specialist reasoning loop, an SDK-based pipeline &mdash; and the requirement is to make it reachable from Microsoft 365 and Teams without porting it. Copilot Studio supplies the channel, the identity, and the orchestration; Foundry keeps the logic.</p>
+      <p><strong>Known constraint:</strong> the target agent must have been created in the current Foundry portal. Connecting to an agent created in the previous portal fails with a <code>404 &mdash; Version not found</code> error, which is a portal-generation problem rather than a permissions problem and is easy to misdiagnose.</p>
+      <div class="feature-tags"><span class="tag">Delegation</span><span class="tag">Description drives routing</span><span class="tag">New portal only</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">4</span>
+    <div class="body">
+      <h3>Agents over the A2A protocol</h3>
+      <p>Copilot Studio can also connect to any agent that speaks the open <strong>Agent2Agent (A2A)</strong> protocol, regardless of framework or host. You add an agent, choose A2A, and supply a publicly reachable endpoint URL plus the authentication the endpoint requires.</p>
+      <p><strong>Use it when</strong> the specialist agent is not in Foundry at all &mdash; a partner-built agent, a service in another cloud, a team's own framework &mdash; and you want one interoperable contract rather than a bespoke connector.</p>
+      <p><strong>Watch the exposure.</strong> Microsoft's own guidance is explicit that development tunnels are for local demonstration only. Production A2A endpoints belong behind a properly authenticated web app or containerized service. An unauthenticated tunnel that works beautifully in a demo is a genuine security finding if it survives into production.</p>
+      <div class="feature-tags"><span class="tag">Open standard</span><span class="tag">Framework-agnostic</span><span class="tag">Authenticate in production</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="num">5</span>
+    <div class="body">
+      <h3>Registering agents in Foundry for observability and evaluation <span class="pill warn">Preview</span></h3>
+      <p>The traffic can also flow the other way. Foundry supports registering <strong>external agents</strong> so their traces ingest into Application Insights and surface in the Foundry portal alongside natively hosted agents, typically within a few minutes. That gives you evaluation runs and tracing across agents that were not built in Foundry.</p>
+      <p><strong>Use it when</strong> the estate has grown past what per-agent analytics can answer: you need one place to compare quality across agents, to trace a multi-agent request end to end, or to run repeatable evaluations as part of a release gate rather than eyeballing test conversations.</p>
+      <p>This is the seam most often skipped and most often regretted. It is also the one that turns a collection of individual agents into something an operations team can actually run.</p>
+      <div class="feature-tags"><span class="tag">Tracing</span><span class="tag">Evaluation</span><span class="tag">Estate-level view</span></div>
+    </div>
+  </div>
+
+  <h3>The shared tool plane underneath all five</h3>
+
+  <p>Both platforms treat <strong>Model Context Protocol (MCP)</strong> servers as tools. An MCP server added to a Copilot Studio agent exposes its tools on the agent's Tools tab, and Foundry agents consume MCP servers as well. That matters architecturally: a capability published once as an MCP server is reachable from either platform, so the tool layer does not have to be rebuilt when an agent moves or when a second agent needs the same capability. Where a capability is genuinely shared, publishing it as an MCP server is usually a better investment than wiring it separately into each agent.</p>
+
+  <h2>Choosing a seam</h2>
+
+  <p>Most design conversations resolve quickly once the symptom is named precisely.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>The symptom</th>
+        <th>The seam</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Answers are fluent but factually wrong or inconsistent</td>
+        <td>Foundry IQ knowledge base (seam 2)</td>
+        <td>This is almost always retrieval, not reasoning. Fix grounding before touching the model.</td>
+      </tr>
+      <tr>
+        <td>The task itself is genuinely hard reasoning, extraction, or classification</td>
+        <td>Foundry models in prompts (seam 1)</td>
+        <td>Model capability is the real constraint, and it is prompt-scoped so the blast radius is small.</td>
+      </tr>
+      <tr>
+        <td>Working code already exists and a rewrite is not on the table</td>
+        <td>Connected Foundry agent (seam 3)</td>
+        <td>Wrap and reach it rather than porting logic into a low-code surface.</td>
+      </tr>
+      <tr>
+        <td>The specialist agent is outside Foundry entirely</td>
+        <td>A2A (seam 4)</td>
+        <td>One open contract beats a bespoke integration per partner or per cloud.</td>
+      </tr>
+      <tr>
+        <td>Nobody can say whether the agents are getting better or worse</td>
+        <td>Register for observability (seam 5)</td>
+        <td>Quality you cannot measure across the estate is quality you cannot manage.</td>
+      </tr>
+      <tr>
+        <td>Two agents need the same capability</td>
+        <td>Publish it as an MCP server</td>
+        <td>Build the tool once and let both platforms consume it.</td>
+      </tr>
+      <tr>
+        <td>The requirement is a scheduled, non-conversational generation step</td>
+        <td>Neither seam &mdash; reconsider the shape</td>
+        <td>A Copilot Studio workflow may remove the Foundry infrastructure entirely. See the note below.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>A genuine either/or case.</strong> Not every requirement needs both platforms. When an application needs a non-conversational, on-demand generation step &mdash; a button or a schedule that produces structured output, with no user turn &mdash; a Copilot Studio workflow with an inline agent step can do the whole job, removing the Foundry resource, capacity, and key-custody plumbing. That is a real simplification, and for many organizations the procurement path is easier. It is not free, though. It converts an Azure bill into Copilot Credit consumption and still requires a billing policy on the environment, so present it as a change of meter rather than a removal of cost.
+  </div>
+
+  <h2>A worked shape</h2>
+
+  <p>A pattern that recurs across enterprise builds, using four of the five seams:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Front of house</span>
+      <h3>Copilot Studio</h3>
+      <ul>
+        <li>The agent users actually talk to, published to Microsoft 365 Copilot and Teams</li>
+        <li>User authentication, so every downstream call runs as the signed-in person</li>
+        <li>Topics and agent flows for the deterministic paths that must never improvise</li>
+        <li>Human-in-the-loop approval before anything is written back to a system of record</li>
+        <li>Solutions and pipelines carrying the change from development to production</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill muted">Back of house</span>
+      <h3>Foundry</h3>
+      <ul>
+        <li>A knowledge base over the governed document corpus, attached as a tool</li>
+        <li>A chosen model on the one prompt where the default was not good enough</li>
+        <li>A connected agent wrapping the existing engineering-owned pipeline</li>
+        <li>Trace ingestion and evaluation runs feeding the release gate</li>
+        <li>Shared capabilities published as MCP servers for reuse</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>What makes this shape durable is that the seams are narrow. The channel, the identity model, and the approval flow are unchanged if the model choice changes. The knowledge base can be retuned without redeploying the agent. The connected agent can be rewritten in Foundry without the Copilot Studio side knowing. Each seam is a contract, and each contract can be renegotiated on its own.</p>
+
+  <h2>Five mistakes worth avoiding</h2>
+
+  <div class="card">
+    <h3>Treating the choice as a platform bake-off</h3>
+    <p>"Copilot Studio versus Foundry" is rarely the real question. The real question is which layer a specific requirement belongs to. Teams that argue platforms tend to rebuild channels and authentication they already had, or stretch a low-code surface past its evaluation and model-control ceiling.</p>
+  </div>
+
+  <div class="card">
+    <h3>Reaching for a bigger model to fix a grounding problem</h3>
+    <p>Swapping the model when retrieval is the defect produces a more expensive agent that is confidently wrong in more fluent prose. Diagnose grounding first: check what the agent actually retrieved before you change what it reasons with.</p>
+  </div>
+
+  <div class="card">
+    <h3>Writing thin connected-agent descriptions</h3>
+    <p>The description on a connected agent is what the parent agent uses to decide when to delegate. A vague description that overlaps with other tools produces routing that looks random. Treat description text as configuration and make it specific enough to be mutually exclusive from its neighbors.</p>
+  </div>
+
+  <div class="card">
+    <h3>Letting demo-grade exposure reach production</h3>
+    <p>Development tunnels and unauthenticated endpoints are appropriate for a local demonstration and nowhere else. The gap between the demo topology and a supportable one is real work; budget it rather than discovering it at go-live.</p>
+  </div>
+
+  <div class="card">
+    <h3>Deferring observability until there is a problem</h3>
+    <p>Tracing and evaluation are cheapest to add while the estate is small and most valuable once it is not. Standing them up after an incident means reconstructing history that was never captured.</p>
+  </div>
+
+  <h2>Reference materials</h2>
+
+  <div class="card">
+    <p class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/bring-your-own-model-prompts" target="_blank" rel="noopener">Bring your own model for your prompts</a> &mdash; the Azure AI Foundry models for prompts feature in Copilot Studio, Power Apps, and Power Automate.
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/bring-your-own-model-prompts</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/foundry-iq-connect" target="_blank" rel="noopener">Connect to Foundry IQ from an agent</a> &mdash; attaching a Foundry knowledge base as a tool, authentication options, and testing retrieval in the activity trace.
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/agents-experience/foundry-iq-connect</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/add-agent-foundry-agent" target="_blank" rel="noopener">Connect to a Microsoft Foundry agent (preview)</a> &mdash; project endpoint, agent ID, and the portal-generation constraint.
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/add-agent-foundry-agent</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/add-agent-agent-to-agent" target="_blank" rel="noopener">Connect an agent available over the Agent2Agent (A2A) protocol</a> &mdash; endpoint configuration and the production exposure guidance.
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/add-agent-agent-to-agent</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/authoring-add-other-agents" target="_blank" rel="noopener">Connected agents overview</a> &mdash; how delegation works and how to test it.
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/agents-experience/authoring-add-other-agents</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/foundry/agents/how-to/register-external-agent" target="_blank" rel="noopener">Register external agents for observability and evaluation (preview)</a> &mdash; trace ingestion into Application Insights and verification in the Foundry portal.
+      <span class="u">learn.microsoft.com/azure/foundry/agents/how-to/register-external-agent</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/foundry/concepts/observability" target="_blank" rel="noopener">Observability in generative AI</a> &mdash; the evaluation lifecycle and core observability capabilities.
+      <span class="u">learn.microsoft.com/azure/foundry/concepts/observability</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/foundry/agents/overview" target="_blank" rel="noopener">What is Microsoft Foundry Agent Service?</a> &mdash; the platform side of the story, including the development lifecycle.
+      <span class="u">learn.microsoft.com/azure/foundry/agents/overview</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/mcp-add-components-to-agent" target="_blank" rel="noopener">Add tools and resources from an MCP server to your agent</a> &mdash; the shared tool plane on the Copilot Studio side.
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/mcp-add-components-to-agent</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/foundry/agents/how-to/tools/model-context-protocol" target="_blank" rel="noopener">Model Context Protocol tools in Foundry Agent Service</a> &mdash; the same tool plane on the Foundry side.
+      <span class="u">learn.microsoft.com/azure/foundry/agents/how-to/tools/model-context-protocol</span></p>
+  </div>
+
+  <h3>Related pages on this site</h3>
+  <ul>
+    <li><a href="knowledge-sources-vs-azure-ai-search.html">When Built-In Knowledge Sources Are Not Enough</a> &mdash; how to tell a grounding configuration problem from an architecture problem before you reach for seam 2.</li>
+    <li><a href="modern-copilot-studio-orchestrator.html">Modern Copilot Studio: The New Orchestrator On-Ramp</a> &mdash; how the orchestration layer decides which tool or connected agent to call.</li>
+    <li><a href="copilot-studio-agent-evaluation.html">Copilot Studio Agent Evaluation</a> &mdash; what to measure before you wire up estate-level observability.</li>
+    <li><a href="agent-governance-zones.html">Zoned Agent Governance</a> &mdash; where the pro-code and low-code build paths sit in a governance model.</li>
+  </ul>
+
+  <footer class="foot">
+    Written by Joel Cade · hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Grounded in public Microsoft documentation verified August 2026. Several capabilities described here are in preview and are evolving; this is guidance, not a contract. Confirm current product behavior, availability, and licensing terms in the linked documentation before making a design or purchasing decision.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
