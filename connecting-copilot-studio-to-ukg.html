@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connecting Copilot Studio to UKG &mdash; Authentication &amp; Connector Guide</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.warnpill { background: rgba(245,158,11,0.12); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout.danger { border-left-color: var(--cp-danger); background: rgba(220,38,38,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+pre {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+.step { display: flex; gap: 14px; margin: 18px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.step .step-body { flex: 1 1 auto; min-width: 0; }
+.step .step-body h3 { margin-top: 0; }
+
+.flowdiag {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  margin: 16px 0;
+}
+.flowdiag .node {
+  flex: 1 1 150px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 13px;
+}
+.flowdiag .node .n-title { font-weight: 600; display: block; margin-bottom: 3px; }
+.flowdiag .node .n-desc { color: var(--cp-text-muted); font-size: 12.3px; }
+.flowdiag .arrow { align-self: center; color: var(--cp-accent); font-weight: 700; font-size: 17px; }
+@media (max-width: 680px) { .flowdiag .arrow { display: none; } }
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, pre, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Copilot Studio &middot; UKG Pro</p>
+    <h1>Connecting Copilot Studio to UKG</h1>
+    <p class="sub">A field guide to authenticating a Copilot Studio agent against UKG Pro Workforce Management and UKG Pro HCM. Covers the certified connector landscape and its gaps, the two different authentication models, the malformed-request errors that look like credential failures but are not, and how to hand a token from an agent flow back to the agent. &middot; August 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> there is no Microsoft-certified <em>authentication</em> connector for UKG. You perform the token call yourself as an HTTP action, and the overwhelming majority of first-attempt failures are request-shape problems, not credential problems. UKG Pro Workforce Management wants a <strong>URL-encoded form body</strong>, and UKG Pro HCM wants <strong>Basic authentication plus a customer API key header</strong>. Get those two facts right and most of the pain disappears.
+  </div>
+
+  <h2>First, know which UKG you are talking to</h2>
+
+  <p>UKG is two product families under one brand, and they do not share an authentication model. Teams routinely lose a day because they applied the workforce-management pattern to a human-capital-management endpoint. Establish this before you write a single action.</p>
+
+  <table>
+    <thead>
+      <tr><th>&nbsp;</th><th>UKG Pro Workforce Management</th><th>UKG Pro HCM</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Also known as</strong></td>
+        <td>Pro WFM, formerly Kronos Dimensions</td>
+        <td>UKG Pro, the core HR system of record</td>
+      </tr>
+      <tr>
+        <td><strong>Typical data</strong></td>
+        <td>Schedules, timekeeping, accrual and paid-time-off balances</td>
+        <td>Employment details, job data, employee demographics</td>
+      </tr>
+      <tr>
+        <td><strong>Host shape</strong></td>
+        <td>A tenant-specific <code>mykronos.com</code> vanity host</td>
+        <td>A UKG service endpoint scoped to your customer instance</td>
+      </tr>
+      <tr>
+        <td><strong>Authentication</strong></td>
+        <td>OAuth token call returning a bearer <code>access_token</code></td>
+        <td>HTTP Basic authentication plus a customer API key header</td>
+      </tr>
+      <tr>
+        <td><strong>Where it bites</strong></td>
+        <td>Body encoding and special characters in the credential</td>
+        <td>Header assembly and service-account provisioning</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>The certified connector landscape, and the gap in it</h2>
+
+  <p>UKG publishes several certified connectors for Power Platform. They are genuinely useful for the data calls. What none of them do is hand you an authentication step, which is exactly the piece most teams assume will be there.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Available</span>
+      <h3>Certified data connectors</h3>
+      <ul>
+        <li><strong>UKG Pro WFM Employee</strong> &mdash; employee-scoped actions including accrual balance retrieval</li>
+        <li><strong>UKG Pro WFM Timekeeping</strong></li>
+        <li><strong>UKG Pro WFM People</strong></li>
+        <li><strong>UKG Pro HCM</strong></li>
+      </ul>
+      <p>Published by UKG, classified Premium, and at the time of writing carrying Preview status. Connection is configured with the Pro WFM vanity URL as a secure string.</p>
+    </div>
+    <div class="card">
+      <span class="pill warnpill">Not available</span>
+      <h3>A certified authentication connector</h3>
+      <p>There is no first-party or UKG-published connector whose job is to obtain the token. You have two supported ways to close that gap:</p>
+      <ul>
+        <li>A raw <strong>HTTP action</strong> in a cloud flow or agent flow, which is the fastest path and the one worth starting with</li>
+        <li>A <strong>custom connector</strong> you build and own, which is better once several flows need the same call</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Plan for the constraints early.</strong> The certified UKG connectors throttle at roughly 100 calls per connection per 60 seconds, and they are not offered in the US Government, Department of Defense, or China sovereign clouds. If your agent serves a large deskless population or a regulated environment, confirm both of these before you design the interaction pattern.
+  </div>
+
+  <h2>Path A &mdash; the UKG Pro WFM token call</h2>
+
+  <p>The token endpoint follows this shape, where the host is your tenant vanity URL:</p>
+
+<pre><code>POST https://{tenant}.{region}.mykronos.com/api/authentication/access_token</code></pre>
+
+  <h3>The body must be a URL-encoded form, not JSON</h3>
+
+  <p>This is the single most common mistake. The header says <code>application/x-www-form-urlencoded</code> because that is what the endpoint requires, but people paste a JSON object into the body because that is what every other modern API accepts. UKG does not. Send a flat query string on one line, with no braces, no quotation marks, and no trailing ampersand.</p>
+
+<pre><code>Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&amp;username=SERVICE_ACCOUNT&amp;password=ENCODED_SECRET&amp;client_id=CLIENT_ID&amp;client_secret=CLIENT_SECRET&amp;auth_chain=OAuthLdapService</code></pre>
+
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>grant_type</code></td><td>Underscore, not a hyphen. OAuth uses <code>grant_type</code>, and <code>grant-type</code> is silently unrecognized.</td></tr>
+      <tr><td><code>username</code> / <code>password</code></td><td>A UKG service account, provisioned by a UKG administrator. Never a named human user.</td></tr>
+      <tr><td><code>client_id</code> / <code>client_secret</code></td><td>Issued with the API registration on the UKG side.</td></tr>
+      <tr><td><code>auth_chain</code></td><td><code>OAuthLdapService</code> for tenants federated to LDAP, otherwise <code>OAuthService</code>. Getting this wrong produces an authentication failure that looks like a bad password.</td></tr>
+      <tr><td><code>appkey</code> header</td><td>Some tenants additionally require an application key sent as a header. Confirm with your UKG administrator rather than assuming.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Percent-encode every special character</h3>
+
+  <p>In a form body, characters that are meaningful in a URL are interpreted as such. A hash character in a password is the worst offender, because everything after it is discarded as a URL fragment and you end up sending a truncated secret with no error to tell you so.</p>
+
+  <table>
+    <thead>
+      <tr><th>Character</th><th>Encode as</th><th>Why it matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>#</code></td><td><code>%23</code></td><td>Starts a fragment. Silently truncates everything after it.</td></tr>
+      <tr><td><code>&amp;</code></td><td><code>%26</code></td><td>Starts a new field. Splits your value into two garbage fields.</td></tr>
+      <tr><td><code>=</code></td><td><code>%3D</code></td><td>Separates key from value. Corrupts field parsing.</td></tr>
+      <tr><td><code>+</code></td><td><code>%2B</code></td><td>Decoded as a space on the receiving end.</td></tr>
+      <tr><td><code>@</code></td><td><code>%40</code></td><td>Reserved. Encode it for safety.</td></tr>
+      <tr><td>space</td><td><code>%20</code></td><td>Invalid raw in a query string.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Reading the error that looks like a platform bug</h2>
+
+  <div class="callout danger">
+    <strong>Symptom:</strong> <code>connectorRequestFailure</code> with <code>HTTP 500</code>, and an inner message of <code>Error parsing undefined value. Path '', line 1, position 1</code>.
+  </div>
+
+  <p>That message is not describing a broken connector and it is not a Power Platform defect. It means UKG returned an <strong>empty or non-JSON response body</strong>, so the parser had nothing to work with. The request was rejected as malformed <em>before</em> UKG ever evaluated the credential. Work the causes in this order:</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="step-body">
+      <h3>Body format mismatch</h3>
+      <p>A JSON body sent against a form-urlencoded content type. By far the most likely cause. Rewrite the body as a flat query string.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="step-body">
+      <h3>Hyphenated grant type</h3>
+      <p><code>grant-type</code> instead of <code>grant_type</code>. Common when the body was transcribed from a hand-written example.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="step-body">
+      <h3>Unencoded special character</h3>
+      <p>Usually a hash in the password. Encode the value and retry before you go asking for a credential reset.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="step-body">
+      <h3>Missing tenant-specific requirements</h3>
+      <p>An absent <code>appkey</code> header or the wrong <code>auth_chain</code> value for a federated tenant.</p>
+    </div>
+  </div>
+
+  <p>Only after all four are ruled out is it worth escalating to UKG. Raising a credential ticket first is the standard way these engagements lose a week.</p>
+
+  <h2>Path B &mdash; the UKG Pro HCM call</h2>
+
+  <p>HCM uses a different model entirely. There is no token exchange. Each request carries HTTP Basic authentication built from a UKG service-account credential, alongside a customer API key header.</p>
+
+  <table>
+    <thead>
+      <tr><th>Element</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Authentication</td><td>HTTP Basic, using a UKG service account created by a UKG administrator</td></tr>
+      <tr><td>Required header</td><td><code>US-Customer-Api-Key</code></td></tr>
+      <tr><td>Content negotiation</td><td><code>Accept: application/json</code></td></tr>
+      <tr><td>Typical first endpoint</td><td>Employment Details, retrieving an employee record by company plus employee identifier</td></tr>
+      <tr><td>Useful behavior</td><td>The endpoint supports pagination and date filters, so you can bound the response rather than pulling everything</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Two practical traps.</strong> First, let your API client generate the Basic authorization header rather than hand-assembling the base64 string, which is a frequent source of an HTTP 401 or 415 that is really a formatting error. Second, confirm which identifier the endpoint expects. Organizations often have a company employee number, a payroll identifier, and a directory identifier in circulation, and only one of them will resolve.
+  </div>
+
+  <p>Prove the call in an API client such as Postman before you build it in Power Automate. Debugging authentication and flow expression syntax at the same time is a false economy.</p>
+
+  <h2>Getting the result back to the agent</h2>
+
+  <p>This is where a working flow still fails to help the agent. A conventional cloud flow does not surface its internal values to a Copilot Studio agent. The authentication and data logic has to live in an <strong>agent flow</strong>, and the values you want the agent to see must be declared as outputs on the <strong>Respond to Agent</strong> action.</p>
+
+  <div class="flowdiag">
+    <div class="node">
+      <span class="n-title">User</span>
+      <span class="n-desc">Asks the agent about a balance, schedule, or employment detail</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Copilot Studio agent</span>
+      <span class="n-desc">Orchestration selects the UKG tool and passes the employee context</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Agent flow</span>
+      <span class="n-desc">HTTP token call, then Parse JSON, then the certified UKG data action</span>
+    </div>
+    <span class="arrow">&rarr;</span>
+    <div class="node">
+      <span class="n-title">Respond to Agent</span>
+      <span class="n-desc">Returns typed outputs the agent can phrase back conversationally</span>
+    </div>
+  </div>
+
+  <h3>Parse the token response defensively</h3>
+
+  <p>The response comes back as JSON even though the request was form-encoded. Mark only <code>access_token</code> as required, because some tenants omit the optional members and a stricter schema will fail validation on a response that was actually fine.</p>
+
+<pre><code>{
+  "type": "object",
+  "properties": {
+    "access_token":  { "type": "string" },
+    "token_type":    { "type": "string" },
+    "expires_in":    { "type": "integer" },
+    "refresh_token": { "type": "string" },
+    "scope":         { "type": "string" },
+    "id_token":      { "type": "string" }
+  },
+  "required": ["access_token"]
+}</code></pre>
+
+  <p>Generate the schema for the data response from a real payload rather than writing it by hand. Reference the token downstream from the Parse JSON output, and pass it as a bearer value on the subsequent call.</p>
+
+  <h2>Hardening it for production</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Never inline the secrets</h3>
+      <p>Hold the service-account credential, client secret, and API key in Azure Key Vault, surfaced through Dataverse environment variables. This keeps them out of the flow definition, out of solution exports, and out of the hands of anyone with maker access to the environment.</p>
+    </div>
+    <div class="card">
+      <h3>Do not fetch a token per turn</h3>
+      <p>Tokens carry an expiry. Calling the token endpoint on every conversational turn burns throttle budget against a 100-call-per-minute ceiling and adds latency the user feels. Reuse a token for its lifetime and refresh on expiry or on an authentication failure.</p>
+    </div>
+    <div class="card">
+      <h3>Handle the empty answer</h3>
+      <p>Decide what the agent says when the employee is not found, when the identifier is ambiguous, or when UKG is unavailable. Without an explicit path, generative orchestration will improvise, and improvising about someone's leave balance is the worst possible failure mode.</p>
+    </div>
+    <div class="card">
+      <h3>Check your data loss prevention policy</h3>
+      <p>The UKG connectors are Premium and third-party. Confirm they sit in a policy group that permits combination with the other connectors your agent uses, and do this before the build rather than at deployment.</p>
+    </div>
+  </div>
+
+  <h2>A sensible build order</h2>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="step-body">
+      <h3>Get the credentials provisioned</h3>
+      <p>Service account, client identifier and secret, API key, and confirmation of whether an application key header and which authentication chain your tenant needs. This has a lead time. Start it first.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="step-body">
+      <h3>Prove the call outside Power Platform</h3>
+      <p>Succeed in an API client. You are isolating authentication from flow authoring, and it is much faster to iterate.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="step-body">
+      <h3>Rebuild it as an HTTP action in an agent flow</h3>
+      <p>Move the secrets into environment variables backed by Key Vault as you go, rather than promising to do it later.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="step-body">
+      <h3>Chain the certified data action</h3>
+      <p>Add the UKG connector action, supplying the vanity URL on the connection and the token from the preceding step.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">5</div>
+    <div class="step-body">
+      <h3>Expose typed outputs and register the flow as a tool</h3>
+      <p>Declare the fields on Respond to Agent, then add the flow to the agent as a tool with a description clear enough that orchestration routes to it for the right questions and leaves it alone for the wrong ones.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>A note on sequencing the wider solution.</strong> Most organizations reach this integration in a second phase. Phase one is a knowledge-grounded agent answering policy and procedural questions from documents, which needs no UKG connectivity at all and delivers value quickly. Transactional lookups against UKG are phase two, and they are where authentication, identity resolution, and error handling all become real. Do not let the ambition of phase two delay the shipping of phase one.
+  </div>
+
+  <div class="card">
+    <h3>Reference materials</h3>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/connectors/ukgprowfmemployee/" target="_blank" rel="noopener">Microsoft Learn &mdash; UKG Pro WFM Employee connector reference, including connection parameters and throttling limits</a><br />
+      <span class="u">learn.microsoft.com/en-us/connectors/ukgprowfmemployee/</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/connectors/ukgprohcm/" target="_blank" rel="noopener">Microsoft Learn &mdash; UKG Pro HCM connector reference</a><br />
+      <span class="u">learn.microsoft.com/en-us/connectors/ukgprohcm/</span>
+    </div>
+    <div class="ref">
+      <a href="https://developer.ukg.com/wfm/reference" target="_blank" rel="noopener">UKG Developer Hub &mdash; Pro Workforce Management API reference, including the authentication endpoint</a><br />
+      <span class="u">developer.ukg.com/wfm/reference</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-tools-custom-agent" target="_blank" rel="noopener">Microsoft Learn &mdash; Adding tools to a custom agent in Copilot Studio</a><br />
+      <span class="u">learn.microsoft.com/en-us/microsoft-copilot-studio/add-tools-custom-agent</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-automate/flow-types" target="_blank" rel="noopener">Microsoft Learn &mdash; Power Automate flow types, including agent flows</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-automate/flow-types</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-apps/maker/data-platform/environmentvariables-azure-key-vault-secrets" target="_blank" rel="noopener">Microsoft Learn &mdash; Using environment variables for Azure Key Vault secrets</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-apps/maker/data-platform/environmentvariables-azure-key-vault-secrets</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/connectors/custom-connectors/" target="_blank" rel="noopener">Microsoft Learn &mdash; Custom connectors overview, for when the HTTP action should become a reusable connector</a><br />
+      <span class="u">learn.microsoft.com/en-us/connectors/custom-connectors/</span>
+    </div>
+    <div class="feature-tags">
+      <span class="tag">Copilot Studio</span>
+      <span class="tag">UKG Pro WFM</span>
+      <span class="tag">UKG Pro HCM</span>
+      <span class="tag">Agent flows</span>
+      <span class="tag">OAuth</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Compiled from public Microsoft and UKG documentation together with field experience, verified August 2026. The certified UKG connectors carry Preview status and their actions, limits, and regional availability change; confirm current behavior against the vendor documentation before you build. Authentication requirements vary by UKG tenant configuration, so validate the specifics with your UKG administrator. Guidance only, not a contract. Hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
