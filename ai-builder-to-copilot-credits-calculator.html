@@ -195,6 +195,38 @@ input[type="number"]:focus { outline: 2px solid var(--cp-accent); outline-offset
 input.vol { max-width: 150px; }
 td.input-cell { text-align: right; white-space: nowrap; }
 
+.basis { display: flex; flex-direction: column; gap: 7px; margin: 0 0 18px; padding: 0 0 16px; border-bottom: 1px solid var(--cp-border); }
+.basis-label { font-size: 12px; font-weight: 600; color: var(--cp-text-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+.seg { display: flex; flex-wrap: wrap; gap: 9px; }
+.seg label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 9px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--cp-border-strong);
+  background: transparent;
+  color: var(--cp-text-muted);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.seg label:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.seg label:has(input:checked) { border-color: var(--cp-accent); background: var(--cp-accent-soft); color: var(--cp-text); }
+.seg input { accent-color: var(--cp-accent); margin: 0; }
+.basis-hint { font-size: 12px; color: var(--cp-text-soft); margin: 0; }
+.basis-note {
+  font-size: 13px;
+  color: var(--cp-text-muted);
+  background: var(--cp-accent-soft);
+  border-left: 3px solid var(--cp-accent);
+  border-radius: 0 10px 10px 0;
+  padding: 11px 14px;
+  margin: 0 0 14px;
+}
+.basis-note.hide { display: none; }
+
 .table-scroll { overflow-x: auto; }
 table.calc { font-size: 13.5px; }
 table.calc th, table.calc td { padding: 7px 9px; }
@@ -357,20 +389,28 @@ footer.foot {
   <div class="step-list">
     <p><strong>1. Pull the real numbers.</strong> In the Power Automate portal, open <em>AI Builder &rarr; Activity</em> and filter to a representative month. That page now reports consumption in both currencies, broken down by capability, which is exactly the shape this calculator expects.</p>
     <p><strong>2. Enter monthly volume per capability</strong> in the units the rate card publishes &mdash; thousands of tokens for prompts, pages for document work, thousands of characters for text analysis, images for vision. Leave a row at zero if it is not in use.</p>
-    <p><strong>3. Check the price assumptions</strong> against the actual contract. The defaults reflect public list pricing, and a negotiated discount moves the answer materially.</p>
-    <p><strong>4. Read the multiplier column, not just the total.</strong> The total tells you the size of the problem. The multiplier tells you which workload caused it.</p>
+    <p><strong>3. Set the capacity basis and check the price assumptions.</strong> Tell the calculator whether the existing AI Builder capacity was purchased as a capacity add-on or arrived seeded with Power Platform licensing, because it changes what the result means. The price defaults reflect public list pricing; if a negotiated rate applies, substitute it, since the discount moves the answer materially.</p>
+    <p><strong>4. Read the multiplier column, not just the total.</strong> The total tells you the size of the change. The multiplier tells you which workload is driving it. On an entitlement basis the multiplier is suppressed, because there is no paid baseline to divide by.</p>
   </div>
 
   <h2 id="assumptions">Price assumptions</h2>
 
-  <p>Both currencies are converted to money before comparison, because a raw credit-to-credit ratio is misleading &mdash; a credit is not the same size in each currency. Adjust these to match the contract in front of you.</p>
+  <p>Both currencies are converted to money before comparison, because a raw credit-to-credit ratio is misleading &mdash; a credit is not the same size in each currency. Set the capacity basis first, then adjust the prices to match how the customer actually buys.</p>
 
   <div class="card">
+    <div class="basis">
+      <span class="basis-label">How is AI Builder capacity held today?</span>
+      <div class="seg" role="radiogroup" aria-label="AI Builder capacity basis">
+        <label><input type="radio" name="basis" value="purchased" checked /> Purchased capacity add-on</label>
+        <label><input type="radio" name="basis" value="entitled" /> Seeded with licensing</label>
+      </div>
+      <p class="basis-hint">Seeded credits arrive included with Power Apps, Power Automate or Dynamics 365 licensing and carry no separate line item. If that is the case, there is no AI Builder contract to price against and no discount to apply.</p>
+    </div>
     <div class="assumptions">
       <div class="field">
         <label for="aibPrice">AI Builder credit price (USD)</label>
         <input type="number" id="aibPrice" value="0.0005" min="0" step="0.0001" />
-        <span class="hint">List: the tier 1 capacity add-on is roughly $500 per month for 1,000,000 credits, which works out to $0.0005 per credit.</span>
+        <span class="hint" id="aibPriceHint">List: the tier 1 capacity add-on is roughly $500 per month for 1,000,000 credits, which works out to $0.0005 per credit.</span>
       </div>
       <div class="field">
         <label for="ccPrice">Copilot Credit price (USD)</label>
@@ -392,9 +432,11 @@ footer.foot {
 
   <h2 id="calculator">The calculator</h2>
 
+  <p class="basis-note hide" id="basisNote"></p>
+
   <div class="kpis">
     <div class="kpi">
-      <p class="k-label">Cost today (AI Builder)</p>
+      <p class="k-label" id="kpiAibLabel">Cost today (AI Builder)</p>
       <p class="k-value" id="kpiAibCost">$0.00</p>
       <p class="k-note" id="kpiAibCredits">0 credits per month</p>
     </div>
@@ -404,12 +446,12 @@ footer.foot {
       <p class="k-note" id="kpiCcCredits">0 credits per month</p>
     </div>
     <div class="kpi">
-      <p class="k-label">Monthly delta</p>
+      <p class="k-label" id="kpiDeltaLabel">Monthly delta</p>
       <p class="k-value" id="kpiDelta">$0.00</p>
       <p class="k-note" id="kpiDeltaPct">Enter volumes to model the change</p>
     </div>
     <div class="kpi">
-      <p class="k-label">Blended multiplier</p>
+      <p class="k-label" id="kpiMultLabel">Blended multiplier</p>
       <p class="k-value" id="kpiMult">&mdash;</p>
       <p class="k-note" id="kpiRunway">Runway not calculated</p>
     </div>
@@ -448,7 +490,7 @@ footer.foot {
 
   <h2 id="reading">Reading the result</h2>
 
-  <p>The multiplier is the whole story. At list pricing a Copilot Credit costs roughly twenty times what an AI Builder credit costs, so a capability only holds its value if its rate ratio is also about twenty to one. Where the ratio is tighter than that, the same work costs more.</p>
+  <p>Read the delta in dollars first, then use the multiplier to find out where it came from. At list pricing a Copilot Credit costs roughly twenty times what an AI Builder credit costs, so a capability only holds its value if its rate ratio is also about twenty to one. Most capabilities land close enough that the change is modest. A small number do not, and those are what the multiplier column is for.</p>
 
   <div class="math">multiplier = (Copilot Credit rate x Copilot Credit price)
              / (AI Builder rate x AI Builder credit price)
@@ -483,7 +525,11 @@ above 1.0  more expensive after the move</div>
   </table>
 
   <div class="callout warn">
-    <strong>Object detection is the outlier that decides most business cases.</strong> It is the one capability rated identically in both currencies, at 8 credits per image. Because the currencies are not priced identically, an identical rate means a twenty times cost increase at list. Any workload built on high-volume image classification needs to be examined before, not after, the pricing conversation.
+    <strong>Object detection is the outlier that decides most business cases.</strong> It is the one capability rated identically in both currencies, at 8 credits per image. Because the currencies are not priced identically, an identical rate means a twenty times increase at list &mdash; but only for that capability, and only in proportion to how much of it a workload actually runs. Low-volume image classification stays small in absolute terms. High-volume image classification is the case that needs examining before, not after, the pricing conversation.
+  </div>
+
+  <div class="callout">
+    <strong>On an entitlement basis the multiplier does not apply.</strong> Where the existing AI Builder capacity arrived seeded with licensing rather than purchased, the incremental cost today is zero and there is no denominator to divide by. Set the capacity basis to <em>seeded with licensing</em> and the calculator suppresses the multiplier and reports the Copilot Credits total as net-new spend instead. The honest framing in that case is not that a price went up, but that capacity which came included now meters &mdash; and that the seeded allocation ends on November 1, 2026 regardless.
   </div>
 
   <h2 id="gotchas">Gotchas that change the answer</h2>
@@ -531,7 +577,7 @@ above 1.0  more expensive after the move</div>
     <li>Confirm which capabilities are genuinely in production against which were trials that never retired.</li>
     <li>Identify any object detection or prebuilt document processing usage first, since those dominate the delta.</li>
     <li>Check whether the workload will be rebuilt as an agent, because that removes the AI Builder option entirely.</li>
-    <li>Confirm actual contracted pricing rather than list, in both currencies.</li>
+    <li>Confirm contracted pricing rather than list, in both currencies &mdash; or establish that no AI Builder contract exists, which is itself the answer.</li>
     <li>Set a consumption alert well below the entitlement ceiling to absorb the reporting lag.</li>
     <li>Decide on add-on renewal timing ahead of the November 1, 2026 boundary.</li>
   </ul>
@@ -590,6 +636,8 @@ above 1.0  more expensive after the move</div>
 
   const money = (n) =>
     n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+  const price = (n) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 5 });
   const num = (n) =>
     n.toLocaleString("en-US", { maximumFractionDigits: n < 100 ? 1 : 0 });
 
@@ -597,6 +645,19 @@ above 1.0  more expensive after the move</div>
   const aibPriceEl = document.getElementById("aibPrice");
   const ccPriceEl = document.getElementById("ccPrice");
   const balanceEl = document.getElementById("balance");
+  const basisEls = Array.from(document.querySelectorAll('input[name="basis"]'));
+  const basisNoteEl = document.getElementById("basisNote");
+  const aibPriceHintEl = document.getElementById("aibPriceHint");
+
+  const AIB_HINT_PURCHASED =
+    "List: the tier 1 capacity add-on is roughly $500 per month for 1,000,000 credits, which works out to $0.0005 per credit.";
+  const AIB_HINT_ENTITLED =
+    "Used only to value the seeded allocation. Because the credits came included, this is a notional figure and not money currently being spent.";
+
+  const isEntitled = () => {
+    const on = basisEls.find((b) => b.checked);
+    return !!on && on.value === "entitled";
+  };
 
   RATES.forEach((r) => {
     const tr = document.createElement("tr");
@@ -631,6 +692,7 @@ above 1.0  more expensive after the move</div>
     const aibPrice = val(aibPriceEl);
     const ccPrice = val(ccPriceEl);
     const balance = val(balanceEl);
+    const entitled = isEntitled();
 
     let totAib = 0, totCc = 0, totAibCost = 0, totCcCost = 0;
     const lines = [];
@@ -651,7 +713,7 @@ above 1.0  more expensive after the move</div>
       tr.querySelector('[data-cell="ccCost"]').textContent = money(ccCost);
 
       const multCell = tr.querySelector('[data-cell="mult"]');
-      if (mult === null) {
+      if (entitled || mult === null) {
         multCell.textContent = "\u2014";
         multCell.className = "num-cell";
       } else {
@@ -672,22 +734,33 @@ above 1.0  more expensive after the move</div>
     document.getElementById("totCcCost").textContent = money(totCcCost);
 
     const blended = totAibCost > 0 ? totCcCost / totAibCost : null;
+    const showMult = !entitled && blended !== null;
     const totMultEl = document.getElementById("totMult");
-    totMultEl.textContent = blended === null ? "\u2014" : blended.toFixed(2) + "x";
-    totMultEl.className = "num-cell" + (blended === null ? "" : " " + multClass(blended));
+    totMultEl.textContent = showMult ? blended.toFixed(2) + "x" : "\u2014";
+    totMultEl.className = "num-cell" + (showMult ? " " + multClass(blended) : "");
 
+    document.getElementById("kpiAibLabel").textContent =
+      entitled ? "Included today (entitlement)" : "Cost today (AI Builder)";
     document.getElementById("kpiAibCost").textContent = money(totAibCost);
-    document.getElementById("kpiAibCredits").textContent = num(totAib) + " AI Builder credits per month";
+    document.getElementById("kpiAibCredits").textContent =
+      num(totAib) + " AI Builder credits per month" + (entitled ? ", included with licensing" : "");
     document.getElementById("kpiCcCost").textContent = money(totCcCost);
     document.getElementById("kpiCcCredits").textContent = num(totCc) + " Copilot Credits per month";
 
-    const delta = totCcCost - totAibCost;
+    const delta = entitled ? totCcCost : totCcCost - totAibCost;
     const deltaEl = document.getElementById("kpiDelta");
-    deltaEl.textContent = (delta >= 0 ? "+" : "-") + money(Math.abs(delta)).replace("$", "$");
+    document.getElementById("kpiDeltaLabel").textContent =
+      entitled ? "Net-new monthly spend" : "Monthly delta";
+    deltaEl.textContent = entitled
+      ? money(delta)
+      : (delta >= 0 ? "+" : "-") + money(Math.abs(delta));
     deltaEl.className = "k-value " + (delta > 0.005 ? "cost-hi" : delta < -0.005 ? "cost-lo" : "");
 
     const pctEl = document.getElementById("kpiDeltaPct");
-    if (totAibCost > 0) {
+    if (entitled && totCc > 0) {
+      pctEl.textContent =
+        money(totCcCost * 12) + " per year, against no incremental cost today";
+    } else if (!entitled && totAibCost > 0) {
       const pct = (delta / totAibCost) * 100;
       pctEl.textContent =
         (pct >= 0 ? "An increase of " : "A reduction of ") +
@@ -698,8 +771,20 @@ above 1.0  more expensive after the move</div>
     }
 
     const multEl = document.getElementById("kpiMult");
-    multEl.textContent = blended === null ? "\u2014" : blended.toFixed(2) + "x";
-    multEl.className = "k-value" + (blended === null ? "" : " " + multClass(blended));
+    document.getElementById("kpiMultLabel").textContent =
+      entitled ? "Blended multiplier (n/a)" : "Blended multiplier";
+    multEl.textContent = showMult ? blended.toFixed(2) + "x" : entitled ? "n/a" : "\u2014";
+    multEl.className = "k-value" + (showMult ? " " + multClass(blended) : "");
+
+    aibPriceHintEl.textContent = entitled ? AIB_HINT_ENTITLED : AIB_HINT_PURCHASED;
+    basisNoteEl.classList.toggle("hide", !entitled);
+    if (entitled) {
+      basisNoteEl.innerHTML =
+        "<strong>Entitlement basis.</strong> The AI Builder capacity here came seeded with licensing, so there is no paid baseline. " +
+        "The multiplier is suppressed because it would divide by a cost the customer does not currently pay, and the Copilot Credits " +
+        "total is reported as net-new spend rather than an increase. The seeded allocation ends on November 1, 2026 with no " +
+        "replacement, so this figure is what the workload costs once that happens.";
+    }
 
     const runwayEl = document.getElementById("kpiRunway");
     if (balance > 0 && totAib > 0) {
@@ -712,29 +797,38 @@ above 1.0  more expensive after the move</div>
       runwayEl.textContent = "Runway not calculated";
     }
 
-    last = { lines, totAib, totCc, totAibCost, totCcCost, blended, delta, aibPrice, ccPrice, balance };
+    last = { lines, totAib, totCc, totAibCost, totCcCost, blended, delta, aibPrice, ccPrice, balance, entitled };
   }
 
   function buildSummary() {
     if (!last || last.lines.length === 0) return "No volumes entered.";
     const L = [];
     L.push("AI Builder to Copilot Credits sizing summary");
-    L.push("Assumptions: AI Builder credit " + money(last.aibPrice) + ", Copilot Credit " + money(last.ccPrice));
+    L.push("Capacity basis: " + (last.entitled ? "seeded with licensing (entitlement)" : "purchased capacity add-on"));
+    L.push("Assumptions: AI Builder credit " + price(last.aibPrice) + ", Copilot Credit " + price(last.ccPrice));
     L.push("");
     last.lines.forEach((l) => {
       L.push(
         l.name + ": " + num(l.vol) + " units | " +
         num(l.aib) + " AIB (" + money(l.aibCost) + ") -> " +
         num(l.cc) + " CC (" + money(l.ccCost) + ") | " +
-        (l.mult === null ? "n/a" : l.mult.toFixed(2) + "x")
+        (last.entitled || l.mult === null ? "n/a" : l.mult.toFixed(2) + "x")
       );
     });
     L.push("");
-    L.push("Monthly total today: " + money(last.totAibCost) + " (" + num(last.totAib) + " AI Builder credits)");
-    L.push("Monthly total after: " + money(last.totCcCost) + " (" + num(last.totCc) + " Copilot Credits)");
-    L.push("Monthly delta: " + (last.delta >= 0 ? "+" : "-") + money(Math.abs(last.delta)) +
-           " | Annual delta: " + (last.delta >= 0 ? "+" : "-") + money(Math.abs(last.delta) * 12));
-    if (last.blended !== null) L.push("Blended multiplier: " + last.blended.toFixed(2) + "x");
+    if (last.entitled) {
+      L.push("Included today (entitlement): " + money(last.totAibCost) + " notional (" + num(last.totAib) + " AI Builder credits)");
+      L.push("Monthly total after: " + money(last.totCcCost) + " (" + num(last.totCc) + " Copilot Credits)");
+      L.push("Net-new monthly spend: " + money(last.delta) + " | Annual: " + money(last.delta * 12));
+      L.push("Multiplier: not applicable on an entitlement baseline (no paid cost today).");
+      L.push("Seeded credits end November 1, 2026 with no replacement allocation.");
+    } else {
+      L.push("Monthly total today: " + money(last.totAibCost) + " (" + num(last.totAib) + " AI Builder credits)");
+      L.push("Monthly total after: " + money(last.totCcCost) + " (" + num(last.totCc) + " Copilot Credits)");
+      L.push("Monthly delta: " + (last.delta >= 0 ? "+" : "-") + money(Math.abs(last.delta)) +
+             " | Annual delta: " + (last.delta >= 0 ? "+" : "-") + money(Math.abs(last.delta) * 12));
+      if (last.blended !== null) L.push("Blended multiplier: " + last.blended.toFixed(2) + "x");
+    }
     if (last.balance > 0 && last.totAib > 0) {
       L.push("Runway on remaining balance: about " + (last.balance / last.totAib).toFixed(1) + " months");
     }
@@ -747,10 +841,13 @@ above 1.0  more expensive after the move</div>
     if (e.target.matches("input[type=number]")) recalc();
   });
 
+  basisEls.forEach((el) => el.addEventListener("change", recalc));
+
   document.getElementById("resetBtn").addEventListener("click", () => {
     aibPriceEl.value = DEFAULT_AIB_PRICE;
     ccPriceEl.value = DEFAULT_CC_PRICE;
     balanceEl.value = 0;
+    basisEls.forEach((b) => { b.checked = b.value === "purchased"; });
     RATES.forEach((r) => { document.getElementById("vol-" + r.id).value = 0; });
     recalc();
   });
