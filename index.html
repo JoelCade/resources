@@ -170,6 +170,11 @@ a.card:hover { border-color: var(--cp-accent); transform: translateY(-2px); }
 .card-title { font-size: 17px; font-weight: 600; margin: 0 0 5px; display: flex; align-items: center; gap: 9px; }
 .card-title .arrow { color: var(--cp-accent); font-weight: 700; }
 .card-desc { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+.card-source { margin: 9px 0 0; font-size: 12.5px; color: var(--cp-text-soft); }
+.card-source .u { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; }
+a.card.external { border-style: dashed; }
+a.card.external .arrow { font-weight: 700; }
+.tag.tag-external { background: var(--cp-accent-soft); border-color: var(--cp-accent); color: var(--cp-link); }
 .card-tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
 .tag {
   font-size: 11.5px;
@@ -281,6 +286,19 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Copilot Credits</span>
         <span class="tag">Cost optimization</span>
         <span class="tag">PPAC</span>
+        <span class="tag">Governance</span>
+      </div>
+    </a>
+    <a class="card external" href="https://microsoft.github.io/mcscatblog/posts/copilot-harness-cost-governance/" target="_blank" rel="noopener noreferrer" data-topics="copilot-studio licensing governance">
+      <p class="card-title"><span class="arrow">&nearr;</span> Governing Copilot Credit Cost for GitHub Copilot Harness Agents</p>
+      <p class="card-desc">The admin-side counterpart to the two guides above, from the Microsoft Customer Advisory Team. Because harness agents can consume Copilot Credits during maker exploration, before anything is published, the controls have to move earlier. Covers a five-step baseline (discover harness agents via the <span class="u">isCLIAgent</span> property in Power Platform Inventory, classify each environment as maker development or funded production, review allocation and tenant-pool and pay-as-you-go and enforcement settings, apply agent-level monthly limits, then re-run the review), with both the PPAC click path and the Power Platform API requests for doing it at scale.</p>
+      <p class="card-source">External &middot; Microsoft Customer Advisory Team blog &middot; <span class="u">microsoft.github.io/mcscatblog</span></p>
+      <div class="card-tags">
+        <span class="tag tag-external">External link</span>
+        <span class="tag">Copilot Credits</span>
+        <span class="tag">GitHub Copilot harness</span>
+        <span class="tag">PPAC</span>
+        <span class="tag">Power Platform API</span>
         <span class="tag">Governance</span>
       </div>
     </a>
@@ -459,7 +477,7 @@ footer.foot a:hover { text-decoration: underline; }
   </div>
 
   <footer class="foot">
-    Hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Content compiled from public Microsoft documentation; guidance only, not a contract.
+    Hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. Content compiled from public Microsoft documentation; guidance only, not a contract. Cards marked <span class="tag tag-external">External link</span> open a page published elsewhere and are not maintained here.
   </footer>
 </div>
 <script>
