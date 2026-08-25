@@ -93,6 +93,7 @@ h2 {
   border-bottom: 1px solid var(--cp-border);
 }
 h3 { font-size: 15.5px; margin: 18px 0 6px; }
+h4 { font-size: 12px; margin: 22px 0 6px; color: var(--cp-text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 p { margin: 8px 0; }
 a { color: var(--cp-link); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -210,7 +211,7 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Power Platform · Enablement Reference</p>
     <h1>Power Platform Licensing &amp; Managed Environments</h1>
-    <p class="sub">A plain-language overview of how Power Platform is licensed, and what changes when you turn on Managed Environments. Prepared as an enablement reference · July 2026.</p>
+    <p class="sub">A plain-language overview of how Power Platform is licensed, and what changes when you turn on Managed Environments. Prepared as an enablement reference · Updated August 2026.</p>
   </header>
 
   <div class="callout">
@@ -273,8 +274,72 @@ footer.foot {
       <span class="tag">Extended backup</span>
       <span class="tag">App Insights export</span>
       <span class="tag">VNet support</span>
+      <span class="tag">Catalog administration</span>
+      <span class="tag">Masking rules</span>
+      <span class="tag">App-level conditional access</span>
+      <span class="tag">Desktop flow data policies</span>
+      <span class="tag">Dataverse long-term data retention (archival)</span>
     </div>
   </div>
+
+  <h3>Capability by capability: what actually changes when you turn it on</h3>
+  <p>The list above is easy to mistake for a feature bundle you switch on. It is more precise to read it as a set of <strong>admin controls that do not exist at all in an unmanaged environment</strong>, plus a few existing capabilities that gain enforcement or scope. The tables below give the before-and-after for each.</p>
+
+  <h4>Governance and control at scale</h4>
+  <table>
+    <thead><tr><th>Capability</th><th>Without Managed Environments</th><th>What Managed Environments adds</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Environment groups</strong></td><td>Every environment is configured individually. Settings are applied by hand, one environment at a time, with no inheritance.</td><td>Group environments and set rules once at the group level. Member environments inherit the rules, including environments added to the group later.</td></tr>
+      <tr><td><strong>Default environment routing</strong></td><td>Every new maker lands in the shared default environment, which is where sprawl accumulates.</td><td>First-time makers are redirected automatically into their own personal developer environment. Note this creates <em>managed</em> developer environments by default, which brings the licensing rule in section 4 with it.</td></tr>
+      <tr><td><strong>Sharing limits</strong></td><td>Makers can share canvas apps, solution-aware cloud flows and agents with any number of individuals, with security groups, or with everyone. There is no admin ceiling.</td><td>Admin-set caps: block sharing to security groups, cap the number of individuals, turn off solution-aware cloud flow sharing entirely, and control whether agents can be shared as Editor or Viewer. Enforced at the moment of sharing.</td></tr>
+      <tr><td><strong>App access control and conditional access</strong></td><td>Access is governed only by object-level sharing plus tenant-wide Entra conditional access policies.</td><td>Allow-list which apps may run in the environment, and apply conditional access policies to individual apps rather than the whole tenant.</td></tr>
+      <tr><td><strong>Catalog administration</strong></td><td>No curated internal distribution. Makers find and copy components informally.</td><td>Admins curate a catalog of approved, reusable components that makers submit to and install from.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>A note on sharing limits that catches people out:</strong> the rules apply when someone tries to share, not retroactively. Users who already had access keep it. If an app, flow or agent is out of compliance after you set the rules, the only sharing action allowed is <em>unsharing</em> until it complies. Allow up to an hour after saving before enforcement begins.
+  </div>
+
+  <h4>Quality, lifecycle and insight</h4>
+  <table>
+    <thead><tr><th>Capability</th><th>Without Managed Environments</th><th>What Managed Environments adds</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Pipelines (ALM)</strong></td><td>The environment cannot be used as a pipeline target. Promotion is manual solution export and import, or your own Azure DevOps or GitHub tooling.</td><td>The environment becomes eligible as a deployment target. Microsoft requires <strong>all target environments in Power Platform pipelines to be managed environments</strong>, so this is a hard gate on native ALM, not a convenience.</td></tr>
+      <tr><td><strong>Solution checker</strong></td><td>Solution checker runs on demand and is purely advisory. Nothing prevents a solution with critical issues from being imported.</td><td>Automatic static analysis on every custom solution import, at one of two enforcement levels. <strong>Warn</strong> lets the import proceed and emails admins a summary. <strong>Block</strong> cancels the import before any change reaches the environment. Specific rules can be excluded.</td></tr>
+      <tr><td><strong>Weekly usage insights</strong></td><td>No proactive reporting. Admins pull analytics manually when they think to look.</td><td>A weekly digest emailed to Power Platform and Dynamics 365 admins covering apps used and active users, apps and flows that have not been launched in a while with last-launch dates, and the top apps, flows and makers. Requires tenant-level analytics to be on.</td></tr>
+      <tr><td><strong>Maker welcome content</strong></td><td>No supported way to put organizational guidance in front of makers inside the product.</td><td>Publish custom welcome and onboarding content that makers see in the maker portal, so policy reaches them at the point of building.</td></tr>
+      <tr><td><strong>Data policies visibility</strong></td><td>Data loss prevention policies still apply, but the admin center lists them tenant-wide with no way to filter to one environment.</td><td>A per-environment filtered view showing exactly which data policies apply to this environment. The environment filter is exclusive to managed environments.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>Be precise about data policies when you are in front of a customer.</strong> Data loss prevention is <em>not</em> a Managed Environments feature. DLP policies can be created and enforced across unmanaged environments too. What Managed Environments adds is <strong>visibility</strong> &mdash; the ability to see which policies land on a given environment &mdash; plus data policies for desktop flows. Selling DLP itself as a managed-only benefit is the single easiest way to lose credibility on this topic.
+  </div>
+
+  <h4>Security and data protection</h4>
+  <table>
+    <thead><tr><th>Capability</th><th>Without Managed Environments</th><th>What Managed Environments adds</th></tr></thead>
+    <tbody>
+      <tr><td><strong>IP firewall</strong></td><td>Any authenticated user can reach the environment from any network.</td><td>Restrict environment access to defined IP address ranges, so credentials alone are not enough from an untrusted network.</td></tr>
+      <tr><td><strong>IP cookie binding</strong></td><td>A stolen session cookie can be replayed from a different IP address.</td><td>Binds the session to the IP address that originated it, blocking cookie replay attacks.</td></tr>
+      <tr><td><strong>Customer-managed key (CMK)</strong></td><td>Data is encrypted at rest with Microsoft-managed keys.</td><td>Supply your own encryption key from Azure Key Vault, so key custody and revocation sit with you.</td></tr>
+      <tr><td><strong>Customer Lockbox</strong></td><td>Microsoft support operations can access environment data under existing controls without a per-request customer approval step.</td><td>An explicit approval workflow. Access requests from Microsoft engineers are surfaced to you to approve or reject before access is granted.</td></tr>
+      <tr><td><strong>Extended backup</strong></td><td>System backups are retained for <strong>seven days</strong> for both production and non-production environments.</td><td>Production managed environments can extend backup retention to <strong>up to 28 days</strong>, configurable in the admin center or via PowerShell.</td></tr>
+      <tr><td><strong>Virtual Network support</strong></td><td>Outbound calls from the platform to your resources traverse public endpoints.</td><td>Integrate the Power Platform runtime with your Azure virtual network so traffic to private back-end resources does not cross the public internet.</td></tr>
+      <tr><td><strong>Export to Application Insights</strong></td><td>No environment-level telemetry pipeline. Diagnostics rely on in-product screens.</td><td>Stream Dataverse diagnostics and telemetry to Azure Application Insights for retention, alerting and correlation with your other monitoring.</td></tr>
+      <tr><td><strong>Masking rules</strong></td><td>Sensitive column values are visible to anyone with read access to the record.</td><td>Define masking rules so sensitive field values are obscured in the interface for users who do not need to see them.</td></tr>
+      <tr><td><strong>Data policies for desktop flows</strong></td><td>Desktop flow (RPA) connectors sit outside environment-level data policy enforcement.</td><td>Extend data policy enforcement to desktop flows, closing the RPA gap in a DLP strategy.</td></tr>
+      <tr><td><strong>Long-term data retention</strong></td><td>Retention policies can be created but are <strong>disabled</strong> and never run.</td><td>Archival to the Dataverse long-term retention store actually executes. See the section immediately below.</td></tr>
+    </tbody>
+  </table>
+  <p>Read as a whole, the pattern is consistent: Managed Environments is where the <strong>enforcement</strong> and <strong>tenant-scale</strong> versions of Power Platform governance live. Almost everything on these lists is either impossible without it, or exists only in an advisory form that nobody is obliged to act on.</p>
+
+  <h3>Dataverse long-term data retention is now Managed-Environment-only</h3>
+  <p>Dataverse long-term data retention &mdash; the archival capability that moves inactive rows out of the live database into a compressed, read-only retention store &mdash; is gated on Managed Environments. Microsoft states that the Power Platform environment where the retention policy resides <strong>must</strong> be a Managed Environment.</p>
+  <div class="callout warn">
+    <strong>What happens if the environment is not managed:</strong> you can still create data retention policies, but <strong>the policies are disabled</strong> and will not run. This applies to Dynamics 365 customers too, who are required to upgrade the environment to a Managed Environment if it is not one already. Verified against Microsoft Learn on 25 August 2026.
+  </div>
+  <p>This matters commercially because archival is usually pitched as a <strong>storage cost</strong> conversation, not a governance one. Data moved to long-term retention is compressed by roughly 50 percent on average, so it is a genuine lever on Dataverse database capacity spend. But reaching that lever now requires the environment to be managed, which in turn triggers the premium licensing rule in section 4 for every user with active usage in it. Price the two together, not separately.</p>
+  <p>Two practical notes when scoping this: file and image attachments are retained but do <strong>not</strong> deliver capacity savings, and audit tables and elastic tables are not currently supported for long-term retention.</p>
 
   <h2>4. The licensing rule for Managed Environments</h2>
   <p>When you enable Managed Environments in an environment, <strong>all active usage requires a qualifying standalone license or PAYG meter</strong>. In practice:</p>
@@ -350,12 +415,17 @@ footer.foot {
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-licensing" target="_blank" rel="noopener">Managed environments — Licensing (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-licensing</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-enable" target="_blank" rel="noopener">How to enable Managed Environments (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-enable</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/alm/set-up-pipelines" target="_blank" rel="noopener">Pipelines in Power Platform (ALM) (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/alm/set-up-pipelines</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-apps/maker/data-platform/data-retention-overview" target="_blank" rel="noopener">Dataverse long-term data retention overview (Learn)</a><br><span class="u">https://learn.microsoft.com/power-apps/maker/data-platform/data-retention-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-sharing-limits" target="_blank" rel="noopener">Managed environments &mdash; Limit sharing (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-sharing-limits</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-solution-checker" target="_blank" rel="noopener">Solution checker enforcement in managed environments (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-solution-checker</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-usage-insights" target="_blank" rel="noopener">Managed environments &mdash; Usage insights (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-usage-insights</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/backup-restore-environments" target="_blank" rel="noopener">Back up and restore environments (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/backup-restore-environments</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing" target="_blank" rel="noopener">Copilot Studio licensing requirements (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing</span></div>
     <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation (verified July 2026). Licensing SKUs and rules change frequently — always confirm current terms against the Power Platform Licensing Guide and your organization’s agreement before making purchasing decisions. This overview is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation (verified July 2026; the Dataverse long-term data retention section verified August 2026). Licensing SKUs and rules change frequently &mdash; always confirm current terms against the Power Platform Licensing Guide and your organization’s agreement before making purchasing decisions. This overview is guidance, not a contract.
   </footer>
 </div>
 
