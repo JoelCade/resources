@@ -154,6 +154,46 @@ button.chip[aria-pressed="true"] {
 }
 .filter-count { font-size: 12.5px; color: var(--cp-text-soft); margin: 0 0 22px; }
 
+.searchbar { position: relative; margin: 0 0 12px; }
+.searchbar input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 38px 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--cp-border-strong);
+  background: var(--cp-surface);
+  color: var(--cp-text);
+}
+.searchbar input:focus { outline: 2px solid var(--cp-accent); outline-offset: 1px; border-color: var(--cp-accent); }
+.searchbar input::placeholder { color: var(--cp-text-soft); }
+.clear-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  border: none; background: none; cursor: pointer;
+  font-size: 20px; line-height: 1; color: var(--cp-text-soft); padding: 2px 6px;
+}
+.clear-btn:hover { color: var(--cp-accent); }
+
+button.chip.chip-sm { font-size: 12px; padding: 4px 11px; font-weight: 500; }
+
+.sec-count {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 600;
+  padding: 1px 8px; margin-left: 6px;
+  border-radius: 999px; vertical-align: middle;
+  background: var(--cp-accent-soft); color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+}
+.sec-blurb { font-size: 13px; color: var(--cp-text-muted); margin: -4px 0 12px; }
+
+.no-results { font-size: 14px; color: var(--cp-text-muted); margin: 0 0 22px; }
+.linkish {
+  border: none; background: none; padding: 0; cursor: pointer;
+  font-family: inherit; font-size: 14px; color: var(--cp-link); text-decoration: underline;
+}
+
+mark.hl { background: var(--cp-highlight, rgba(0,120,212,0.18)); color: inherit; border-radius: 3px; padding: 0 2px; }
+
 .cards { display: grid; gap: 14px; }
 a.card {
   display: block;
@@ -196,7 +236,8 @@ footer.foot a { color: var(--cp-link); text-decoration: none; }
 footer.foot a:hover { text-decoration: underline; }
 
 @media print {
-  .filters, .filter-count, .profile-links { display: none !important; }
+  .filters, .filter-count, .profile-links, .searchbar, .no-results { display: none !important; }
+  .sec-count { border: 1px solid #000; }
 }
 </style>
 </head>
@@ -219,22 +260,50 @@ footer.foot a:hover { text-decoration: underline; }
     </div>
   </header>
 
+  <div class="searchbar">
+    <input type="search" id="searchInput" placeholder="Search resources by title, description or tag&hellip;" aria-label="Search resources" autocomplete="off" />
+    <button class="clear-btn" type="button" id="clearSearch" aria-label="Clear search" hidden>&times;</button>
+  </div>
+
   <div class="filters" id="filters" role="group" aria-label="Filter resources by topic">
-    <span class="filters-label">Filter</span>
+    <span class="filters-label">Topic</span>
     <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
-    <button class="chip" type="button" data-filter="copilot-studio" aria-pressed="false">Copilot Studio</button>
-    <button class="chip" type="button" data-filter="governance" aria-pressed="false">Governance &amp; Admin</button>
     <button class="chip" type="button" data-filter="licensing" aria-pressed="false">Licensing &amp; Cost</button>
+    <button class="chip" type="button" data-filter="governance" aria-pressed="false">Governance &amp; Admin</button>
+    <button class="chip" type="button" data-filter="copilot-studio" aria-pressed="false">Copilot Studio</button>
+    <button class="chip" type="button" data-filter="architecture" aria-pressed="false">Architecture</button>
     <button class="chip" type="button" data-filter="alm" aria-pressed="false">ALM &amp; DevOps</button>
     <button class="chip" type="button" data-filter="quality" aria-pressed="false">Quality &amp; Value</button>
     <button class="chip" type="button" data-filter="scout" aria-pressed="false">Microsoft Scout</button>
     <button class="chip" type="button" data-filter="calculators" aria-pressed="false">Calculators</button>
   </div>
-  <p class="filter-count" id="filterCount" aria-live="polite"></p>
 
-  <h2>Power Platform &amp; Copilot</h2>
+  <div class="filters" id="formats" role="group" aria-label="Filter resources by format">
+    <span class="filters-label">Format</span>
+    <button class="chip chip-sm" type="button" data-format="all" aria-pressed="true">Any</button>
+    <button class="chip chip-sm" type="button" data-format="checklist" aria-pressed="false">Checklist</button>
+    <button class="chip chip-sm" type="button" data-format="interactive" aria-pressed="false">Interactive</button>
+    <button class="chip chip-sm" type="button" data-format="script" aria-pressed="false">Script</button>
+    <button class="chip chip-sm" type="button" data-format="printable" aria-pressed="false">Printable</button>
+    <button class="chip chip-sm" type="button" data-format="external" aria-pressed="false">External</button>
+  </div>
+
+  <p class="filter-count" id="filterCount" aria-live="polite"></p>
+  <p class="no-results" id="noResults" hidden>No resources match that combination. <button type="button" class="linkish" id="resetAll">Reset filters</button></p>
+
+  <h2>Start Here <span class="sec-count">2</span></h2>
+  <p class="sec-blurb">Where to begin if the platform or the agent story is new to you.</p>
   <div class="cards">
-    <a class="card" href="enable-copilot-studio-building.html" data-topics="copilot-studio licensing">
+    <a class="card" data-format="guide" href="power-platform-admin-starter-kit.html" data-topics="governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform Admin — Starter Kit</p>
+      <p class="card-desc">A curated path of free, public Microsoft resources for a brand-new Power Platform admin — sequenced from day-one foundations (PL-900) through the admin center, security, governance, and delivery best practices (ALM, Well-Architected).</p>
+      <div class="card-tags">
+        <span class="tag">Getting started</span>
+        <span class="tag">Administration</span>
+        <span class="tag">Governance</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide" href="enable-copilot-studio-building.html" data-topics="copilot-studio licensing">
       <p class="card-title"><span class="arrow">&rarr;</span> Enabling Copilot Studio Building for an Organization</p>
       <p class="card-desc">The two supported ways to entitle makers to build agents in Microsoft Copilot Studio — the seat-based path (Copilot Studio tenant license + per-user Copilot Studio User License) and the pay-as-you-go path (PAYG on an environment in PPAC + the Environment Maker role). Side-by-side comparison, who doesn't need a license, and a quick decision guide.</p>
       <div class="card-tags">
@@ -244,30 +313,32 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">PPAC</span>
       </div>
     </a>
-    <a class="card" href="copilot-studio-agent-evaluation.html" data-topics="copilot-studio quality alm">
-      <p class="card-title"><span class="arrow">&rarr;</span> Copilot Studio Agent Evaluation — The Complete Guide</p>
-      <p class="card-desc">Everything needed to run agent quality as an engineering discipline: single-response vs. conversation test sets and their limits, the seven grading methods and when to use each, user profiles and the data-exposure gotcha, REST API and connector automation for CI/CD, risk-based pass thresholds, and the four-layer triage framework that turns a failed test case into the right fix.</p>
+  </div>
+
+  <h2>Licensing, Cost &amp; Credits <span class="sec-count">7</span></h2>
+  <p class="sec-blurb">Working out what something costs, who needs a license, and why credits are being consumed.</p>
+  <div class="cards">
+    <a class="card" data-format="guide printable" href="power-platform-licensing-managed-environments.html" data-topics="licensing governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform Licensing &amp; Managed Environments</p>
+      <p class="card-desc">A plain-language overview of how Power Platform is licensed and what changes when you turn on Managed Environments — seeded vs premium, licensing paths, the managed-environment premium-license rule, and per-user vs per-app guidance. Links to the official Microsoft references.</p>
       <div class="card-tags">
+        <span class="tag">Licensing</span>
+        <span class="tag">Managed Environments</span>
         <span class="tag">Copilot Studio</span>
-        <span class="tag">Agent evaluation</span>
-        <span class="tag">Testing</span>
-        <span class="tag">CI/CD</span>
-        <span class="tag">Quality</span>
       </div>
     </a>
-    <a class="card" href="copilot-studio-agent-value-measurement.html" data-topics="copilot-studio quality">
-      <p class="card-title"><span class="arrow">&rarr;</span> Measuring the Business Value of Copilot Studio Agents</p>
-      <p class="card-desc">The value-tracking counterpart to agent evaluation: the four value drivers and how finance prices each, the discovery questions and impact/effort map that come before any build, the telemetry baseline that survives audit, Microsoft's published Agent Assisted Hours and Agent Assisted Value formulas with a worked example, a surface-by-surface map of where to read each number, how to build your own ROI reporting with Copilot Agent Kit and Power BI, and a one-page executive scorecard.</p>
+    <a class="card" data-format="checklist script printable" href="power-platform-managed-environments-preflight.html" data-topics="licensing governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> Managed Environments: Pre-Deployment Inventory &amp; Checklist</p>
+      <p class="card-desc">The operational companion to the licensing overview. How to work out who is in an environment, who is actually licensed, and what the gap will cost before you turn Managed Environments on — plus a downloadable read-only PowerShell script that joins Dataverse users to Entra license assignments and classifies every user. Covers the Dynamics 365 Pro trap, group-based licensing, and what enforcement actually looks like.</p>
       <div class="card-tags">
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">Business value</span>
-        <span class="tag">ROI</span>
-        <span class="tag">Analytics</span>
-        <span class="tag">Power BI</span>
-        <span class="tag">Viva Insights</span>
+        <span class="tag">Licensing</span>
+        <span class="tag">Managed Environments</span>
+        <span class="tag">PowerShell</span>
+        <span class="tag">Checklist</span>
+        <span class="tag">Printable</span>
       </div>
     </a>
-    <a class="card" href="copilot-studio-harness-billing-changes.html" data-topics="copilot-studio licensing governance">
+    <a class="card" data-format="guide" href="copilot-studio-harness-billing-changes.html" data-topics="copilot-studio licensing governance">
       <p class="card-title"><span class="arrow">&rarr;</span> What Changed in Copilot Studio Billing</p>
       <p class="card-desc">The GitHub Copilot harness brought a second billing model to Copilot Studio in August 2026. Three harnesses and which one bills how, the four assumptions that break (billing starts at build not publish, no Microsoft 365 Copilot license inclusion, no per-event rate card, enforcement stops makers too), what a task actually costs, what did not change, and the working rule for choosing a harness.</p>
       <div class="card-tags">
@@ -278,7 +349,7 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Licensing</span>
       </div>
     </a>
-    <a class="card" href="copilot-studio-credit-optimization.html" data-topics="copilot-studio licensing governance">
+    <a class="card" data-format="guide" href="copilot-studio-credit-optimization.html" data-topics="copilot-studio licensing governance">
       <p class="card-title"><span class="arrow">&rarr;</span> Evaluating &amp; Optimizing Copilot Credit Consumption</p>
       <p class="card-desc">A four-phase playbook &mdash; measure, diagnose, optimize, govern &mdash; for teams running Copilot Studio agents in production. Which harness you are on and what a GitHub Copilot harness task actually costs, the full credit rate card and the stacking rule, where consumption is actually reported, the ten cost drivers, eight optimization levers with real cost deltas, enforcement behavior at 100% and 125%, and a printable checklist.</p>
       <div class="card-tags">
@@ -289,7 +360,18 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Governance</span>
       </div>
     </a>
-    <a class="card external" href="https://microsoft.github.io/mcscatblog/posts/copilot-harness-cost-governance/" target="_blank" rel="noopener noreferrer" data-topics="copilot-studio licensing governance">
+    <a class="card" data-format="guide" href="copilot-credit-consumption-diagnostic.html" data-topics="copilot-studio licensing">
+      <p class="card-title"><span class="arrow">&rarr;</span> Why Is a Non-Autonomous Agent Consuming Copilot Credits?</p>
+      <p class="card-desc">A diagnostic guide for the most common credit surprise: an internal agent used only by Microsoft 365 Copilot licensed employees that still meters. The four conditions behind the "No charge" column, a sixty-second triage, twelve root causes with verification steps and fixes, what is never included regardless of license, and answers to the common licensing questions.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Copilot Credits</span>
+        <span class="tag">Microsoft 365 Copilot</span>
+        <span class="tag">Troubleshooting</span>
+        <span class="tag">Licensing</span>
+      </div>
+    </a>
+    <a class="card external" data-format="external" href="https://microsoft.github.io/mcscatblog/posts/copilot-harness-cost-governance/" target="_blank" rel="noopener noreferrer" data-topics="copilot-studio licensing governance">
       <p class="card-title"><span class="arrow">&nearr;</span> Governing Copilot Credit Cost for GitHub Copilot Harness Agents</p>
       <p class="card-desc">The admin-side counterpart to the two guides above, from the Microsoft Customer Advisory Team. Because harness agents can consume Copilot Credits during maker exploration, before anything is published, the controls have to move earlier. Covers a five-step baseline (discover harness agents via the <span class="u">isCLIAgent</span> property in Power Platform Inventory, classify each environment as maker development or funded production, review allocation and tenant-pool and pay-as-you-go and enforcement settings, apply agent-level monthly limits, then re-run the review), with both the PPAC click path and the Power Platform API requests for doing it at scale.</p>
       <p class="card-source">External &middot; Microsoft Customer Advisory Team blog &middot; <span class="u">microsoft.github.io/mcscatblog</span></p>
@@ -302,67 +384,7 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Governance</span>
       </div>
     </a>
-    <a class="card" href="copilot-credit-consumption-diagnostic.html" data-topics="copilot-studio licensing">
-      <p class="card-title"><span class="arrow">&rarr;</span> Why Is a Non-Autonomous Agent Consuming Copilot Credits?</p>
-      <p class="card-desc">A diagnostic guide for the most common credit surprise: an internal agent used only by Microsoft 365 Copilot licensed employees that still meters. The four conditions behind the "No charge" column, a sixty-second triage, twelve root causes with verification steps and fixes, what is never included regardless of license, and answers to the common licensing questions.</p>
-      <div class="card-tags">
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">Copilot Credits</span>
-        <span class="tag">Microsoft 365 Copilot</span>
-        <span class="tag">Troubleshooting</span>
-        <span class="tag">Licensing</span>
-      </div>
-    </a>
-    <a class="card" href="power-platform-licensing-managed-environments.html" data-topics="licensing governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform Licensing &amp; Managed Environments</p>
-      <p class="card-desc">A plain-language overview of how Power Platform is licensed and what changes when you turn on Managed Environments — seeded vs premium, licensing paths, the managed-environment premium-license rule, and per-user vs per-app guidance. Links to the official Microsoft references.</p>
-      <div class="card-tags">
-        <span class="tag">Licensing</span>
-        <span class="tag">Managed Environments</span>
-        <span class="tag">Copilot Studio</span>
-      </div>
-    </a>
-    <a class="card" href="power-platform-managed-environments-preflight.html" data-topics="licensing governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> Managed Environments: Pre-Deployment Inventory &amp; Checklist</p>
-      <p class="card-desc">The operational companion to the licensing overview. How to work out who is in an environment, who is actually licensed, and what the gap will cost before you turn Managed Environments on — plus a downloadable read-only PowerShell script that joins Dataverse users to Entra license assignments and classifies every user. Covers the Dynamics 365 Pro trap, group-based licensing, and what enforcement actually looks like.</p>
-      <div class="card-tags">
-        <span class="tag">Licensing</span>
-        <span class="tag">Managed Environments</span>
-        <span class="tag">PowerShell</span>
-        <span class="tag">Checklist</span>
-        <span class="tag">Printable</span>
-      </div>
-    </a>
-    <a class="card" href="power-platform-admin-starter-kit.html" data-topics="governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform Admin — Starter Kit</p>
-      <p class="card-desc">A curated path of free, public Microsoft resources for a brand-new Power Platform admin — sequenced from day-one foundations (PL-900) through the admin center, security, governance, and delivery best practices (ALM, Well-Architected).</p>
-      <div class="card-tags">
-        <span class="tag">Getting started</span>
-        <span class="tag">Administration</span>
-        <span class="tag">Governance</span>
-      </div>
-    </a>
-    <a class="card" href="agent-governance-zones.html" data-topics="governance copilot-studio">
-      <p class="card-title"><span class="arrow">&rarr;</span> Zoned Agent Governance</p>
-      <p class="card-desc">How to administer AI agents across Microsoft 365 Copilot, Copilot Studio and Power Platform without blocking the business or losing track of what got built. The three zones and what changes between them, why sharing and publishing are different problems, the controls that implement each zone (environment groups, rules, routing, connector policy, agent identity), where each surface is monitored and why agent counts never match, plus a seven-step rollout and the common failure patterns.</p>
-      <div class="card-tags">
-        <span class="tag">Governance</span>
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">Microsoft 365 Copilot</span>
-        <span class="tag">Environment groups</span>
-        <span class="tag">Purview</span>
-      </div>
-    </a>
-    <a class="card" href="coe-starter-kit-to-admin-center.html" data-topics="governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> CoE Starter Kit &rarr; Power Platform Admin Center</p>
-      <p class="card-desc">The Center of Excellence Starter Kit is no longer actively maintained. A capability-by-capability map of where each function lives natively today (Inventory, Usage, Monitor, Actions), what has no replacement at all, and the licensing dependency that makes the move less free than it looks.</p>
-      <div class="card-tags">
-        <span class="tag">Governance</span>
-        <span class="tag">Administration</span>
-        <span class="tag">Migration</span>
-      </div>
-    </a>
-    <a class="card" href="power-platform-cost-controls.html" data-topics="licensing governance">
+    <a class="card" data-format="guide" href="power-platform-cost-controls.html" data-topics="licensing governance">
       <p class="card-title"><span class="arrow">&rarr;</span> Cost Controls &amp; Billing Policies</p>
       <p class="card-desc">How Power Platform and Copilot Studio consumption bills to Azure — why billing policies attach to environments and never to users, the three layers of cost control, and how to stop one runaway agent running up the bill.</p>
       <div class="card-tags">
@@ -371,60 +393,12 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Administration</span>
       </div>
     </a>
-    <a class="card" href="power-platform-alm-pipelines.html" data-topics="alm governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy</p>
-      <p class="card-desc">The ins and outs of application lifecycle management on Power Platform — solutions, environment strategy, pipelines (platform vs. custom host, gated extensions, delegated deployments), and Dataverse Git integration — plus an honest split of where GitHub Actions and Azure DevOps fit alongside them. Includes a maturity ladder and a pitfalls checklist.</p>
-      <div class="card-tags">
-        <span class="tag">ALM</span>
-        <span class="tag">Pipelines</span>
-        <span class="tag">GitHub Actions</span>
-        <span class="tag">Git integration</span>
-        <span class="tag">Governance</span>
-      </div>
-    </a>
-    <a class="card" href="vscode-copilot-studio-agents.html" data-topics="copilot-studio alm">
-      <p class="card-title"><span class="arrow">&rarr;</span> Editing &amp; Publishing Copilot Studio Agents with VS Code</p>
-      <p class="card-desc">A code-first workflow for authoring Microsoft Copilot Studio agents in Visual Studio Code — install the Power Platform Tools extension, authenticate, pull an agent's solution locally, edit topics and instructions under source control, then repack, import, and publish. Includes a handy pac CLI command reference.</p>
-      <div class="card-tags">
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">VS Code</span>
-        <span class="tag">pac CLI</span>
-        <span class="tag">ALM</span>
-      </div>
-    </a>
-    <a class="card" href="copilot-studio-snowflake-cortex-agent.html" data-topics="copilot-studio governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> Connecting Copilot Studio to Snowflake Cortex Agents</p>
-      <p class="card-desc">How to let a Copilot Studio agent answer questions from Snowflake data by calling a Cortex Agent through the Snowflake connector, configured as a tool rather than a scripted topic. Covers the Microsoft Entra External OAuth trust, the stored procedure that bridges SQL to the Cortex Agent REST endpoint, tool and input descriptions that make orchestration route correctly, and the production hardening the published quickstart leaves out.</p>
-      <div class="card-tags">
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">Snowflake Cortex</span>
-        <span class="tag">Entra OAuth</span>
-        <span class="tag">Agent tools</span>
-      </div>
-    </a>
-    <a class="card" href="connecting-copilot-studio-to-ukg.html" data-topics="copilot-studio governance">
-      <p class="card-title"><span class="arrow">&rarr;</span> Connecting Copilot Studio to UKG</p>
-      <p class="card-desc">A field guide to authenticating a Copilot Studio agent against UKG Pro Workforce Management and UKG Pro HCM. Why the two product families need different authentication models, the certified connector landscape and the authentication gap in it, the form-encoding and percent-encoding traps that produce an HTTP 500 that looks like a platform bug, and how to hand a token back to the agent through an agent flow.</p>
-      <div class="card-tags">
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">UKG Pro</span>
-        <span class="tag">Agent flows</span>
-        <span class="tag">OAuth</span>
-        <span class="tag">Printable</span>
-      </div>
-    </a>
-    <a class="card" href="knowledge-sources-vs-azure-ai-search.html" data-topics="copilot-studio quality">
-      <p class="card-title"><span class="arrow">&rarr;</span> When Built-In Knowledge Sources Are Not Enough</p>
-      <p class="card-desc">Why grounded agents answer inconsistently and how to tell a configuration problem from an architecture problem. The five-stage retrieval pipeline, the silent failure modes that produce no error, a triage order to work through first, the retrieval dials built-in sources do not expose, and seven signals that it is time to move to a purpose-built Azure AI Search index &mdash; plus how that connects to Copilot Studio and what you take on when it does.</p>
-      <div class="card-tags">
-        <span class="tag">Copilot Studio</span>
-        <span class="tag">Knowledge sources</span>
-        <span class="tag">Azure AI Search</span>
-        <span class="tag">RAG</span>
-        <span class="tag">Printable</span>
-      </div>
-    </a>
-    <a class="card" href="modern-copilot-studio-orchestrator.html" data-topics="copilot-studio">
+  </div>
+
+  <h2>Building &amp; Integrating Agents <span class="sec-count">6</span></h2>
+  <p class="sec-blurb">Hands-on guides for authoring agents and wiring them to external systems.</p>
+  <div class="cards">
+    <a class="card" data-format="guide" href="modern-copilot-studio-orchestrator.html" data-topics="copilot-studio">
       <p class="card-title"><span class="arrow">&rarr;</span> Modern Copilot Studio: The New Orchestrator On-Ramp</p>
       <p class="card-desc">A builder's guide to the new agent-and-workflow paradigm in Copilot Studio — what changed and why, the modern component model (instructions, knowledge, tools, memory, skills, connected agents), agents vs. workflows, migrating classic agents without just porting them, and an honest read on today's gaps. Points to the deck, mini-site, and migration plugin.</p>
       <div class="card-tags">
@@ -434,7 +408,7 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Migration</span>
       </div>
     </a>
-    <a class="card" href="copilot-studio-and-foundry.html" data-topics="copilot-studio foundry architecture">
+    <a class="card" data-format="guide printable" href="copilot-studio-and-foundry.html" data-topics="copilot-studio architecture">
       <p class="card-title"><span class="arrow">&rarr;</span> Copilot Studio and Microsoft Foundry: How the Two Halves Fit Together</p>
       <p class="card-desc">Not a platform bake-off. The five supported seams between the low-code agent platform and the pro-code AI platform &mdash; Foundry models in prompts, Foundry IQ knowledge bases, connected Foundry agents, A2A agents, and registering agents for observability &mdash; plus how to pick the right one from the symptom you actually have.</p>
       <div class="card-tags">
@@ -445,11 +419,118 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Printable</span>
       </div>
     </a>
+    <a class="card" data-format="guide printable" href="knowledge-sources-vs-azure-ai-search.html" data-topics="copilot-studio quality">
+      <p class="card-title"><span class="arrow">&rarr;</span> When Built-In Knowledge Sources Are Not Enough</p>
+      <p class="card-desc">Why grounded agents answer inconsistently and how to tell a configuration problem from an architecture problem. The five-stage retrieval pipeline, the silent failure modes that produce no error, a triage order to work through first, the retrieval dials built-in sources do not expose, and seven signals that it is time to move to a purpose-built Azure AI Search index &mdash; plus how that connects to Copilot Studio and what you take on when it does.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Knowledge sources</span>
+        <span class="tag">Azure AI Search</span>
+        <span class="tag">RAG</span>
+        <span class="tag">Printable</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide" href="copilot-studio-snowflake-cortex-agent.html" data-topics="copilot-studio governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> Connecting Copilot Studio to Snowflake Cortex Agents</p>
+      <p class="card-desc">How to let a Copilot Studio agent answer questions from Snowflake data by calling a Cortex Agent through the Snowflake connector, configured as a tool rather than a scripted topic. Covers the Microsoft Entra External OAuth trust, the stored procedure that bridges SQL to the Cortex Agent REST endpoint, tool and input descriptions that make orchestration route correctly, and the production hardening the published quickstart leaves out.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Snowflake Cortex</span>
+        <span class="tag">Entra OAuth</span>
+        <span class="tag">Agent tools</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide printable" href="connecting-copilot-studio-to-ukg.html" data-topics="copilot-studio governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> Connecting Copilot Studio to UKG</p>
+      <p class="card-desc">A field guide to authenticating a Copilot Studio agent against UKG Pro Workforce Management and UKG Pro HCM. Why the two product families need different authentication models, the certified connector landscape and the authentication gap in it, the form-encoding and percent-encoding traps that produce an HTTP 500 that looks like a platform bug, and how to hand a token back to the agent through an agent flow.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">UKG Pro</span>
+        <span class="tag">Agent flows</span>
+        <span class="tag">OAuth</span>
+        <span class="tag">Printable</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide" href="vscode-copilot-studio-agents.html" data-topics="copilot-studio alm">
+      <p class="card-title"><span class="arrow">&rarr;</span> Editing &amp; Publishing Copilot Studio Agents with VS Code</p>
+      <p class="card-desc">A code-first workflow for authoring Microsoft Copilot Studio agents in Visual Studio Code — install the Power Platform Tools extension, authenticate, pull an agent's solution locally, edit topics and instructions under source control, then repack, import, and publish. Includes a handy pac CLI command reference.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">VS Code</span>
+        <span class="tag">pac CLI</span>
+        <span class="tag">ALM</span>
+      </div>
+    </a>
   </div>
 
-  <h2>AI Agents &amp; Microsoft Scout</h2>
+  <h2>Governance, ALM &amp; Administration <span class="sec-count">3</span></h2>
+  <p class="sec-blurb">Running the platform at scale: guardrails, tenant administration, and release management.</p>
   <div class="cards">
-    <a class="card" href="microsoft-scout-enablement.html" data-topics="scout governance">
+    <a class="card" data-format="guide" href="agent-governance-zones.html" data-topics="governance copilot-studio">
+      <p class="card-title"><span class="arrow">&rarr;</span> Zoned Agent Governance</p>
+      <p class="card-desc">How to administer AI agents across Microsoft 365 Copilot, Copilot Studio and Power Platform without blocking the business or losing track of what got built. The three zones and what changes between them, why sharing and publishing are different problems, the controls that implement each zone (environment groups, rules, routing, connector policy, agent identity), where each surface is monitored and why agent counts never match, plus a seven-step rollout and the common failure patterns.</p>
+      <div class="card-tags">
+        <span class="tag">Governance</span>
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Microsoft 365 Copilot</span>
+        <span class="tag">Environment groups</span>
+        <span class="tag">Purview</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide" href="coe-starter-kit-to-admin-center.html" data-topics="governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> CoE Starter Kit &rarr; Power Platform Admin Center</p>
+      <p class="card-desc">The Center of Excellence Starter Kit is no longer actively maintained. A capability-by-capability map of where each function lives natively today (Inventory, Usage, Monitor, Actions), what has no replacement at all, and the licensing dependency that makes the move less free than it looks.</p>
+      <div class="card-tags">
+        <span class="tag">Governance</span>
+        <span class="tag">Administration</span>
+        <span class="tag">Migration</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide" href="power-platform-alm-pipelines.html" data-topics="alm governance">
+      <p class="card-title"><span class="arrow">&rarr;</span> Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy</p>
+      <p class="card-desc">The ins and outs of application lifecycle management on Power Platform — solutions, environment strategy, pipelines (platform vs. custom host, gated extensions, delegated deployments), and Dataverse Git integration — plus an honest split of where GitHub Actions and Azure DevOps fit alongside them. Includes a maturity ladder and a pitfalls checklist.</p>
+      <div class="card-tags">
+        <span class="tag">ALM</span>
+        <span class="tag">Pipelines</span>
+        <span class="tag">GitHub Actions</span>
+        <span class="tag">Git integration</span>
+        <span class="tag">Governance</span>
+      </div>
+    </a>
+  </div>
+
+  <h2>Quality, Testing &amp; Value <span class="sec-count">2</span></h2>
+  <p class="sec-blurb">Proving an agent works, and proving it was worth building.</p>
+  <div class="cards">
+    <a class="card" data-format="guide" href="copilot-studio-agent-evaluation.html" data-topics="copilot-studio quality alm">
+      <p class="card-title"><span class="arrow">&rarr;</span> Copilot Studio Agent Evaluation — The Complete Guide</p>
+      <p class="card-desc">Everything needed to run agent quality as an engineering discipline: single-response vs. conversation test sets and their limits, the seven grading methods and when to use each, user profiles and the data-exposure gotcha, REST API and connector automation for CI/CD, risk-based pass thresholds, and the four-layer triage framework that turns a failed test case into the right fix.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Agent evaluation</span>
+        <span class="tag">Testing</span>
+        <span class="tag">CI/CD</span>
+        <span class="tag">Quality</span>
+      </div>
+    </a>
+    <a class="card" data-format="guide" href="copilot-studio-agent-value-measurement.html" data-topics="copilot-studio quality">
+      <p class="card-title"><span class="arrow">&rarr;</span> Measuring the Business Value of Copilot Studio Agents</p>
+      <p class="card-desc">The value-tracking counterpart to agent evaluation: the four value drivers and how finance prices each, the discovery questions and impact/effort map that come before any build, the telemetry baseline that survives audit, Microsoft's published Agent Assisted Hours and Agent Assisted Value formulas with a worked example, a surface-by-surface map of where to read each number, how to build your own ROI reporting with Copilot Agent Kit and Power BI, and a one-page executive scorecard.</p>
+      <div class="card-tags">
+        <span class="tag">Copilot Studio</span>
+        <span class="tag">Business value</span>
+        <span class="tag">ROI</span>
+        <span class="tag">Analytics</span>
+        <span class="tag">Power BI</span>
+        <span class="tag">Viva Insights</span>
+      </div>
+    </a>
+  </div>
+
+  <h2>Microsoft Scout <span class="sec-count">2</span></h2>
+  <p class="sec-blurb">Getting Scout running, and putting it to work.</p>
+  <div class="cards">
+    <a class="card" data-format="guide" href="microsoft-scout-enablement.html" data-topics="scout governance">
       <p class="card-title"><span class="arrow">&rarr;</span> Enabling Microsoft Scout for Your Organization</p>
       <p class="card-desc">A step-by-step admin guide to turning on Microsoft Scout for users in a customer tenant — prerequisites, the four enablement gates (Copilot Frontier, organization attestation, Intune device policy, and licensing), how AI model access is provided via GitHub Copilot, and a rollout checklist.</p>
       <div class="card-tags">
@@ -459,7 +540,7 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Licensing</span>
       </div>
     </a>
-    <a class="card" href="build-your-second-brain.html" data-topics="scout">
+    <a class="card" data-format="guide" href="build-your-second-brain.html" data-topics="scout">
       <p class="card-title"><span class="arrow">&rarr;</span> Have Your Microsoft Scout Build Your Second Brain</p>
       <p class="card-desc">A copy-paste, how-to walkthrough: hand 11 prompts to Microsoft Scout and it builds an LLM-maintained personal wiki (Karpathy's pattern) for you — vault structure, an AGENTS.md schema, conventions, seeding, and the ingest/query/lint operations. Optional steps add structured claims, an assistant persona, and a nightly dream loop.</p>
       <div class="card-tags">
@@ -471,9 +552,10 @@ footer.foot a:hover { text-decoration: underline; }
     </a>
   </div>
 
-  <h2>Calculators</h2>
+  <h2>Calculators &amp; Tools <span class="sec-count">2</span></h2>
+  <p class="sec-blurb">Interactive models and downloadable scripts.</p>
   <div class="cards">
-    <a class="card" href="ai-builder-to-copilot-credits-calculator.html" data-topics="calculators licensing copilot-studio">
+    <a class="card" data-format="interactive" href="ai-builder-to-copilot-credits-calculator.html" data-topics="calculators licensing copilot-studio">
       <p class="card-title"><span class="arrow">&rarr;</span> AI Builder to Copilot Credits Sizing Calculator</p>
       <p class="card-desc">An interactive model for what an existing AI Builder workload costs once it is metered in Copilot Credits. Enter monthly volume per capability against the published rates in both currencies and get the per-capability multiplier, the monthly and annual delta, and remaining runway. Set the capacity basis to match how the customer actually holds AI Builder today &mdash; purchased add-on or seeded with licensing &mdash; because on an entitlement basis there is no paid baseline, so the multiplier is suppressed and the result is reported as net-new spend rather than an increase. There is no conversion rate between the two currencies, so this models the cost difference instead. Includes the timing, scope and reporting gotchas that change the answer.</p>
       <div class="card-tags">
@@ -485,7 +567,7 @@ footer.foot a:hover { text-decoration: underline; }
         <span class="tag">Interactive</span>
       </div>
     </a>
-    <a class="card external" href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener noreferrer" data-topics="calculators licensing copilot-studio">
+    <a class="card external" data-format="interactive external" href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener noreferrer" data-topics="calculators licensing copilot-studio">
       <p class="card-title"><span class="arrow">&nearr;</span> Copilot Credit Estimator</p>
       <p class="card-desc">Microsoft's own public estimator for forecasting an agent's monthly Copilot Credit volume. Pick a licensing option, an agent type, and the features the agent uses, and it returns an estimated monthly credit figure for <strong>a single agent</strong>. Covers Copilot Studio plus seven Dynamics 365 workloads &mdash; Sales, Customer Service, Contact Center, Finance, Supply Chain Management, Project Operations, and Business Central &mdash; with Microsoft 365 marked coming soon. Results can be downloaded. Rates are shown at 1 credit = $0.01. Microsoft is explicit that this is informational guidance, not a pricing calculator and not a basis for contractual forecasts, so pair it with a buffer and check the current Licensing Guide before quoting.</p>
       <p class="card-source">External &middot; Microsoft &middot; <span class="u">microsoft.github.io/copilot-studio-estimator</span> &middot; short link <span class="u">aka.ms/copilotcreditestimator</span></p>
@@ -506,56 +588,159 @@ footer.foot a:hover { text-decoration: underline; }
 </div>
 <script>
   (() => {
-    const chips = Array.from(document.querySelectorAll("#filters .chip"));
-    const cards = Array.from(document.querySelectorAll("a.card"));
-    const sections = Array.from(document.querySelectorAll("h2")).map((h) => ({
-      heading: h,
-      grid: h.nextElementSibling,
-    }));
-    const countEl = document.getElementById("filterCount");
-    const total = cards.length;
+    const topicChips  = Array.from(document.querySelectorAll("#filters .chip"));
+    const formatChips = Array.from(document.querySelectorAll("#formats .chip"));
+    const cards       = Array.from(document.querySelectorAll("a.card"));
+    const countEl     = document.getElementById("filterCount");
+    const noResults   = document.getElementById("noResults");
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn    = document.getElementById("clearSearch");
+    const resetAll    = document.getElementById("resetAll");
+    const total       = cards.length;
 
-    function apply(filter) {
+    // A section is an h2 plus everything up to the next h2. The cards grid is
+    // not necessarily the immediate sibling, since each h2 is followed by a blurb.
+    const sections = Array.from(document.querySelectorAll("h2")).map((h) => {
+      const parts = [];
+      let grid = null;
+      let n = h.nextElementSibling;
+      while (n && n.tagName !== "H2") {
+        parts.push(n);
+        if (n.classList.contains("cards")) grid = n;
+        n = n.nextElementSibling;
+      }
+      return { heading: h, parts, grid };
+    }).filter((s) => s.grid);
+
+    // Cache the searchable text once, before any highlighting rewrites the DOM.
+    cards.forEach((c) => { c.dataset.haystack = c.textContent.toLowerCase().replace(/\s+/g, " "); });
+
+    let topic = "all", format = "all", query = "";
+
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    function clearHighlights(card) {
+      card.querySelectorAll("mark.hl").forEach((m) => {
+        const p = m.parentNode;
+        p.replaceChild(document.createTextNode(m.textContent), m);
+        p.normalize();
+      });
+    }
+
+    function highlight(card, term) {
+      if (!term) return;
+      const rx = new RegExp(esc(term), "gi");
+      const walker = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
+      const targets = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.nodeValue.trim() && rx.test(node.nodeValue)) targets.push(node);
+        rx.lastIndex = 0;
+      }
+      targets.forEach((n) => {
+        const frag = document.createDocumentFragment();
+        let last = 0, m;
+        rx.lastIndex = 0;
+        while ((m = rx.exec(n.nodeValue))) {
+          frag.appendChild(document.createTextNode(n.nodeValue.slice(last, m.index)));
+          const mk = document.createElement("mark");
+          mk.className = "hl";
+          mk.textContent = m[0];
+          frag.appendChild(mk);
+          last = m.index + m[0].length;
+        }
+        frag.appendChild(document.createTextNode(n.nodeValue.slice(last)));
+        n.parentNode.replaceChild(frag, n);
+      });
+    }
+
+    function apply() {
       let shown = 0;
+      const q = query.trim().toLowerCase();
+
       cards.forEach((card) => {
-        const topics = (card.dataset.topics || "").split(" ");
-        const match = filter === "all" || topics.includes(filter);
+        const topics  = (card.dataset.topics || "").split(" ");
+        const formats = (card.dataset.format || "").split(" ");
+        const match =
+          (topic  === "all" || topics.includes(topic)) &&
+          (format === "all" || formats.includes(format)) &&
+          (!q || card.dataset.haystack.includes(q));
+
         card.style.display = match ? "" : "none";
-        if (match) shown++;
+        clearHighlights(card);
+        if (match) { shown++; if (q) highlight(card, q); }
       });
 
-      sections.forEach(({ heading, grid }) => {
-        if (!grid || !grid.classList.contains("cards")) return;
-        const visible = Array.from(grid.querySelectorAll("a.card")).some(
-          (c) => c.style.display !== "none"
-        );
+      sections.forEach(({ heading, parts, grid }) => {
+        const visible = Array.from(grid.querySelectorAll("a.card"))
+          .some((c) => c.style.display !== "none");
         heading.style.display = visible ? "" : "none";
-        grid.style.display = visible ? "" : "none";
+        parts.forEach((p) => { p.style.display = visible ? "" : "none"; });
       });
 
-      chips.forEach((chip) =>
-        chip.setAttribute("aria-pressed", String(chip.dataset.filter === filter))
-      );
+      topicChips.forEach((c)  => c.setAttribute("aria-pressed", String(c.dataset.filter === topic)));
+      formatChips.forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.format === format)));
 
-      const label = chips.find((c) => c.dataset.filter === filter);
-      countEl.textContent =
-        filter === "all"
-          ? `Showing all ${total} resources`
-          : `Showing ${shown} of ${total} resources in ${label ? label.textContent : filter}`;
+      const bits = [];
+      if (topic !== "all") {
+        const l = topicChips.find((c) => c.dataset.filter === topic);
+        bits.push(l ? l.textContent : topic);
+      }
+      if (format !== "all") {
+        const l = formatChips.find((c) => c.dataset.format === format);
+        bits.push(l ? l.textContent.toLowerCase() : format);
+      }
+      if (q) bits.push(`matching "${query.trim()}"`);
+
+      countEl.textContent = bits.length
+        ? `Showing ${shown} of ${total} resources \u00b7 ${bits.join(" \u00b7 ")}`
+        : `Showing all ${total} resources`;
+
+      noResults.hidden = shown !== 0;
+      countEl.hidden = shown === 0;
+      clearBtn.hidden = !query;
 
       const url = new URL(window.location);
-      if (filter === "all") url.searchParams.delete("topic");
-      else url.searchParams.set("topic", filter);
+      topic  === "all" ? url.searchParams.delete("topic")  : url.searchParams.set("topic", topic);
+      format === "all" ? url.searchParams.delete("format") : url.searchParams.set("format", format);
+      q ? url.searchParams.set("q", query.trim()) : url.searchParams.delete("q");
       history.replaceState(null, "", url);
     }
 
-    chips.forEach((chip) =>
-      chip.addEventListener("click", () => apply(chip.dataset.filter))
-    );
+    topicChips.forEach((c)  => c.addEventListener("click", () => { topic  = c.dataset.filter; apply(); }));
+    formatChips.forEach((c) => c.addEventListener("click", () => { format = c.dataset.format; apply(); }));
 
-    const requested = new URLSearchParams(window.location.search).get("topic");
-    const valid = chips.some((c) => c.dataset.filter === requested);
-    apply(valid ? requested : "all");
+    let debounce;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => { query = searchInput.value; apply(); }, 120);
+    });
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { searchInput.value = ""; query = ""; apply(); }
+    });
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = ""; query = ""; apply(); searchInput.focus();
+    });
+    resetAll.addEventListener("click", () => {
+      topic = "all"; format = "all"; query = "";
+      searchInput.value = ""; apply(); searchInput.focus();
+    });
+
+    // "/" focuses search, the way most doc sites behave.
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement !== searchInput) {
+        e.preventDefault(); searchInput.focus();
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("topic");
+    const f = params.get("format");
+    const q = params.get("q");
+    if (t && topicChips.some((c) => c.dataset.filter === t)) topic = t;
+    if (f && formatChips.some((c) => c.dataset.format === f)) format = f;
+    if (q) { query = q; searchInput.value = q; }
+    apply();
   })();
 </script>
 </body>
