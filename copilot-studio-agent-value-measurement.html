@@ -300,7 +300,7 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot Studio &middot; Business Value Reference</p>
     <h1>Measuring the Business Value of Copilot Studio Agents</h1>
-    <p class="sub">How to define value before you build, capture a baseline that survives audit, read the numbers off the right surface, apply Microsoft's published Agent Assisted Hours formula, and build your own ROI reporting when the built-in surfaces are not enough. Compiled from public Microsoft documentation &middot; Updated August 2026.</p>
+    <p class="sub">How to define value before you build, capture a baseline that survives audit, confirm which harness the agent runs on, read the numbers off the right surface, apply Microsoft's published Agent Assisted Hours formula, and build your own ROI reporting when the built-in surfaces are not enough. Compiled from public Microsoft documentation &middot; Updated August 2026.</p>
   </header>
 
   <div class="callout">
@@ -315,6 +315,7 @@ footer.foot {
       <li><a href="#before-build">Define value before you build</a></li>
       <li><a href="#prioritize">Prioritize the portfolio: impact and effort</a></li>
       <li><a href="#baseline">Capture the telemetry baseline</a></li>
+      <li><a href="#harness">Check which harness the agent runs on</a></li>
       <li><a href="#tiers">Three measurement tiers</a></li>
       <li><a href="#kpis">The built-in KPIs and what they mean</a></li>
       <li><a href="#formula">Agent Assisted Hours and Agent Assisted Value</a></li>
@@ -462,6 +463,41 @@ Five specialists x 30 hours per week x 4.3 weeks x $60 per hour
 That is the productive-hour investment the agent helps redirect
 toward higher-value work. It belongs in the first business case.</div>
 
+  <h2 id="harness">Check which harness the agent runs on</h2>
+  <p>Before you pick a measurement surface, confirm which <strong>harness</strong> the agent is built on. A harness is the runtime that sits between what you designed and the model that reasons: it decides when to call the model, what to send it, how to interpret the response, and which tools to invoke. Copilot Studio runs three of them, and the choice changes both how the agent is billed and which value-tracking tooling is available to you.</p>
+
+  <table>
+    <thead>
+      <tr><th>Harness</th><th>Best for</th><th>How it is billed</th><th>What this means for measurement</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>GitHub Copilot harness</strong></td>
+        <td>Reasoning-heavy, multi-step business processes. Takes a goal, breaks it into steps, works across connectors, knowledge, MCP and connected agents, and recovers when a step fails. Natively creates and edits Word, Excel, PowerPoint and PDF files, and supports skills and memory.</td>
+        <td>Usage-based, on Copilot Credits. Building, testing and evaluating consume credits, not just running.</td>
+        <td>Read value from Agent Assisted Hours and Agent Assisted Value in the Viva Insights report. Treat credit consumption as the cost denominator.</td>
+      </tr>
+      <tr>
+        <td><strong>Standard harness</strong></td>
+        <td>Rule-based agents and agent flows, and structured repeatable conversations where predictable behavior matters more than autonomy.</td>
+        <td>Per the Copilot Studio licensing model for standard-harness agents and agent flows.</td>
+        <td>The in-product Savings calculator is documented against this harness. Per-run and per-tool savings estimates are available here.</td>
+      </tr>
+      <tr>
+        <td><strong>Copilot chat harness</strong></td>
+        <td>Extending Microsoft 365 Copilot Chat with your own enterprise knowledge so employees get grounded answers without leaving their everyday experience.</td>
+        <td>Consumption-based, or included in the Microsoft 365 Copilot user subscription license.</td>
+        <td>Measure through Microsoft 365 Copilot reporting and the Copilot Dashboard rather than per-agent Copilot Studio analytics.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Do not promise the Savings calculator before you check.</strong> Microsoft documents the Savings calculator as a feature used in agents and agent flows powered by the <em>standard harness</em>. If the agent is built on the GitHub Copilot harness, do not assume the per-run and per-tool savings tiles are the ROI mechanism. Fall back to Agent Assisted Hours and Agent Assisted Value in the Copilot Studio agents report, and pair it with Copilot Credit consumption as the cost side of the ratio. Confirm the harness in the environment before you commit a measurement approach in a customer conversation.
+  </div>
+
+  <p>The practical rule: the harness determines your <em>cost denominator</em> and the availability of the in-product savings tooling, but it does not change the four value drivers or the shape of the Agent Assisted Hours formula. Define value the same way regardless of harness; just be precise about where you read the numbers and what the run actually costs.</p>
+
   <h2 id="tiers">Three measurement tiers</h2>
   <p>Copilot Studio measurement layers into three tiers. Each answers a different question and costs a different amount of setup. Start at tier one on day one; add tiers two and three as the portfolio matures.</p>
 
@@ -522,6 +558,8 @@ toward higher-value work. It belongs in the first business case.</div>
 
   <h3>Savings calculator and custom metrics</h3>
   <p>The <strong>Savings calculator</strong> on the agent's Analytics page takes an estimated time or money saved per run or per tool and computes totals in real time against successful runs in the period. It updates retroactively when inputs change, which produces a defensible ROI tile with no data engineering at all. Separately, up to three <strong>custom metrics</strong> per agent can be defined in natural language; Copilot Studio generates a prompt that scores a sampling of sessions and renders the result as a labeled donut graph.</p>
+
+  <p>Two caveats. First, the Savings calculator is documented against the standard harness, so confirm the harness before you rely on it (see <a href="#harness">Check which harness the agent runs on</a>). Second, a tenant administrator can switch off money savings through the <em>Disable money saving rules</em> setting at environment level in the Power Platform admin center; makers can still calculate time savings when that is turned off, so build your narrative on hours first and convert to currency second.</p>
 
   <h2 id="formula">Agent Assisted Hours and Agent Assisted Value</h2>
   <p>Microsoft publishes a standard formula so value claims are comparable across agents and across organizations. It is the same calculation used in the Copilot Studio agents report in Viva Insights, and every multiplier in it is overridable.</p>
@@ -807,6 +845,18 @@ toward higher-value work. It belongs in the first business case.</div>
     <div class="ref">
       <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-improve-agent-health">Analyze autonomous agents</a><br>
       <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-improve-agent-health</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview">Harnesses in Copilot Studio</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview">Billing for agents powered by the GitHub Copilot harness</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing">Copilot Studio licensing</a><br>
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span>
     </div>
     <div class="ref">
       <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-cost-savings">Analyze time and cost savings for agents (Savings calculator)</a><br>
