@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Managed Environments: Pre-Deployment Inventory and Checklist</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+h4 { font-size: 12px; margin: 22px 0 6px; color: var(--cp-text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.seeded { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2 { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+
+/* --- page-specific additions --- */
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+pre {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+pre code { background: none; border: none; padding: 0; font-size: 13px; line-height: 1.5; }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step-n {
+  flex: 0 0 30px; height: 30px; border-radius: 50%;
+  background: var(--cp-accent); color: var(--cp-accent-fg);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; margin-top: 2px;
+}
+.step-b { flex: 1; }
+.step-b h3 { margin-top: 0; }
+
+ul.check { list-style: none; padding-left: 2px; }
+ul.check li { position: relative; padding-left: 26px; margin: 7px 0; }
+ul.check li::before {
+  content: ""; position: absolute; left: 0; top: 3px;
+  width: 14px; height: 14px; border-radius: 4px;
+  border: 1.5px solid var(--cp-border-strong); background: var(--cp-surface);
+}
+
+.dl { border-left: 4px solid var(--cp-accent); }
+.btn-link {
+  display: inline-block; font-size: 14px; font-weight: 600;
+  border-radius: 0.625rem; padding: 9px 18px; margin: 6px 8px 0 0;
+  border: 1px solid var(--cp-accent); background: var(--cp-accent);
+  color: var(--cp-accent-fg); text-decoration: none;
+}
+.btn-link:hover { background: var(--cp-accent-hover); text-decoration: none; }
+.btn-link.secondary { background: transparent; color: var(--cp-link); }
+.btn-link.secondary:hover { background: var(--cp-accent-soft); }
+
+@media print {
+  .step-n { border: 1px solid #000; }
+  .step, ul.check li { break-inside: avoid; }
+  pre { break-inside: avoid; }
+  .btn-link { display: none !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">&#128424; Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform &middot; Pre-Deployment Checklist</p>
+    <h1>Managed Environments: Pre-Deployment Inventory and Checklist</h1>
+    <p class="sub">Work out who is in the environment, who is actually licensed, and what it will cost &mdash; before you turn Managed Environments on. Includes a downloadable PowerShell inventory script &middot; August 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> enabling Managed Environments does <strong>not</strong> lock unlicensed users out. Enforcement is notification-based and escalates over roughly two weeks. That gives you runway &mdash; but the licensing obligation is real from the moment you switch it on, so do the inventory first rather than discovering the gap through in-app warnings.
+  </div>
+
+  <p>This page is the operational companion to <a href="power-platform-licensing-managed-environments.html">Power Platform Licensing &amp; Managed Environments</a>. That page explains the concepts: seeded versus premium, the licensing paths, and what Managed Environments actually unlocks. <strong>Start there if the model is new to you.</strong> This page assumes you have decided to proceed and need to work out who needs a license before you flip the switch.</p>
+
+  <h2>1. Why you need a pre-flight inventory</h2>
+
+  <p>There is a purpose-built report in the Power Platform admin center called <em>Users requiring licenses in Managed Environments</em>. It is genuinely useful, and it is the right tool for ongoing compliance monitoring. It is the wrong tool for planning, for two reasons:</p>
+
+  <ul>
+    <li>It only reports on environments that are <strong>already flagged as managed</strong>. Before you enable, there is nothing to report on.</li>
+    <li>It only lists users who <strong>launched an app in the selected month</strong>. Anyone who has access but has not opened anything recently is invisible.</li>
+  </ul>
+
+  <p>So a genuine pre-enablement inventory has to be composed from three sources and joined manually. That is what the script further down does.</p>
+
+  <div class="callout">
+    <strong>A lower-effort alternative worth considering.</strong> Because enforcement is notification-based rather than a hard block, you can enable Managed Environments on a single low-risk pilot environment, let the native report populate for a month, and get Microsoft's own verdict instead of reverse-engineering it. That is less work and higher fidelity. Do not do this on a business-critical environment with a nervous user base, and be aware users in the pilot will start seeing notifications.
+  </div>
+
+  <h2>2. What actually qualifies</h2>
+
+  <p>Sourced from the Power Platform Licensing Guide (August 2026), page 24, which is the canonical Managed Environments entitlement list.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Qualifies</span>
+      <h3>Covered for Managed Environments</h3>
+      <ul>
+        <li>Power Apps and Power Automate <strong>standalone</strong> user subscription licenses</li>
+        <li>Power Automate Process and Hosted Process</li>
+        <li>Power Pages user subscription capacity packs</li>
+        <li>Copilot Studio tenant license, and Copilot Studio for Microsoft 365 Copilot</li>
+        <li>Dynamics 365 <strong>Premium, Enterprise, and Team Members</strong> standalone licenses</li>
+        <li>Dynamics 365 Customer Insights</li>
+        <li>Power Apps per app, Power Pages, and Copilot Studio <strong>pay-as-you-go meters</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill seeded">Does not qualify</span>
+      <h3>Will trigger compliance notifications</h3>
+      <ul>
+        <li><strong>Dynamics 365 Pro / Professional</strong> (Sales Professional, Customer Service Professional)</li>
+        <li>Microsoft 365 and Office 365 <strong>seeded rights</strong> alone</li>
+        <li>Power Apps <strong>Developer Plan</strong>, when running assets</li>
+        <li>Dynamics 365 <strong>Operations Activity</strong> and <strong>Device</strong> licenses</li>
+        <li>Free and viral Power Platform plans</li>
+        <li>Power BI (does not grant Power Apps rights)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The fifteen qualifying Dynamics 365 SKUs</h3>
+  <p>Microsoft Learn enumerates these by name as the Dynamics 365 licenses that carry premium Power Apps and Power Automate usage rights:</p>
+  <div class="feature-tags">
+    <span class="tag">Sales Enterprise</span>
+    <span class="tag">Sales Premium</span>
+    <span class="tag">Customer Service Enterprise</span>
+    <span class="tag">Customer Service Premium</span>
+    <span class="tag">Field Service</span>
+    <span class="tag">Finance</span>
+    <span class="tag">Finance Premium</span>
+    <span class="tag">Supply Chain Management</span>
+    <span class="tag">Supply Chain Management Premium</span>
+    <span class="tag">Project Operations</span>
+    <span class="tag">Commerce</span>
+    <span class="tag">Human Resources</span>
+    <span class="tag">Business Central</span>
+    <span class="tag">Team Members</span>
+    <span class="tag">Intelligent Order Management</span>
+  </div>
+
+  <h2>3. The Dynamics 365 Pro trap</h2>
+
+  <p>This one is worth calling out on its own, because the Microsoft Learn article reads as ambiguous. The Learn page names only Premium, Enterprise, and Team Members as qualifying, yet a separate clause refers to Power Apps rights included with <em>Pro</em> licenses being valid within the context of the licensed application. Read alone, that looks like a partial grant.</p>
+
+  <p>The Licensing Guide settles it. <strong>Page 9, footnote 2:</strong></p>
+
+  <div class="callout warn">
+    &ldquo;Dynamics 365 Pro does not have use rights for Power Apps or Power Pages.&rdquo;
+  </div>
+
+  <p>And <strong>page 24, footnote 1</strong> removes any remaining doubt about what &ldquo;standalone&rdquo; means for this entitlement:</p>
+
+  <div class="callout warn">
+    &ldquo;<em>Standalone licenses</em> refers to full Power Apps, Power Automate, Power Pages and Copilot Studio licenses and <strong>does not include the limited Power Apps, Power Automate and Power Pages use rights that come with select Dynamics 365 and Microsoft 365 licenses.</strong>&rdquo;
+  </div>
+
+  <p>So Sales Professional and Customer Service Professional users in a managed environment need a per-app plan, a pay-as-you-go meter, or an upgrade. Plan for it.</p>
+
+  <h3>A naming trap that produces false negatives</h3>
+  <p>Some Professional SKU part numbers embed the word <code>ENTERPRISE</code>. For example, <code>DYN365_ENTERPRISE_SALES_PROFESSIONAL</code> is a <em>Professional</em> license despite the name. Any script that pattern-matches on <code>ENTERPRISE</code> first will classify these as covered, which is a false negative on exactly the population you most need to find. The script below handles this by evaluating Professional patterns before Enterprise patterns.</p>
+
+  <h2>4. The four-step inventory</h2>
+
+  <div class="step">
+    <div class="step-n">1</div>
+    <div class="step-b">
+      <h3>Define the population</h3>
+      <p>The licensing question is about <strong>active users in that environment</strong>, not tenant-wide seats. Query the Dataverse <code>systemuser</code> table and filter to access mode Read-Write, which is the license-consuming population. Exclude non-interactive, administrative, and application users, and exclude disabled accounts unless you are also running an access review.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-n">2</div>
+    <div class="step-b">
+      <h3>Pull actual license assignments from Entra ID</h3>
+      <p>The admin center gives you aggregate counts. You need per-user SKUs, which means Microsoft Graph. <strong>Critically, expand group-based licensing.</strong> A large share of miscounts come from licenses assigned through a group that the admin forgot to enumerate. Graph exposes this on <code>licenseAssignmentStates</code> via the <code>assignedByGroup</code> field.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-n">3</div>
+    <div class="step-b">
+      <h3>Join and classify into buckets</h3>
+      <p>Every user should land in exactly one bucket, and unknown SKUs should be surfaced rather than assumed. An inventory that quietly guesses is worse than one that admits what it does not know.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-n">4</div>
+    <div class="step-b">
+      <h3>Corroborate against real usage before buying</h3>
+      <p>Do not size the purchase from the user list. Size it from actual app launches. Go to <strong>Licensing &gt; Power Apps &gt; Download Reports &gt; Active users</strong> for last-launch details. Users who appear in your environment population but never launch anything may need removing rather than licensing.</p>
+    </div>
+  </div>
+
+  <h2>5. The inventory script</h2>
+
+  <div class="card dl">
+    <h3>Get-ManagedEnvLicenseInventory.ps1</h3>
+    <p>A read-only PowerShell script that performs steps 1 to 3 automatically and writes an Excel workbook (or CSVs) with a per-user verdict. It changes nothing in Dataverse or Entra ID.</p>
+    <p>
+      <a class="btn-link" href="scripts/Get-ManagedEnvLicenseInventory.ps1" download>Download the script</a>
+      <a class="btn-link secondary" href="https://github.com/JoelCade/resources/blob/main/scripts/README.md" target="_blank" rel="noopener">Read the documentation</a>
+    </p>
+  </div>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>PowerShell 5.1 or PowerShell 7 and above</li>
+    <li>Azure CLI on the PATH, signed in with <code>az login</code></li>
+    <li>A Dataverse account that can read the <code>systemuser</code> table in the target environment</li>
+    <li>Directory read access in Entra ID. If Graph returns 403, use an account with <code>Directory.Read.All</code>, <code>User.Read.All</code>, or <code>Organization.Read.All</code>.</li>
+    <li>Optional: <code>Install-Module ImportExcel -Scope CurrentUser</code> for a single workbook instead of CSVs</li>
+  </ul>
+
+  <h3>Running it</h3>
+  <pre><code>az login
+
+.\Get-ManagedEnvLicenseInventory.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com"</code></pre>
+
+  <h3>What comes out</h3>
+  <table>
+    <thead><tr><th>Bucket</th><th>Meaning</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Covered</strong></td><td>Holds a qualifying standalone or Dynamics 365 Enterprise/Premium license.</td><td>None.</td></tr>
+      <tr><td><strong>NotQualifying</strong></td><td>Microsoft 365 seeded rights, Developer Plan, Dynamics 365 Pro, or a free plan.</td><td>Assign a license, or remove from the environment.</td></tr>
+      <tr><td><strong>Unclassified</strong></td><td>The SKU is not in the rules table.</td><td>Review manually and extend the rules.</td></tr>
+      <tr><td><strong>NoLicense</strong></td><td>Present in the environment, holds nothing at all.</td><td>Usually a stale account. Confirm before removing.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The workbook has five tabs: <strong>Summary</strong> (counts per bucket), <strong>Action List</strong> (only users needing attention, worst first), <strong>All Users</strong> (the full joined dataset), <strong>License Mix</strong> (every SKU seen with its bucket), and <strong>Run Notes</strong> (parameters and caveats).</p>
+
+  <h2>6. Limits you must account for</h2>
+
+  <div class="callout warn">
+    <strong>This is entitlement, not usage.</strong> A user can be unlicensed and never launch an app, in which case the right answer may be to remove them rather than buy them a license. Always cross-check against the <em>Active users</em> report before purchasing.
+  </div>
+
+  <div class="callout warn">
+    <strong>Per-app plans and pay-as-you-go meters are invisible to any per-user report.</strong> Both are allocated at the <em>environment</em> level, not to a user, so they cannot appear in Entra data. If you use either, treat the non-qualifying count as an <strong>upper bound</strong> and reconcile against <strong>Licensing &gt; Power Apps &gt; Environments</strong>.
+  </div>
+
+  <div class="callout">
+    <strong>Unknown SKUs are surfaced, never assumed.</strong> Anything unrecognized is reported as <em>Unclassified</em> and listed at the end of the run so the rules can be extended. New SKUs appear regularly, so expect to add a few.
+  </div>
+
+  <h2>7. Pre-deployment checklist</h2>
+
+  <p>Work top to bottom. The first four are the inventory itself; the rest are the operational readiness items that tend to get skipped.</p>
+
+  <h4>Inventory</h4>
+  <ul class="check">
+    <li>Confirm <strong>which</strong> environment is being managed. For a Dynamics 365 finance and operations deployment this is the <em>linked Dataverse environment</em>, not the finance and operations environment itself.</li>
+    <li>Enumerate the license-consuming population in that environment (Read-Write access mode, enabled, non-application users).</li>
+    <li>Pull per-user license assignments from Entra ID, <strong>including group-assigned licenses</strong>.</li>
+    <li>Classify every user, and resolve anything that lands as <em>Unclassified</em>.</li>
+  </ul>
+
+  <h4>Reconciliation</h4>
+  <ul class="check">
+    <li>Check environment-level <strong>per-app allocations</strong> and <strong>pay-as-you-go meters</strong> in the admin center, and subtract those users from the gap.</li>
+    <li>Cross-check the gap list against the <strong>Active users</strong> report. Separate &ldquo;needs a license&rdquo; from &ldquo;should be removed&rdquo;.</li>
+    <li>Identify any <strong>Dynamics 365 Pro / Professional</strong> users specifically, since these are the most commonly misclassified population.</li>
+    <li>Confirm no one is relying on the <strong>Developer Plan</strong> to run assets in this environment.</li>
+  </ul>
+
+  <h4>Commercial</h4>
+  <ul class="check">
+    <li>Decide the remediation path per user group: per-app plan, pay-as-you-go meter, standalone premium license, or Dynamics 365 upgrade.</li>
+    <li>Confirm sufficient license capacity exists in the tenant before enabling.</li>
+    <li>Consider enabling <strong>auto-claim policies</strong> so active users are licensed automatically rather than by hand.</li>
+    <li>Validate the final position against your agreement and the current Licensing Guide. Pricing and SKU rules change.</li>
+  </ul>
+
+  <h4>Operational readiness</h4>
+  <ul class="check">
+    <li>Decide whether to pilot on a low-risk environment first.</li>
+    <li>Brief the service desk. Users <em>will</em> see in-app notifications, and the desk should know what they mean.</li>
+    <li>Check whether <strong>default environment routing</strong> is in scope. It creates managed developer environments automatically, which brings this same licensing rule with it.</li>
+    <li>Schedule a re-run of the inventory 30 days after enabling, and compare against the native compliance report.</li>
+  </ul>
+
+  <h2>8. What enforcement looks like</h2>
+
+  <p>Notifications escalate rather than blocking immediately. Users keep working throughout.</p>
+
+  <table>
+    <thead><tr><th>Stage</th><th>What the user sees</th><th>Timing</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Informational</strong></td><td>&ldquo;This app requires a valid Power Apps license. Request a license from your admin.&rdquo;</td><td>On first affected launch</td></tr>
+      <tr><td><strong>Warning</strong></td><td>Same message, escalated presentation.</td><td>After 7 days without a license</td></tr>
+      <tr><td><strong>Error</strong></td><td>&ldquo;Action required &mdash; this app requires a valid Power Apps license&hellip; for continued access.&rdquo;</td><td>After a further 7 days, and persists</td></tr>
+    </tbody>
+  </table>
+
+  <p>Users can request a license directly from the notification. Requests surface in the Power Platform admin center under <strong>Actions &gt; Recommendations</strong>, and in the Microsoft 365 admin center under <strong>Billing &gt; Licenses &gt; Requests</strong>.</p>
+
+  <h2>Public reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-licensing" target="_blank" rel="noopener">Managed environments &mdash; Licensing (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-overview" target="_blank" rel="noopener">Managed environments overview (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-enable" target="_blank" rel="noopener">How to enable Managed Environments (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/managed-environment-enable</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/view-license-consumption-issues" target="_blank" rel="noopener">View license consumption for Power Apps (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/view-license-consumption-issues</span></div>
+    <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2085130" target="_blank" rel="noopener">Microsoft Power Platform Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2085130</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pricing-billing-skus" target="_blank" rel="noopener">Licensing overview for Microsoft Power Platform (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pricing-billing-skus</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/commerce/licenses/manage-auto-claim-policies" target="_blank" rel="noopener">Manage auto-claim policies (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-365/commerce/licenses/manage-auto-claim-policies</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-apps/developer/data-platform/webapi/overview" target="_blank" rel="noopener">Dataverse Web API overview (Learn)</a><br><span class="u">https://learn.microsoft.com/power-apps/developer/data-platform/webapi/overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/graph/api/resources/user" target="_blank" rel="noopener">Microsoft Graph user resource type (Learn)</a><br><span class="u">https://learn.microsoft.com/graph/api/resources/user</span></div>
+  </div>
+
+  <footer class="foot">
+    Compiled from Microsoft Learn public documentation and the Microsoft Power Platform Licensing Guide (August 2026), verified August 2026. Licensing SKUs and rules change frequently &mdash; always confirm current terms against the Licensing Guide and your organization's agreement before making purchasing decisions. The inventory script is provided as-is, is read-only, and reports entitlement rather than usage; see the limits section above. This page is guidance, not a contract.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
