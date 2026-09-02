@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Analyzing Copilot Credit Consumption: Tenant to Agent</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+  scroll-margin-top: 64px;
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.alt { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+.num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.cost-lo { color: var(--cp-success); }
+.cost-hi { color: var(--cp-danger); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.step { display: flex; gap: 14px; margin: 14px 0; }
+.step .num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.step .body { flex: 1; }
+.step .body h3 { margin-top: 3px; }
+
+.path {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.5px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.math {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toc { padding: 16px 20px 18px; }
+.toc h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 0 0 10px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding-left: 0;
+  margin: 0;
+  columns: 2;
+  column-gap: 28px;
+}
+@media (max-width: 680px) { .toc ol { columns: 1; } }
+.toc li {
+  counter-increment: toc;
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 26px;
+  position: relative;
+  font-size: 14px;
+}
+.toc li::before {
+  content: counter(toc);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toc a { color: var(--cp-text); }
+.toc a:hover { color: var(--cp-link); text-decoration: underline; }
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 26px; position: relative; margin: 7px 0; }
+.checklist li::before {
+  content: "\2610";
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+  color: var(--cp-accent);
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step, .math { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">🖨 Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Power Platform &middot; Cost Analysis Reference</p>
+    <h1>Analyzing Copilot Credit Consumption: Tenant to Agent</h1>
+    <p class="sub">A complete map of where Copilot Credit consumption is reported and how to read it at every scope &mdash; tenant, environment, agent across environments, agents within an environment, and functionality within a single agent. Compiled from public Microsoft documentation &middot; September 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> there is no single screen that answers every cost question. Consumption is reported at five different scopes in two different products, and each scope answers a different question. Analysis means knowing which screen answers the question you are actually asking, and knowing that the number on it is <em>billed</em> credits, <em>nonbillable</em> credits, or both.
+  </div>
+
+  <div class="card toc">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#vocabulary">Billed vs nonbillable: the vocabulary</a></li>
+      <li><a href="#map">The five scopes and what each answers</a></li>
+      <li><a href="#tenant">Scope 1 &mdash; Tenant-wide consumption</a></li>
+      <li><a href="#environment">Scope 2 &mdash; Consumption by environment</a></li>
+      <li><a href="#agents-across">Scope 3 &mdash; Agents across environments</a></li>
+      <li><a href="#agents-within">Scope 4 &mdash; Agents within one environment</a></li>
+      <li><a href="#functionality">Scope 5 &mdash; Consumption by functionality</a></li>
+      <li><a href="#rates">The rate card behind the functionality view</a></li>
+      <li><a href="#worked">A worked read of a cost distribution</a></li>
+      <li><a href="#caveats">Data freshness and reconciliation traps</a></li>
+      <li><a href="#cadence">An analysis cadence that works</a></li>
+      <li><a href="#next">Optimizing a single agent</a></li>
+      <li><a href="#checklist">Analysis checklist</a></li>
+      <li><a href="#references">Reference materials</a></li>
+    </ol>
+  </div>
+
+  <h2 id="vocabulary">1. Billed vs nonbillable: the vocabulary</h2>
+
+  <p>Every consumption grid in the Power Platform admin center splits credits into <strong>billed</strong> and <strong>nonbillable</strong>. Reading a cost report without understanding that split is the single most common source of wrong conclusions, in both directions: teams panic about volume that costs nothing, or they budget against a number that excludes the activity that will cost them the most next quarter.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Billed credits</span>
+      <h3>What it means</h3>
+      <p>Consumption that actually draws down capacity. A billed credit either deducts from a prepaid Copilot Credit pack allocated to the environment, or meters against a pay-as-you-go billing plan linked to an Azure subscription.</p>
+      <h3>Why it matters</h3>
+      <p>Billed credits are the only number that moves you toward overage. They drive enforcement, they are what an agent-level monthly limit counts, and they are what appears on the invoice.</p>
+      <div class="feature-tags">
+        <span class="tag">Counts against allocation</span>
+        <span class="tag">Triggers enforcement</span>
+        <span class="tag">Appears on the bill</span>
+      </div>
+    </div>
+    <div class="card">
+      <span class="pill alt">Nonbillable credits</span>
+      <h3>What it means</h3>
+      <p>Activity that is metered and reported in the same units, but does not deduct from prepaid capacity and does not meter to pay-as-you-go. It is usage that is covered by an entitlement you already hold, or that Microsoft explicitly excludes from billing.</p>
+      <h3>Why it matters</h3>
+      <p>Nonbillable credits are your true usage signal. They tell you how heavily an agent is really used, and they quantify the exposure you would take on if the entitlement covering them ever changed.</p>
+      <div class="feature-tags">
+        <span class="tag">Real usage signal</span>
+        <span class="tag">No capacity draw</span>
+        <span class="tag">Latent exposure</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>What makes consumption nonbillable</h3>
+  <table>
+    <thead>
+      <tr><th style="width:38%">Situation</th><th>Why it is not billed</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>A Microsoft 365 Copilot licensed user interacts with an agent in an employee-facing scenario, under their own authenticated identity</td>
+        <td>Employee-facing (business-to-employee) use of Copilot Studio agents and the tools those agents invoke is included in the Microsoft 365 Copilot user subscription license, subject to fair-use limits. Every line in the rate card shows <em>No charge</em> for this case.</td>
+      </tr>
+      <tr>
+        <td>Agents created inside the Teams environment using Copilot Studio for Microsoft Teams</td>
+        <td>These agents do not consume Copilot Credits at all, regardless of who uses them. Note the inverse: an agent built in standalone Copilot Studio and merely <em>published to</em> the Teams channel does consume credits.</td>
+      </tr>
+      <tr>
+        <td>Messages in the embedded test chat while authoring</td>
+        <td>Test chat conversations do not count as billed consumption.</td>
+      </tr>
+      <tr>
+        <td>Agent flow test runs from the flow designer or the agent test chat</td>
+        <td>Test runs do not consume agent flow action capacity and are never blocked by agent flow enforcement.</td>
+      </tr>
+      <tr>
+        <td>Generative answers in an agent created in Agent Builder in Microsoft 365, where the response does not use tenant graph grounding</td>
+        <td>This specific combination is exempted from the generative answer charge.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What is never nonbillable, whatever the license</h3>
+  <ul>
+    <li><strong>Computer-Using Agent (CUA) activity.</strong> Billed at the agent action rate and explicitly excluded from the Microsoft 365 Copilot user subscription license inclusion.</li>
+    <li><strong>Agent flows triggered by anything other than "When an agent calls the flow".</strong> The no-charge inclusion for Microsoft 365 Copilot licensed users applies only to that trigger. A scheduled or event-driven agent flow bills at the standard rate.</li>
+    <li><strong>Bring-your-own-model configurations, including Microsoft Foundry models.</strong> These are billed separately and do not appear in the Copilot Credit meters at all, which means a Copilot Credit report can be flat while spend is rising elsewhere.</li>
+    <li><strong>Preview features.</strong> Features in preview charge at the published rate and count against purchased capacity.</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>The proactive greeting trap.</strong> If an agent is triggered to be ready for a conversation, it consumes credits as a classic answer whether or not a greeting is sent and whether or not the user ever replies. In analytics that same session is categorized as <em>unengaged</em>. Billing follows the agent's activity; engagement follows the user's behavior. The two numbers are not meant to match, and chasing the gap between them wastes a lot of time.
+  </div>
+
+  <h3>Three more distinctions worth fixing in your head</h3>
+  <table>
+    <thead>
+      <tr><th style="width:26%">Term</th><th>What it actually measures</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Copilot Credit</strong></td><td>The unit of consumption. One credit represents one request to Copilot that prompts a response or action, but different features consume different numbers of credits per occurrence.</td></tr>
+      <tr><td><strong>Billed session</strong></td><td>The legacy unit from the pre-2024 Power Virtual Agents license. Still reported for organizations on that plan. If a tenant switched mid-period, both billed sessions and Copilot Credits appear for the overlapping range.</td></tr>
+      <tr><td><strong>Total / engaged session</strong></td><td>Analytics metrics describing how effectively an agent resolved a user's question. Independent of billing. Never reconcile these against billed credits.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="map">2. The five scopes and what each answers</h2>
+
+  <p>Consumption reporting lives in two products. Everything at tenant, environment and cross-environment agent scope is in the <strong>Power Platform admin center</strong>. Everything about a single agent's internal behavior is in <strong>Copilot Studio</strong> itself, on the agent's Monitor page. Match the question to the scope before you open anything.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:22%">Scope</th><th style="width:30%">The question it answers</th><th>Where it lives</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Tenant</strong></td>
+        <td>Are we in aggregate within capacity, and is the trend going the wrong way?</td>
+        <td>Admin center &rarr; <span class="path">Licensing &gt; Copilot Studio &gt; Summary</span></td>
+      </tr>
+      <tr>
+        <td><strong>2. Environment</strong></td>
+        <td>Which environments are consuming, which are in overage, and is capacity allocated where the demand actually is?</td>
+        <td>Admin center &rarr; <span class="path">Licensing &gt; Copilot Studio &gt; Environments</span></td>
+      </tr>
+      <tr>
+        <td><strong>3. Agents across environments</strong></td>
+        <td>Which agents in the whole tenant are the biggest consumers, and which are near or over a limit?</td>
+        <td>Admin center &rarr; <span class="path">Summary &gt; Manage Agents</span></td>
+      </tr>
+      <tr>
+        <td><strong>4. Agents within an environment</strong></td>
+        <td>Inside this one environment, which agents and which features are consuming, and how much of it is billed?</td>
+        <td>Admin center &rarr; <span class="path">Environments &gt; [environment] &gt; Copilot credit consumption details</span></td>
+      </tr>
+      <tr>
+        <td><strong>5. Functionality within an agent</strong></td>
+        <td>For this agent, what kind of activity is driving the cost, and how is it trending against its limit?</td>
+        <td>Copilot Studio &rarr; agent &rarr; <span class="path">Monitor</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>A note on harnesses.</strong> Copilot Studio is a multi-harness platform, and the admin center gives a unified capacity view across the Copilot Chat, standard and GitHub Copilot harnesses. The agent-level Monitor page described in Scope 5 applies to the standard harness. GitHub Copilot harness agents are metered and governed differently, so verify which harness an agent is on before you interpret an agent-level number.
+  </div>
+
+  <h2 id="tenant">3. Scope 1 &mdash; Tenant-wide consumption</h2>
+
+  <p>Start here for any budgeting, renewal or true-up conversation. This is the only view that shows prepaid and pay-as-you-go side by side.</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Open the summary</h3>
+      <p>Sign in to the Power Platform admin center, select <strong>Licensing</strong> in the navigation pane, choose <strong>Copilot Studio</strong> under <strong>Products</strong>, then the <strong>Summary</strong> tab.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Read the capacity summary cards</h3>
+      <ul>
+        <li><strong>Pay-as-you-go credits</strong> &mdash; the number of active billing plans carrying the Copilot Studio meter, and month-to-date credits billed to them. A billing plan groups one or more environments and bills their usage to an Azure subscription.</li>
+        <li><strong>Prepaid capacity</strong> &mdash; units purchased, assigned and consumed. These may be Copilot Credit units or legacy session-based units, each with its own management link.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Work through the Copilot Credits capacity tab</h3>
+      <ul>
+        <li><strong>Capacity consumption by product</strong> &mdash; a product-level split of units deducted from prepaid packs versus pay-as-you-go. Credits consumed by Microsoft 365 Copilot Chat appear under that product rather than being mixed into custom agent usage.</li>
+        <li><strong>Total capacity consumption trend</strong> &mdash; daily consumption over the past three months. This is your seasonality and step-change detector.</li>
+        <li><strong>Copilot credit usage by environment</strong> &mdash; the top environments by usage. Use it purely to pick your next click; do the real environment work in Scope 2.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>For planning horizons longer than a quarter, the consumption monitoring views also carry month-to-date, the last two full months at daily granularity, and monthly totals for the past twelve months. That twelve-month series is the right input for a renewal or a pre-purchase sizing exercise.</p>
+
+  <h2 id="environment">4. Scope 2 &mdash; Consumption by environment</h2>
+
+  <p>The <strong>Environments</strong> tab is where allocation decisions get made. It reports, per environment, the credits deducted from prepaid capacity, the units billed under pay-as-you-go, and the environment's status.</p>
+
+  <p>Navigate to <span class="path">Licensing &gt; Copilot Studio &gt; Environments</span>, select <strong>Select environment</strong>, then choose the environment from the pane. To see credits consumed by Microsoft 365 Copilot Chat, choose the <strong>Microsoft 365 Copilot Chat</strong> entry on that selection page.</p>
+
+  <h3>The four things this view tells you</h3>
+  <table>
+    <thead>
+      <tr><th style="width:30%">Signal</th><th>How to act on it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Within capacity or in overage</td><td>Overage is the trigger for reallocation, purchase, or enabling a pay-as-you-go meter. Enforcement fires at 125% of prepaid capacity, at which point custom agents are disabled.</td></tr>
+      <tr><td>Whether capacity is allocated at all</td><td>An environment with no allocation draws against the remaining tenant pool. Several unallocated environments sharing one pool is the classic cause of an unrelated team's agents being disabled.</td></tr>
+      <tr><td>Whether pay-as-you-go is in use</td><td>An environment with a linked billing plan is insulated from tenant overage. Once its own allocation is exhausted, the meter simply takes over.</td></tr>
+      <tr><td>Prepaid vs pay-as-you-go split</td><td>A high pay-as-you-go share on a stable, predictable workload is usually a signal to move that workload onto prepaid capacity.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Allocation is protective, not just administrative.</strong> An environment with its own allocation keeps consuming from that allocation even while the tenant as a whole sits in overage. Environments with no allocation share the residual tenant pool and are the first to be enforced. Allocating capacity to a business-critical environment is the cheapest insurance available.
+  </div>
+
+  <h2 id="agents-across">5. Scope 3 &mdash; Agents across environments</h2>
+
+  <p>This is the view most people are looking for when they ask "which agent is costing us the most?" and it is the least discoverable. It is not on the Environments tab. From <span class="path">Licensing &gt; Copilot Studio &gt; Summary</span>, select <strong>Manage Agents</strong>.</p>
+
+  <p>The <strong>Agents</strong> page lists every Copilot Studio agent across the tenant that incurs billing charges. For each agent you get:</p>
+
+  <ul>
+    <li>Month-to-date billed credits</li>
+    <li>The environment the agent belongs to</li>
+    <li>Any configured monthly Copilot Credit limit</li>
+    <li>A status of <strong>Within limit</strong>, <strong>Nearing limit</strong>, or <strong>Over limit</strong></li>
+    <li>Search across agents, and the ability to turn an agent off</li>
+  </ul>
+
+  <h3>Using it as an analysis surface, not just a control panel</h3>
+  <p>Sorted by month-to-date billed credits, this page gives you the tenant-wide cost ranking in one screen. Three readings are worth making every month:</p>
+  <ol>
+    <li><strong>Concentration.</strong> If two or three agents account for most of the tenant's billed credits, optimization effort belongs on those agents and nowhere else.</li>
+    <li><strong>Environment mismatch.</strong> An agent consuming heavily inside an environment with little or no allocation is an enforcement incident waiting to happen.</li>
+    <li><strong>Unbudgeted growth.</strong> Any agent with no configured limit and a rising month-to-date figure is, by definition, uncapped exposure.</li>
+  </ol>
+
+  <p>Monthly limits can be set per agent from this page whether the environment uses prepaid capacity or pay-as-you-go. In a prepaid environment the agent must stay within the allocated pool; in a pay-as-you-go environment you can set any limit and usage bills accordingly. Two guardrails attach to a limit:</p>
+  <ul>
+    <li><strong>Notifications</strong> &mdash; environment-level and tenant-level admins are alerted as an agent approaches its limit.</li>
+    <li><strong>Hard stop</strong> &mdash; the agent is turned off automatically when it reaches the limit.</li>
+  </ul>
+
+  <h2 id="agents-within">6. Scope 4 &mdash; Agents within one environment</h2>
+
+  <p>Once an environment is identified as a hotspot, drill into it. On the environment view, the <strong>Copilot Credits capacity</strong> tab carries two cards:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Capacity consumption by product</span>
+      <p>A product-focused summary for this environment: units drawn from prepaid capacity packs and units metered to pay-as-you-go. Use it to confirm which billing mechanism is actually absorbing this environment's usage.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Copilot credit consumption details</span>
+      <p>The analytical heart of the whole exercise. A grid of the agents consuming capacity in this environment, each with its associated product, the feature name driving the consumption, and the count of <strong>billed versus nonbillable</strong> credits.</p>
+    </div>
+  </div>
+
+  <h3>How to read the consumption details grid</h3>
+  <p>Because the grid carries a feature name per row, it is simultaneously an agent-level and a feature-level view. Four patterns are worth recognizing on sight:</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:30%">Pattern</th><th>What it usually means</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>High nonbillable, low billed</td>
+        <td>A healthy employee-facing agent used mostly by Microsoft 365 Copilot licensed staff. Volume is real, cost is not. Do not optimize this for cost; optimize it for quality.</td>
+      </tr>
+      <tr>
+        <td>High billed, low nonbillable</td>
+        <td>Either a genuinely external or customer-facing agent, or an internal agent whose users are not Microsoft 365 Copilot licensed, or one running under a service identity rather than the user's identity. The last case is a fixable design problem, not a licensing problem.</td>
+      </tr>
+      <tr>
+        <td>A single feature name dominating</td>
+        <td>The clearest optimization target you will find. Tenant graph grounding at 10 credits and premium AI tools at 100 credits per 10 responses dominate quickly once they are switched on.</td>
+      </tr>
+      <tr>
+        <td><strong>Agent flow actions</strong> present and growing</td>
+        <td>Worth isolating. When prepaid capacity is exhausted, agent flow enforcement blocks new flow runs while the parent agent keeps working for non-flow interactions. Flow authors also see a design-time warning in the Copilot Studio designer. This produces a partially broken agent rather than an obviously dead one, which is much harder to triage from a user report.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="functionality">7. Scope 5 &mdash; Consumption by functionality</h2>
+
+  <p>To attribute an individual agent's cost to the kind of work it is doing, leave the admin center and open the agent in Copilot Studio, then go to <strong>Monitor</strong>. Set the time period with the dropdown at the top of the page; select <strong>See billing</strong> for detail.</p>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Overview panel</h3>
+      <p>Total billed Copilot Credits for the selected period. If the organization is on the legacy plan, this shows billed sessions instead, and shows both if the tenant switched mid-period.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Billing trend</h3>
+      <p>Billed credits over the selected period. Hover any point for the exact figure. Read this against release dates: a step change that lines up with a publish is a design regression, while a smooth ramp is adoption.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Cost distribution</h3>
+      <p>The functionality breakdown, and the reason this page exists. It shows which kinds of activity count toward the agent's credit usage, using total credits per activity. Because each activity type consumes a different number of credits per occurrence, the tallest column is not necessarily the most frequent activity &mdash; it is the most expensive one in aggregate.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>Monthly credit limit</h3>
+      <p>A stacked bar of credits used against credits remaining for the calendar month. Hover the segments for used and remaining figures. This is the fastest way to see whether an agent is within, near, or exceeding the budget set for it in Scope 3.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Read cost distribution as credits, not as events.</strong> A column representing 200 credits could be 200 classic answers, 100 generative answers, 40 agent actions, or 20 tenant graph grounded messages. Convert to event counts using the rate card below before drawing any conclusion about user behavior.
+  </div>
+
+  <h2 id="rates">8. The rate card behind the functionality view</h2>
+
+  <p>Cost distribution is uninterpretable without the rates. These apply to the language models Copilot Studio provides and exclude bring-your-own-model configurations, which bill separately.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:52%">Agent feature</th><th style="width:26%">Billing rate</th><th>Microsoft 365 Copilot licensed user</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Classic answer</td><td class="num-cell cost-lo">1 credit</td><td>No charge</td></tr>
+      <tr><td>Generative answer</td><td class="num-cell cost-lo">2 credits</td><td>No charge</td></tr>
+      <tr><td>Agent action (includes Computer-Using Agents)</td><td class="num-cell">5 credits</td><td>No charge (CUA excluded)</td></tr>
+      <tr><td>Tenant graph grounding for messages</td><td class="num-cell cost-hi">10 credits</td><td>No charge</td></tr>
+      <tr><td>Agent flow actions, per 100 actions</td><td class="num-cell">13 credits</td><td>No charge (only for the "When an agent calls the flow" trigger)</td></tr>
+      <tr><td>Text and generative AI tools (basic), per 10 responses</td><td class="num-cell cost-lo">1 credit</td><td>No charge</td></tr>
+      <tr><td>Text and generative AI tools (standard), per 10 responses</td><td class="num-cell">15 credits</td><td>No charge</td></tr>
+      <tr><td>Text and generative AI tools (premium), per 10 responses</td><td class="num-cell cost-hi">100 credits</td><td>No charge</td></tr>
+      <tr><td>Content processing tools, per page</td><td class="num-cell">8 credits</td><td>No charge</td></tr>
+      <tr><td>Classic voice, classic orchestration, per minute</td><td class="num-cell">10 credits</td><td>Core agent activity included</td></tr>
+      <tr><td>Generative AI voice, per minute</td><td class="num-cell">35 credits</td><td>Core agent activity included</td></tr>
+      <tr><td>Premium generative AI voice, per minute</td><td class="num-cell cost-hi">75 credits</td><td>Core agent activity included</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The stacking rule</h3>
+  <p>A single interaction can use several feature types at once, and the charges add. A tenant graph grounded generative answer costs 12 credits: 10 for the grounding and 2 for the generative answer.</p>
+
+  <p>Reasoning models stack in the same way, across two meters. The <em>feature rate</em> covers the core action and always applies. The <em>text and generative AI tools (premium)</em> rate then applies on top for the reasoning model's token usage, at 10 credits per 1,000 tokens.</p>
+
+  <div class="math">Total cost = feature rate for the operation
+           + text and generative AI tools (premium) for reasoning token usage
+
+Example: a generative answer produced by a reasoning model
+       = 2 credits + premium tool credits per 1,000 tokens</div>
+
+  <h2 id="worked">9. A worked read of a cost distribution</h2>
+
+  <p>Suppose an agent's Monitor page shows 30 days of activity and a cost distribution roughly as follows.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:36%">Activity</th><th style="width:20%">Credits</th><th style="width:16%">Share</th><th>Implied volume</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Tenant graph grounding</td><td class="num-cell cost-hi">42,000</td><td class="num-cell">64%</td><td>4,200 grounded messages</td></tr>
+      <tr><td>Generative answers</td><td class="num-cell">16,800</td><td class="num-cell">26%</td><td>8,400 answers</td></tr>
+      <tr><td>Agent actions</td><td class="num-cell">5,000</td><td class="num-cell">8%</td><td>1,000 actions</td></tr>
+      <tr><td>Classic answers</td><td class="num-cell cost-lo">1,400</td><td class="num-cell">2%</td><td>1,400 answers</td></tr>
+    </tbody>
+  </table>
+
+  <p>The reading is not "grounding is the biggest activity". By volume, generative answers are twice as frequent. Grounding dominates the bill because it costs five times as much per occurrence, and because it fired on only half the answers, which tells you it is conditional rather than universal. Three concrete questions follow directly from that:</p>
+
+  <ol>
+    <li>Do the grounded answers demonstrably outperform the ungrounded ones? If quality is comparable, grounding is buying 64% of the bill for nothing.</li>
+    <li>Are the 1,000 agent actions genuine task completions, or are they topic transitions and triggers inflating the count? Both bill at the agent action rate.</li>
+    <li>Cross-check the billed versus nonbillable split in Scope 4. If most of this traffic is Microsoft 365 Copilot licensed staff, the real invoice impact may be a fraction of the credit totals shown here.</li>
+  </ol>
+
+  <h2 id="caveats">10. Data freshness and reconciliation traps</h2>
+
+  <table>
+    <thead>
+      <tr><th style="width:34%">Trap</th><th>What to do about it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Analytics lag a few hours</td><td>The Monitor page takes a few hours to reflect new billed credits. Never diagnose a spike on same-day data.</td></tr>
+      <tr><td>Admin center data aggregates daily</td><td>Tenant consumption aggregates daily and can be delayed. The consumption bar shows all known consumption as of the <strong>Last updated</strong> timestamp in its tooltip. Quote that timestamp in any report you circulate.</td></tr>
+      <tr><td>Capacity resets on the first of the month</td><td>Usage is counted monthly starting on day one, not on your license anniversary. Comparisons must be month-aligned.</td></tr>
+      <tr><td>Unused capacity does not carry over</td><td>Leftover capacity expires. Consistent under-consumption is a sizing problem, not a saving.</td></tr>
+      <tr><td>Billed sessions are per-agent only</td><td>For organizations still on the legacy session model, there is no tenant-level billed session total. Aggregate agent by agent.</td></tr>
+      <tr><td>Credit reports exclude bring-your-own-model spend</td><td>Foundry and other external models bill separately. A flat credit report does not mean flat AI spend.</td></tr>
+      <tr><td>Power Automate cloud flows are not Copilot Credits</td><td>Cloud flows use Power Automate licensing and are outside Copilot Studio billing and enforcement entirely. Only agent flows managed in Copilot Studio consume credits.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cadence">11. An analysis cadence that works</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Weekly &mdash; 10 minutes</span>
+      <ul>
+        <li>Manage Agents page, sorted by month-to-date billed credits</li>
+        <li>Anything at <strong>Nearing limit</strong> or <strong>Over limit</strong></li>
+        <li>Any new agent appearing in the list for the first time</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">Monthly &mdash; 45 minutes</span>
+      <ul>
+        <li>Tenant trend across the three-month daily series</li>
+        <li>Environment table: allocation versus actual consumption</li>
+        <li>Consumption details grid for the top two environments</li>
+        <li>Monitor cost distribution for the top three agents</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">Quarterly</span>
+      <ul>
+        <li>Twelve-month monthly series for sizing and renewal</li>
+        <li>Reallocate capacity toward where demand actually landed</li>
+        <li>Reassess prepaid versus pay-as-you-go per environment</li>
+        <li>Re-baseline every agent-level monthly limit</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">On every agent release</span>
+      <ul>
+        <li>Compare cost distribution before and after publish</li>
+        <li>Confirm no new grounding or premium tool was enabled silently</li>
+        <li>Check the billing trend for a step change at the release date</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="next">12. Optimizing a single agent</h2>
+
+  <p>Everything above is diagnosis: finding where the credits go. Turning that into a lower bill is a separate discipline, with its own levers and measured cost deltas. Two companion guides on this site continue from here.</p>
+
+  <div class="card">
+    <p style="margin:0 0 4px;"><strong><a href="copilot-studio-credit-optimization.html">Evaluating &amp; Optimizing Copilot Credit Consumption in Production &rarr;</a></strong></p>
+    <p class="sub">The four-phase playbook &mdash; measure, diagnose, optimize, govern. Covers the ten cost drivers, eight optimization levers with real cost deltas, enforcement behavior at 100% and 125% of capacity, forecasting a new agent before launch, and a printable optimization checklist. This is the page to open once you know which agent to work on.</p>
+    <div class="feature-tags">
+      <span class="tag">Optimization levers</span>
+      <span class="tag">Cost drivers</span>
+      <span class="tag">Governance</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="margin:0 0 4px;"><strong><a href="copilot-credit-consumption-diagnostic.html">Why Is a Non-Autonomous Agent Consuming Copilot Credits? &rarr;</a></strong></p>
+    <p class="sub">A structured walkthrough for the specific case where an agent used only by Microsoft 365 Copilot licensed employees is still generating billed credits. Twelve root causes, a sixty-second triage, and what is never included regardless of license.</p>
+    <div class="feature-tags">
+      <span class="tag">Troubleshooting</span>
+      <span class="tag">Licensing inclusion</span>
+    </div>
+  </div>
+
+  <p>For the quality half of the picture &mdash; whether the credits you are spending are buying good answers &mdash; see <a href="copilot-studio-agent-evaluation.html">Copilot Studio Agent Evaluation</a> and <a href="copilot-studio-agent-value-measurement.html">Measuring the Business Value of Copilot Studio Agents</a>. Cost analysis without a quality baseline reliably produces cheaper agents that nobody uses.</p>
+
+  <h2 id="checklist">13. Analysis checklist</h2>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>I know whether the number I am looking at is billed, nonbillable, or both</li>
+      <li>I know which harness the agent in question runs on</li>
+      <li>I have checked the tenant summary for prepaid and pay-as-you-go together</li>
+      <li>I have identified which environments have allocation and which draw from the tenant pool</li>
+      <li>I have ranked agents tenant-wide from the Manage Agents page</li>
+      <li>I have opened the consumption details grid for the top consuming environment</li>
+      <li>I have read the top agent's cost distribution and converted credits to event counts</li>
+      <li>I have separated agent flow action consumption from the rest</li>
+      <li>I have confirmed no reasoning model or premium tool was enabled without a decision</li>
+      <li>I have noted the Last updated timestamp on any figure I am circulating</li>
+      <li>I have checked whether bring-your-own-model spend exists outside these meters</li>
+      <li>Every business-critical environment has its own allocation</li>
+      <li>Every agent with material consumption has a monthly limit, notifications, and a considered hard-stop setting</li>
+    </ul>
+  </div>
+
+  <h2 id="references">14. Reference materials</h2>
+
+  <div class="card">
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-copilot-credits-capacity">Manage Copilot Credits and capacity for Copilot Studio</a><br />
+      <span class="u">https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-copilot-credits-capacity</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-consumption">View an agent's billing consumption</a><br />
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-consumption</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management">Billing rates and management</a><br />
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing">FAQ for Copilot Studio billing and licensing</a><br />
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/faq-billing-licensing</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness">Manage costs for agents powered by the GitHub Copilot harness</a><br />
+      <span class="u">https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/improve-overview">Improve your Copilot Studio projects, an overview</a><br />
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/improve-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/analytics">Measure and improve agent performance with KPIs and analytics</a><br />
+      <span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/analytics</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/programmability-tutorial-manage-copilot-credit-allocations">Tutorial: manage Copilot Credit allocations programmatically</a><br />
+      <span class="u">https://learn.microsoft.com/power-platform/admin/programmability-tutorial-manage-copilot-credit-allocations</span>
+    </div>
+    <div class="ref">
+      <a href="https://microsoft.github.io/copilot-studio-estimator/">Microsoft Copilot Studio agent usage estimator</a><br />
+      <span class="u">https://microsoft.github.io/copilot-studio-estimator/</span>
+    </div>
+    <div class="ref">
+      <a href="https://go.microsoft.com/fwlink/?linkid=2320995">Microsoft Copilot Studio Licensing Guide</a><br />
+      <span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p>This page is guidance, not a contract. Copilot Credit rates, admin center navigation, and licensing inclusions change regularly. Confirm current terms and rates against the Microsoft Copilot Studio Licensing Guide and the Microsoft Learn articles linked above before making a purchasing or architectural decision. Compiled September 2026 from public Microsoft documentation.</p>
+  </footer>
+</div>
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
