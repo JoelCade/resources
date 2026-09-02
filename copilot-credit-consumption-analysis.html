@@ -460,6 +460,16 @@ footer.foot a { color: var(--cp-link); }
     <strong>A note on harnesses.</strong> Copilot Studio is a multi-harness platform, and the admin center gives a unified capacity view across the Copilot Chat, standard and GitHub Copilot harnesses. The agent-level Monitor page described in Scope 5 applies to the standard harness. GitHub Copilot harness agents are metered and governed differently, so verify which harness an agent is on before you interpret an agent-level number.
   </div>
 
+  <h3>The layer above all five: cross-product reporting</h3>
+  <p>Every scope in the table reports Copilot Studio in isolation. None of them answers the question a CFO actually asks, which is what the whole AI estate costs and what next year looks like. <strong><a href="https://github.com/microsoft/ConsumptionCentral-for-Microsoft-Copilot" target="_blank" rel="noopener">Consumption Central for Microsoft Copilot</a></strong> is a Microsoft-built, open-source Power BI template that fills that gap: fifteen pages covering consumption, cost, optimization and forecast for each of Copilot Cowork / Work IQ, Copilot Studio, GitHub Copilot and Azure AI Foundry, plus a combined overview.</p>
+  <ul>
+    <li><strong>One product is enough.</strong> Load whatever data you have; pages for products you skip come up empty and nothing breaks.</li>
+    <li><strong>Three setup paths.</strong> Local CSV in roughly ten minutes, Fabric for weekly unattended refresh, or Viva Direct for Cowork data with no file exports. Start with Local CSV to find out whether the numbers are worth automating before automating them.</li>
+    <li><strong>Set the credit price.</strong> The template defaults to list price at $0.01 per credit. Change it only if the agreement differs; this is the input that makes the cost pages credible.</li>
+    <li><strong>It demos with no tenant data.</strong> Synthetic sample data ships with every path.</li>
+  </ul>
+  <p>Two caveats to state before anyone builds a process on it: it is community-supported through GitHub issues rather than Microsoft support channels, and the identified Viva Insights variant processes personal data, which needs a privacy review in some regions. Use it as the trend and forecast layer; the admin center stays authoritative for the current month.</p>
+
   <h2 id="tenant">3. Scope 1 &mdash; Tenant-wide consumption</h2>
 
   <p>Start here for any budgeting, renewal or true-up conversation. This is the only view that shows prepaid and pay-as-you-go side by side.</p>
@@ -823,6 +833,10 @@ Example: a generative answer produced by a reasoning model
     <div class="ref">
       <a href="https://microsoft.github.io/copilot-studio-estimator/">Microsoft Copilot Studio agent usage estimator</a><br />
       <span class="u">https://microsoft.github.io/copilot-studio-estimator/</span>
+    </div>
+    <div class="ref">
+      <a href="https://github.com/microsoft/ConsumptionCentral-for-Microsoft-Copilot">Consumption Central for Microsoft Copilot &mdash; Power BI template (GitHub)</a><br />
+      <span class="u">https://github.com/microsoft/ConsumptionCentral-for-Microsoft-Copilot</span>
     </div>
     <div class="ref">
       <a href="https://go.microsoft.com/fwlink/?linkid=2320995">Microsoft Copilot Studio Licensing Guide</a><br />
