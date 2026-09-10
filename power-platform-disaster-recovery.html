@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Power Platform Disaster Recovery Principles</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 28px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 38px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 10px 0; }
+
+a { color: var(--cp-link); }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.card h3 { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.muted { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.warn { background: rgba(245,158,11,0.10); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin: 2px 0 4px; }
+.step .body p { margin: 4px 0; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">&#128424; Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform &middot; Architecture Reference</p>
+    <h1>Power Platform Disaster Recovery Principles</h1>
+    <p class="sub">What the platform recovers for you, what stays your responsibility, and how to build a business continuity plan that survives contact with a real outage &middot; September 2026.</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Power Platform gives you very strong <em>in-region</em> resilience for free and automatically, but everything beyond that is a decision you have to make. Cross-region protection is opt-in (self-service disaster recovery), backups expire in days not years, and none of it covers the systems your apps and flows actually talk to. Disaster recovery on Power Platform is therefore mostly an exercise in scoping what the platform does <em>not</em> cover, and writing a plan for that part.
+  </div>
+
+  <h2>1. Start with the shared responsibility line</h2>
+  <p>Almost every failed DR conversation starts in the same place: someone assumes "it is SaaS, Microsoft handles it." That is half true, and the half that is not true is where the outage hurts. Draw the line explicitly before you design anything.</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Microsoft</span>
+      <h3>What the platform handles</h3>
+      <ul>
+        <li>Synchronous replication of production environments across at least two availability zones in the region.</li>
+        <li>Automatic detection of and failover from zone-level failures, with no admin action required.</li>
+        <li>Continuous automated system backups of every environment that has a Dataverse database.</li>
+        <li>Physical, power, cooling and network redundancy, and data residency within the geography.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill muted">You</span>
+      <h3>What stays yours</h3>
+      <ul>
+        <li>Deciding whether an environment needs cross-region protection, and turning it on.</li>
+        <li>Deciding <em>when</em> to fail over. Microsoft does not pull the trigger for cross-region failover.</li>
+        <li>Recovery of everything outside Dataverse: connectors, external systems, gateways, integrations.</li>
+        <li>Long-term retention and archival. Platform backups are a rollback tool, not an archive.</li>
+        <li>Testing. A plan that has never been rehearsed is a document, not a capability.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>2. Fix the vocabulary before the architecture</h2>
+  <p>DR discussions collapse when the business and the platform team use the same words differently. Agree these three definitions per workload, in writing, before choosing any technology.</p>
+  <table>
+    <thead><tr><th>Term</th><th>The question it answers</th><th>How to express it usefully</th></tr></thead>
+    <tbody>
+      <tr><td><strong>RPO</strong><br>Recovery point objective</td><td>How much data are we willing to lose?</td><td>In minutes or hours of transactions, not as "zero." Genuine zero is rarely affordable and almost never required.</td></tr>
+      <tr><td><strong>RTO</strong><br>Recovery time objective</td><td>How long can the business run without this?</td><td>Measured from the moment of impact to the moment users are productive again, including the time it takes a human to decide to act.</td></tr>
+      <tr><td><strong>RLO</strong><br>Recovery level objective</td><td>What does "recovered" actually mean?</td><td>Which processes must work on day one. Order intake may be critical while reporting can wait a week. This is what keeps a DR plan affordable.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>The number everyone forgets:</strong> decision time. Cross-region failover on Power Platform is customer-initiated. If your incident process takes four hours to reach a person with authority to press the button, your real RTO is four hours plus the failover, no matter what the platform is capable of. Pre-authorize the decision, name the decision maker, and define the trigger conditions in advance.
+  </div>
+
+  <h2>3. The three layers of resilience</h2>
+  <p>Power Platform resilience is not one feature. It is three distinct mechanisms that protect against three different kinds of failure. Confusing them is the most common architectural error in this space.</p>
+
+  <table>
+    <thead><tr><th></th><th>Availability zones</th><th>Self-service disaster recovery</th><th>Backup and restore</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Protects against</strong></td><td>Data center, power, cooling or network failure inside a region</td><td>Loss of an entire Azure region</td><td>Logical damage: bad deployment, mass delete, corrupt data</td></tr>
+      <tr><td><strong>Scope</strong></td><td>Production environments, every region</td><td>Production environments, opt-in per environment</td><td>Every environment with a database except trials</td></tr>
+      <tr><td><strong>Who triggers it</strong></td><td>Automatic, no admin action</td><td>You, from the Power Platform admin center</td><td>You</td></tr>
+      <tr><td><strong>Cost</strong></td><td>Included</td><td>Managed Environment (premium tier) plus a second copy of your storage</td><td>Included</td></tr>
+      <tr><td><strong>Published objectives</strong></td><td>Near-zero RPO, RTO under five minutes</td><td>Replication lag typically under 15 minutes; no published cross-region RTO commitment because you control the trigger</td><td>Restore time depends on database size and can exceed a day for large environments with audit data</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Layer 1 &mdash; Availability zones (you already have this)</h3>
+  <p>Every production environment is replicated synchronously across at least two, and often three, availability zones within its region. Zones sit in physically separate data centers with independent power, cooling and networking, typically several kilometers apart and generally within 100 kilometers. Zone failures are detected and routed around automatically, with near-zero data loss and recovery measured in single-digit minutes.</p>
+  <p>Two consequences worth stating plainly to stakeholders. First, this is why cross-region secondary copies stopped being maintained by default: zone redundancy made them redundant, and recovering from them was slow and manual. Second, this protection applies to <strong>production</strong> environments only. Business-critical data sitting in a sandbox, developer or trial environment does not get the same treatment, which is one of many reasons production workloads should never live there.</p>
+
+  <h3>Layer 2 &mdash; Self-service disaster recovery (opt-in, per environment)</h3>
+  <p>Self-service disaster recovery (SSDR) maintains an asynchronous copy of a production environment in the paired Azure region, typically at least 300 miles away, and gives you a button to fail over, fail back, and rehearse. It is the only mechanism that survives the loss of a whole region.</p>
+  <div class="callout warn">
+    <strong>Read this twice:</strong> in the public cloud, the platform does <strong>not</strong> keep a copy of your environment in a remote region unless you turn SSDR on. Database backups are not replicated to a secondary region either. If your business continuity plan assumes a regional outage is survivable and SSDR is off, the plan is wrong.
+  </div>
+
+  <h3>Layer 3 &mdash; Backup and restore (the one you will actually use)</h3>
+  <p>Regional disasters are rare. Bad deployments, runaway flows and accidental bulk deletes are not. In practice, restore is the recovery mechanism most organizations invoke, and it is the one most often found wanting because of retention limits nobody checked.</p>
+
+  <h2>4. Backups: what you get, and what you do not</h2>
+  <table>
+    <thead><tr><th>Environment type</th><th>System backup</th><th>Manual backup</th></tr></thead>
+    <tbody>
+      <tr><td>Production</td><td>7 days by default, extendable to 14, 21 or 28 days for Managed Environments</td><td>7 days by default, same extension applies</td></tr>
+      <tr><td>Sandbox</td><td>7 days</td><td>7 days</td></tr>
+      <tr><td>Developer</td><td>7 days</td><td>7 days</td></tr>
+      <tr><td>Teams</td><td>7 days</td><td>7 days</td></tr>
+      <tr><td>Default</td><td>7 days, and it cannot be restored over itself &mdash; admins restore it into a developer environment instead</td><td>Not supported</td></tr>
+      <tr><td>Trial (both kinds)</td><td>Not backed up</td><td>Not supported</td></tr>
+    </tbody>
+  </table>
+  <p>Practical constraints to design around:</p>
+  <ul>
+    <li><strong>28 days is the ceiling.</strong> There is no native long-term retention. If a regulator expects seven years, that is an export and archive pattern you build yourself, not a backup setting you flip.</li>
+    <li><strong>You cannot download a backup.</strong> Offline copies of a Dataverse backup are not supported, so backups are not an exit strategy or an air-gapped archive.</li>
+    <li><strong>Extended retention needs a Managed Environment,</strong> which means a premium license tier for the users of that environment.</li>
+    <li><strong>Restores are not instant.</strong> Large databases, particularly with audit data, can take more than a day. Put that number in your RTO, not an optimistic guess.</li>
+    <li><strong>Restore covers solution-aware assets.</strong> Backup and restore includes apps and flows that live inside a Dataverse solution. Anything outside a solution is outside the safety net &mdash; which is a resilience argument for solid ALM discipline, not just a release-management one.</li>
+    <li><strong>Take a manual backup before every significant change,</strong> such as a major deployment, a version update or a data migration. This is the cheapest insurance on the platform.</li>
+  </ul>
+
+  <h2>5. Seven principles that hold up under pressure</h2>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Tier your environments, do not protect everything equally</h3>
+      <p>SSDR costs a premium license tier and a second copy of your storage. Applying it uniformly is how DR programs get cancelled. Classify workloads into tiers, and let the tier drive the mechanism.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Design for the failure you will actually have</h3>
+      <p>Ranked by likelihood: a bad deployment, a bad bulk operation, a broken integration, an expired credential, a regional outage. Most DR effort is spent on the last one. Most incidents are the first four. Weight your investment accordingly.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Treat DR as an extension of ALM, not a separate discipline</h3>
+      <p>If your solutions are in source control and you can rebuild an environment from a pipeline, you already have a recovery path that no backup retention window can expire. Configuration should be reproducible; only data should need restoring.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>Map the blast radius beyond Dataverse</h3>
+      <p>Failing over Dataverse does not fail over the SQL Server, ERP, REST API or third-party service your flows depend on. Those systems have their own RPO, and it governs the end-to-end result. Draw the dependency map first, then set an honest objective for the composite.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">5</div>
+    <div class="body">
+      <h3>Pre-authorize the decision</h3>
+      <p>Because failover is customer-initiated, name the person who can call it, define the thresholds that justify it, and give them a way to see current replication lag so the data-loss trade-off is a fact rather than a guess.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">6</div>
+    <div class="body">
+      <h3>Rehearse, on a copy, on a schedule</h3>
+      <p>An untested plan is a hypothesis. Drills are supported natively and involve no data loss, but they do involve downtime for the environment being failed over &mdash; so run them against a copy of production rather than production itself.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">7</div>
+    <div class="body">
+      <h3>Write down the degraded-mode process</h3>
+      <p>For every tier-one workload, answer: what does the business do during the recovery window? A paper form, a shared mailbox or a manual queue is a legitimate answer. Not having an answer is not.</p>
+    </div>
+  </div>
+
+  <h2>6. What does not fail over cleanly</h2>
+  <p>This is the section that separates a plan from a wish. A Dataverse failover moves the environment; it does not move your ecosystem. Validate each of these explicitly.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>External systems and connectors</h3>
+      <p>Connectors that depend on SQL Server, SharePoint, ERP or third-party services can have recovery problems of their own. Their availability and RPO are outside Power Platform's commitments entirely.</p>
+    </div>
+    <div class="card">
+      <h3>Hard-coded endpoints and allow lists</h3>
+      <p>Anything pinned to a primary-region hostname or IP range breaks after failover. Firewall allow lists must include the secondary region's ranges too, or outbound traffic silently fails.</p>
+    </div>
+    <div class="card">
+      <h3>Analytics links</h3>
+      <p>Fabric link and Synapse Link do not currently fail over with the environment and may need to be unlinked and recreated. Neither offers an RTO or RPO objective during failover today.</p>
+    </div>
+    <div class="card">
+      <h3>Event endpoints</h3>
+      <p>Webhook, Service Bus and Event Grid registrations can stop dispatching after a failover or database refresh. Events continue to be generated but are not delivered until the endpoints are recreated and validated.</p>
+    </div>
+    <div class="card">
+      <h3>Power Automate throughput</h3>
+      <p>Environments enabled for SSDR run on isolated runtime capacity. Most workloads see no difference, but high-volume, highly parallel or latency-sensitive flows may start slower or throttle. Validate business-critical automation before enabling.</p>
+    </div>
+    <div class="card">
+      <h3>Networking and identity plumbing</h3>
+      <p>Environments deployed into a virtual network need a virtual network pair configured, or failover fails outright because cross-region connectivity cannot be established.</p>
+    </div>
+  </div>
+
+  <h2>7. Turning on cross-region protection: the preconditions</h2>
+  <ul>
+    <li><strong>Production only.</strong> SSDR is available for production environments. Sandbox and developer environments are not eligible.</li>
+    <li><strong>Managed Environment required,</strong> which carries a premium license requirement for that environment's users.</li>
+    <li><strong>Storage doubles.</strong> The secondary copy draws from your pooled tenant Dataverse entitlements. A 10 GB environment consumes another 10 GB when protected. The capacity graph shows the extra consumption with a disaster-recovery indicator.</li>
+    <li><strong>Region pairing is a hard dependency.</strong> Regions without an Azure pair cannot offer SSDR, and failover is only ever to the designated pair &mdash; you cannot choose an arbitrary region. Confirm your geography's support status before you promise anything.</li>
+    <li><strong>Enablement takes time.</strong> Provisioning and initial replication can take up to 48 hours. It does not disrupt the environment while it runs, but it is not a same-afternoon response to an unfolding incident.</li>
+    <li><strong>Turning it off deletes the secondary copy,</strong> and it cannot be turned off while the environment is running from the secondary region.</li>
+  </ul>
+
+  <h2>8. A workable environment tiering model</h2>
+  <table>
+    <thead><tr><th>Tier</th><th>Typical workload</th><th>Mechanism</th><th>Rehearsal cadence</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Tier 1</strong><br>Business-critical</td><td>Revenue-generating or safety-related processes; regulated workloads with audit obligations</td><td>Managed Environment, SSDR enabled, extended backup retention, solutions in source control, documented degraded mode</td><td>Full drill at least annually, plus after major architectural change</td></tr>
+      <tr><td><strong>Tier 2</strong><br>Important</td><td>Departmental processes with a tolerable outage window of a day or more</td><td>Managed Environment, extended backup retention, ALM-based rebuild path. No SSDR.</td><td>Restore test annually</td></tr>
+      <tr><td><strong>Tier 3</strong><br>Standard</td><td>Team productivity apps, low-volume automation</td><td>Default backups, solid ALM. Accept in-region protection only.</td><td>Spot-check as part of platform review</td></tr>
+    </tbody>
+  </table>
+  <p>The value of this table is not the technology mapping. It is that it forces the business to say out loud which workloads are tier one, and to fund them accordingly.</p>
+
+  <h2>9. Running a drill</h2>
+  <ol>
+    <li><strong>Copy production to a sandbox, then convert it to a production type.</strong> Drills involve real downtime for the environment being failed over, so do not rehearse against live production.</li>
+    <li><strong>Enable disaster recovery on the copy</strong> and allow replication to complete.</li>
+    <li><strong>Check replication lag first.</strong> The admin center shows the last sync time before you commit, which tells you the data-loss exposure at that moment. You can inspect it and cancel.</li>
+    <li><strong>Fail over, then validate the platform:</strong> user sign-in, security roles, application functionality, and the business-critical processes themselves.</li>
+    <li><strong>Validate the ecosystem:</strong> Azure integrations, external APIs, custom plug-ins and middleware, Power Automate flows, agents, Power Apps and Power Pages workloads, and every mission-critical third-party connector.</li>
+    <li><strong>Fail back,</strong> and time both directions. Compare against your stated RTO and correct the objective if reality disagrees with it.</li>
+    <li><strong>Record the outcome and the gaps.</strong> Microsoft does not publish a mandatory drill checklist, so your evidence is what auditors will read.</li>
+  </ol>
+  <div class="callout">
+    <strong>Know what a drill cannot prove:</strong> during a rehearsal the primary region stays healthy, so anything that quietly still resolves to the primary region will appear to work. Hard-coded primary endpoints are the classic example. Look for them deliberately rather than trusting a green drill.
+  </div>
+
+  <h2>10. Anti-patterns worth naming</h2>
+  <table>
+    <thead><tr><th>Pattern</th><th>Why it fails</th></tr></thead>
+    <tbody>
+      <tr><td>"It is SaaS, so DR is covered"</td><td>In-region resilience is automatic; cross-region is opt-in and everything outside Dataverse is yours. The assumption is discovered to be false during the incident.</td></tr>
+      <tr><td>Backups treated as an archive</td><td>Maximum retention is 28 days and copies cannot be downloaded. Compliance retention needs a separate export pattern.</td></tr>
+      <tr><td>Business-critical data in a sandbox or developer environment</td><td>Non-production environments do not receive the same resilience posture, and some cannot be restored the way admins expect.</td></tr>
+      <tr><td>Components living outside solutions</td><td>They fall outside the restore path and outside any rebuild pipeline. Recovery becomes manual reconstruction from memory.</td></tr>
+      <tr><td>An RTO nobody has timed</td><td>Restore duration scales with data volume and can exceed a day. An untimed objective is a number, not a commitment.</td></tr>
+      <tr><td>SSDR enabled, drill never run</td><td>Untested failover paths hide virtual network gaps, allow-list gaps and hard-coded endpoints until the day they matter.</td></tr>
+      <tr><td>No named decision maker</td><td>Customer-initiated failover means human latency is part of RTO. Without pre-authorization, the platform waits on an email thread.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>11. A short checklist</h2>
+  <div class="card">
+    <ul>
+      <li>Every workload has a written RPO, RTO and RLO agreed with the business.</li>
+      <li>Environments are tiered, and the tier drives the protection mechanism.</li>
+      <li>Production data lives only in production environments.</li>
+      <li>Solutions are in source control with a tested rebuild path.</li>
+      <li>Manual backup is a standard step in the pre-deployment runbook.</li>
+      <li>Backup retention is set deliberately, not left at the default by accident.</li>
+      <li>Tier-one environments have SSDR enabled, with capacity and licensing accounted for.</li>
+      <li>The dependency map lists every external system and its own recovery objective.</li>
+      <li>Firewall allow lists and virtual network pairing cover the secondary region.</li>
+      <li>A named individual is pre-authorized to declare failover, against defined triggers.</li>
+      <li>A drill has been run in the last 12 months, and the findings were fixed.</li>
+      <li>Every tier-one process has a documented degraded-mode fallback.</li>
+    </ul>
+  </div>
+
+  <h2>Reference materials</h2>
+  <div class="card">
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/admin/business-continuity-disaster-recovery" target="_blank" rel="noopener">Business continuity and disaster recovery &mdash; Power Platform admin documentation</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/business-continuity-disaster-recovery</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/admin/backup-restore-environments" target="_blank" rel="noopener">Back up and restore environments</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/backup-restore-environments</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-overview" target="_blank" rel="noopener">Managed Environments overview</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/managed-environment-overview</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/reliability/availability-zones-overview" target="_blank" rel="noopener">Azure availability zones overview</a>
+      <span class="u">learn.microsoft.com/azure/reliability/availability-zones-overview</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/reliability/regions-list" target="_blank" rel="noopener">Azure regions and region pairs</a>
+      <span class="u">learn.microsoft.com/azure/reliability/regions-list</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview" target="_blank" rel="noopener">Business continuity in Azure SQL Database</a>
+      <span class="u">learn.microsoft.com/azure/azure-sql/database/business-continuity-high-availability-disaster-recover-hadr-overview</span></p>
+    <p class="ref"><a href="https://learn.microsoft.com/power-platform/admin/vnet-support-setup-configure" target="_blank" rel="noopener">Set up virtual network support for Power Platform</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/vnet-support-setup-configure</span></p>
+    <p class="ref"><a href="https://aka.ms/powa" target="_blank" rel="noopener">Microsoft Power Platform Well-Architected</a>
+      <span class="u">aka.ms/powa</span></p>
+  </div>
+
+  <div class="feature-tags">
+    <span class="tag">Disaster recovery</span>
+    <span class="tag">Business continuity</span>
+    <span class="tag">Dataverse</span>
+    <span class="tag">Managed Environments</span>
+    <span class="tag">Backup &amp; restore</span>
+    <span class="tag">Availability zones</span>
+    <span class="tag">Architecture</span>
+  </div>
+
+  <footer class="foot">
+    Compiled from public Microsoft documentation, September 2026. This is guidance, not a contract &mdash; platform capabilities, regional availability and licensing requirements change, and several of the limitations described here are actively being improved. Confirm current product behavior, regional support and licensing terms against the official documentation before making architectural or contractual commitments. &middot; <a href="index.html">All resources</a>
+  </footer>
+</div>
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
