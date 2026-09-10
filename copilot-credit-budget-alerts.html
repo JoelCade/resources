@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Budget &amp; Cost Alert Options for Copilot Credits</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 19px;
+  margin: 34px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 15.5px; margin: 18px 0 6px; }
+p { margin: 8px 0; }
+a { color: var(--cp-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 860px) { .grid3 { grid-template-columns: 1fr; } }
+@media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+
+.console-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 12.5px; font-weight: 700;
+  margin-bottom: 8px;
+}
+.console-name { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+.console-desc { font-size: 13.5px; color: var(--cp-text-muted); margin: 0; }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  white-space: nowrap;
+}
+.pill.notify { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul { margin: 8px 0; padding-left: 20px; }
+ol { margin: 8px 0; padding-left: 22px; }
+li { margin: 4px 0; }
+
+.path {
+  display: inline-block;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 12.5px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin: 4px 0 8px;
+}
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+footer.foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .grid3 { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">&#128424; Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft Power Platform &middot; Cost &amp; Billing Reference</p>
+    <h1>Budget &amp; Cost Alert Options for Copilot Credits</h1>
+    <p class="sub">Every control available for capping and alerting on Copilot Credit spend, which console owns it, and which ones actually stop consumption rather than just sending an email. Compiled from public Microsoft documentation &middot; September 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> there is no single currency-denominated budget object in the Power Platform admin center. Credit governance is split across <strong>three separate consoles</strong>, and most organizations configure one and assume they are covered. Alerts and caps are also different things &mdash; most of these controls only notify.
+  </div>
+
+  <h2>1. The three consoles</h2>
+  <p>All three draw on the same Copilot Credit pool. Capacity allocated to Power Platform environments reduces the prepaid credits available to Microsoft 365 usage-based experiences such as Cowork and Work IQ, and vice versa. If you set limits in one console without looking at the others, you will misjudge what is actually available.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <span class="console-num">1</span>
+      <p class="console-name">Power Platform admin center</p>
+      <p class="console-desc">Environment capacity allocation, overage behavior, and per-agent monthly limits with a hard stop. Also usage-metric alert rules under Monitor.</p>
+    </div>
+    <div class="card">
+      <span class="console-num">2</span>
+      <p class="console-name">Microsoft 365 admin center</p>
+      <p class="console-desc">Cost Management spending policies. Monthly and per-user credit caps scoped to Entra groups, with threshold email alerts and a credit request workflow.</p>
+    </div>
+    <div class="card">
+      <span class="console-num">3</span>
+      <p class="console-name">Azure Cost Management</p>
+      <p class="console-desc">Currency budgets and alerts against the Azure subscription behind a pay-as-you-go billing plan. Actual and forecasted, with automation hooks.</p>
+    </div>
+  </div>
+
+  <h2>2. Options at a glance</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:25%">Control</th>
+        <th style="width:13%">Console</th>
+        <th style="width:16%">Effect</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Agent monthly limit</strong> with Stop usage</td>
+        <td>PPAC</td>
+        <td><span class="pill">Hard stop</span></td>
+        <td>Notification threshold plus optional auto-disable. Works on prepaid and pay-as-you-go. The only true ceiling on the PPAC side.</td>
+      </tr>
+      <tr>
+        <td><strong>Environment allocation</strong> with tenant draw turned off</td>
+        <td>PPAC</td>
+        <td><span class="pill">Caps prepaid</span></td>
+        <td>Caps prepaid consumption only. Does <em>not</em> block a linked pay-as-you-go plan, so spend continues through Azure.</td>
+      </tr>
+      <tr>
+        <td><strong>Environment group rule</strong> for tenant pool draw</td>
+        <td>PPAC</td>
+        <td><span class="pill">Caps prepaid</span></td>
+        <td>Applies the setting across a group. Makes the environment-level setting read-only, including for programmatic requests.</td>
+      </tr>
+      <tr>
+        <td><strong>Monitor alert rules</strong></td>
+        <td>PPAC</td>
+        <td><span class="pill notify">Notify only</span></td>
+        <td>Usage metrics, not currency. Managed Environments only, 24-hour evaluation, 50 active rules per tenant.</td>
+      </tr>
+      <tr>
+        <td><strong>Spending policies</strong></td>
+        <td>M365</td>
+        <td><span class="pill">Hard cap</span></td>
+        <td>Monthly and per-user caps, Entra group scoping, threshold emails, credit requests, per-policy billing method.</td>
+      </tr>
+      <tr>
+        <td><strong>Azure budgets and alerts</strong></td>
+        <td>Azure</td>
+        <td><span class="pill notify">Notify only</span></td>
+        <td>Actual and forecasted thresholds. Never stops consumption on its own, so pair it with an agent Stop usage limit.</td>
+      </tr>
+      <tr>
+        <td><strong>Budget alert into an Action Group</strong></td>
+        <td>Azure</td>
+        <td><span class="pill notify">Notify and automate</span></td>
+        <td>Routes the alert to a Logic App or Automation runbook so it can trigger a response rather than an inbox.</td>
+      </tr>
+      <tr>
+        <td><strong>Programmatic</strong> via Power Platform API or SDK</td>
+        <td>API</td>
+        <td><span class="pill notify">Custom</span></td>
+        <td>Apply allocations at scale and feed consumption data into alerting you already run.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. Power Platform admin center</h2>
+  <p>Where capacity is allocated, and where the only per-workload hard stop lives.</p>
+
+  <div class="card">
+    <h3>Agent monthly limit, notification, and Stop usage</h3>
+    <span class="path">Licensing &rsaquo; Products &rsaquo; Copilot Studio &rsaquo; Manage Agents &rsaquo; Set limit</span>
+    <ul>
+      <li>Set a monthly Copilot Credit limit for an individual agent</li>
+      <li>Configure a notification threshold, so tenant and environment admins are alerted as usage approaches it</li>
+      <li>Turn on <strong>Stop usage</strong> to automatically disable the agent when it reaches the limit</li>
+      <li>Agent status reports as Within limit, Nearing limit, or Over limit</li>
+      <li>Available whether the environment uses prepaid capacity or pay-as-you-go. On prepaid, the agent must still stay within the allocated pool</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Environment allocation and overage behavior</h3>
+    <span class="path">Licensing &rsaquo; Products &rsaquo; Copilot Studio &rsaquo; Manage Copilot Credits</span>
+    <ul>
+      <li>Allocate a credit count to a specific environment</li>
+      <li>Under <strong>Capacity overages</strong>, clear <em>Draw from the available capacity in my tenant</em> to cap the environment at its allocation</li>
+      <li>For eligible environments, tenant draw is selected <strong>by default</strong> when no allocation configuration exists</li>
+      <li>At scale, use the environment groups rule <em>Cost controls &mdash; Draw from tenant credit pool</em>. Publishing it makes the environment-level setting read-only, and programmatic requests cannot override it</li>
+    </ul>
+    <div class="callout warn">
+      An allocation is not a boundary if the environment can still draw from tenant capacity or bill to a pay-as-you-go plan. Both paths need closing before you can call it a cap.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Monitor alert rules</h3>
+    <span class="path">Monitor &rsaquo; Alerts &rsaquo; + Alert rule</span>
+    <ul>
+      <li>Custom rules across Power Apps, Power Automate, and Copilot Studio metrics, with your own threshold, operator, and severity</li>
+      <li>Email to you plus up to four recipients, sent from <code>PowerPlat-noreply@microsoft.com</code></li>
+      <li>These are usage-metric alerts, not currency. Agent session counts work as a leading indicator of credit burn</li>
+      <li><strong>Managed Environments only.</strong> Evaluated every 24 hours, not in real time. Limit of 50 active rules per tenant</li>
+      <li>Microsoft's predefined alerts are on by default, cannot be edited, and send <strong>no email</strong>. You have to open Monitor to see them</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Monitoring and reporting</h3>
+    <ul>
+      <li>Summary, Environments, and Agents tabs give tenant, environment, and agent views</li>
+      <li>Downloadable consumption report, with daily data for three months and monthly data for twelve</li>
+      <li>Review environment and agent together. A tenant-level total hides a single runaway agent</li>
+      <li>Costs are not attributed to individual makers or end users, because billing happens at environment and agent level. Control who can build and run agents through permissions instead</li>
+    </ul>
+  </div>
+
+  <h2>4. Microsoft 365 admin center &mdash; Cost Management</h2>
+  <p>The more capable budget surface, and the one most often missed. It governs the same Copilot Credit pool as the Power Platform allocations above.</p>
+
+  <div class="card">
+    <span class="path">Copilot &rsaquo; Cost Management &rsaquo; Configuration</span>
+    <ul>
+      <li><strong>Monthly spending limit per policy</strong>, either unlimited or capped at a set number of credits</li>
+      <li><strong>Per-user limits</strong>, so a single person cannot drain the whole pool</li>
+      <li><strong>Group scoping</strong> to all users or to specific Entra security groups, which enables genuine departmental budgets. Individual users are supported only through security groups</li>
+      <li><strong>Alerts</strong>: choose the stakeholders and a threshold. Emails begin at the threshold and repeat weekly until the month resets or you adjust the limit</li>
+      <li><strong>Credit request workflow</strong>, so users who hit a limit can request more rather than simply being blocked</li>
+      <li><strong>Per-policy billing method</strong>, which enables departmental chargeback</li>
+      <li>The dashboard <strong>Top actions</strong> area surfaces policies and users approaching their limits</li>
+      <li>Policies always consume prepaid credits first, whether from capacity packs or pre-purchase plans, before falling through to pay-as-you-go</li>
+    </ul>
+    <div class="callout warn">
+      Two things to plan around. Roles: <strong>AI Administrator</strong> and <strong>License Administrator</strong> can create policies and manage limits and alerts, but cannot set or change the billing method. And a policy's billing method is fixed once created, so changing it means deleting the policy and creating a new one.
+    </div>
+    <p>Note that spending policies are limit-based. They do not allocate or reserve credits, which is a meaningful difference from environment capacity allocation in the Power Platform admin center. Deleting a policy removes the limit, not any capacity.</p>
+  </div>
+
+  <h2>5. Azure Cost Management</h2>
+  <p>The only place you get a budget denominated in currency. It applies to pay-as-you-go across Power Apps and Power Automate meters too, not just Copilot Studio.</p>
+
+  <div class="card">
+    <ul>
+      <li>Create budgets and alerts on the <strong>Power Platform account resource</strong> associated with the billing plan</li>
+      <li><strong>Forecasted alerts</strong> fire when projected spend is trending to breach the threshold, which gives advance warning rather than a post-mortem</li>
+      <li>Cost anomaly alerts catch unexpected movement outside your configured thresholds</li>
+      <li>Route budget alerts to an <strong>Action Group</strong> and on to a Logic App or Automation runbook, so the alert triggers an actual response</li>
+    </ul>
+    <div class="callout warn">
+      <strong>Azure budgets never stop Copilot Studio consumption.</strong> They notify. Pair every pay-as-you-go plan with an agent-level Stop usage limit, or there is no ceiling at all.
+    </div>
+  </div>
+
+  <h2>6. Suggested minimum configuration</h2>
+  <div class="card">
+    <ol>
+      <li>Allocate credits per environment and turn <em>off</em> draw from tenant capacity for anything not explicitly funded.</li>
+      <li>Set agent monthly limits with <strong>Stop usage</strong> on anything customer-facing, autonomous, or newly launched.</li>
+      <li>Stand up Microsoft 365 spending policies with per-user caps and threshold alerts, scoped to the groups that match how you actually budget.</li>
+      <li>Configure Azure budgets with <em>forecasted</em> alerts on every pay-as-you-go billing plan.</li>
+      <li>Name an accountable owner per environment and per billing plan who genuinely receives and acts on the alerts.</li>
+      <li>Document the request path, so makers know how to ask for more capacity when the need is legitimate.</li>
+    </ol>
+    <div class="feature-tags">
+      <span class="tag">Environment allocation</span>
+      <span class="tag">Agent Stop usage</span>
+      <span class="tag">Spending policies</span>
+      <span class="tag">Forecasted budgets</span>
+      <span class="tag">Named owners</span>
+    </div>
+  </div>
+
+  <h2>7. Timing note</h2>
+  <div class="callout">
+    Developer and trial environments moved to usage-based billing on <strong>1 September 2026</strong>. If limits and alerts were not configured beforehand, consumption that was previously non-billed is now generating charges. The <em>Non-billed Copilot Credits</em> information in Manage Agents and in the downloadable consumption report gives a directional view of that exposure, though it is not a billing estimate or a guarantee of future cost.
+  </div>
+
+  <h2>Reference materials</h2>
+  <div class="card">
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity" target="_blank" rel="noopener">Manage Copilot Credits and capacity for Copilot Studio</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-copilot-credits-capacity</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/manage-usage-github-copilot-harness" target="_blank" rel="noopener">Manage costs for agents powered by the GitHub Copilot harness</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-platform/admin/manage-usage-github-copilot-harness</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts" target="_blank" rel="noopener">Create alerts for your resources (Power Platform admin center)</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-manage-copilot-credits" target="_blank" rel="noopener">Managing AI experiences enabled by usage-based billing</a><br />
+      <span class="u">learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-manage-copilot-credits</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets" target="_blank" rel="noopener">Tutorial: Create and manage Azure budgets</a><br />
+      <span class="u">learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/pay-as-you-go-set-up" target="_blank" rel="noopener">Set up pay-as-you-go</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-platform/admin/pay-as-you-go-set-up</span>
+    </p>
+    <p class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/environment-groups" target="_blank" rel="noopener">Environment groups and rules</a><br />
+      <span class="u">learn.microsoft.com/en-us/power-platform/admin/environment-groups</span>
+    </p>
+  </div>
+
+  <footer class="foot">
+    This is guidance, not a contract. Product surfaces, thresholds, and billing behavior change regularly &mdash; confirm the current terms and configuration against Microsoft Learn before committing to a design. Compiled from public Microsoft documentation, September 2026.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
