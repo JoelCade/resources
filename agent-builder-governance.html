@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Builder Governance &mdash; Sharing, Cost Controls and What Happens When Agents Get Copied</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #005a9e;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #30e5d0;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 32px 28px 80px; }
+
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+
+header.masthead {
+  border-bottom: 3px solid var(--cp-accent);
+  padding-bottom: 18px;
+  margin: 14px 0 26px;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cp-accent);
+  margin: 0 0 6px;
+}
+h1 { font-size: 28px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+
+h2 {
+  font-size: 20px;
+  margin: 38px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cp-border);
+}
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 10px 0; }
+
+a { color: var(--cp-link); }
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  margin: 14px 0;
+}
+.card h3 { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  margin-bottom: 8px;
+}
+.pill.muted { background: transparent; color: var(--cp-text-muted); border-color: var(--cp-border-strong); }
+.pill.warn { background: rgba(245,158,11,0.10); color: var(--cp-warning); border-color: var(--cp-warning); }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 11px; border: 1px solid var(--cp-border); vertical-align: top; }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+tbody tr:nth-child(even) td { background: var(--cp-bg-elevated); }
+
+ul, ol { margin: 8px 0; padding-left: 20px; }
+li { margin: 4px 0; }
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 13px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.callout strong { color: var(--cp-text); }
+
+.step { display: flex; gap: 14px; margin: 16px 0; align-items: flex-start; }
+.step .num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 13px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.step .body { flex: 1 1 auto; }
+.step .body h3 { margin: 2px 0 4px; }
+.step .body p { margin: 4px 0; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+}
+
+.ref { font-size: 13px; margin: 10px 0; }
+.ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+button.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.625rem;
+  padding: 9px 18px;
+  border: 1px solid var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  transition: background 0.15s ease;
+}
+button.btn:hover { background: var(--cp-accent-hover); }
+
+footer.foot {
+  margin-top: 42px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-soft);
+  font-size: 12.5px;
+}
+footer.foot a { color: var(--cp-link); text-decoration: none; }
+footer.foot a:hover { text-decoration: underline; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card { box-shadow: none; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  table, .callout, .grid2, .grid3, .step { break-inside: avoid; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn" id="printBtn" type="button">Print / Save as PDF</button>
+  </div>
+
+  <a class="backlink" href="index.html">&larr; All resources</a>
+
+  <header class="masthead">
+    <p class="eyebrow">Microsoft 365 Copilot &middot; Agent Builder Governance</p>
+    <h1>Agent Builder Governance</h1>
+    <p class="sub">Sharing controls, at-scale cleanup of unused agents, cost visibility, and what actually happens to an agent&rsquo;s environment and sharing settings when it gets copied into Copilot Studio. &middot; September 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Agent Builder has two separate governance systems, not one. While an agent lives in Microsoft 365 Copilot, it is governed from the <strong>Microsoft 365 admin center</strong> (sharing rules, ownership, lifecycle rules, cost reporting). The moment someone selects <strong>Copy to Copilot Studio</strong>, the agent becomes a Copilot Studio agent stored in a Power Platform environment, and it switches to being governed from the <strong>Power Platform admin center</strong> instead &mdash; with a different sharing model, different environment rules, and no automatic carry-over of the settings it had before.
+  </div>
+
+  <h2>1. Two admin centers, two lifecycles</h2>
+  <p>Before anything else, it helps to separate the two places an Agent Builder agent can live, because the controls are genuinely different in each one.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">While in Agent Builder</span>
+      <h3>Microsoft 365 admin center</h3>
+      <p>Agents created directly in Microsoft 365 Copilot&rsquo;s Agent Builder are managed under <strong>Copilot &gt; Agents</strong> and <strong>Copilot &gt; Settings &gt; Data access &gt; Agents</strong>. This covers sharing permissions, the agent registry, agent management rules, and Copilot-related cost/consumption views.</p>
+    </div>
+    <div class="card">
+      <span class="pill">After Copy to Copilot Studio</span>
+      <h3>Power Platform admin center</h3>
+      <p>Once copied, the agent is a Copilot Studio agent stored in Dataverse inside a Power Platform environment. Governance moves to environment-level controls: Managed Environment sharing limits, data loss prevention (DLP) policies, connector policies, and Copilot Studio licensing/credit pages.</p>
+    </div>
+  </div>
+
+  <h2>2. How agent sharing works, and how to make it granular</h2>
+  <p>Sharing has two layers: what an individual owner can do when they share their own agent, and the org-wide policy an admin sets that constrains every owner in the tenant.</p>
+
+  <h3>Per-agent sharing (owner-level)</h3>
+  <p>Every Agent Builder agent has two access levels, set from its Share dialog:</p>
+  <table>
+    <thead><tr><th>Role</th><th>Can chat</th><th>Can edit and manage</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Can edit</strong> (owner)</td><td>Yes</td><td>Yes</td><td>Full rights to edit, share and manage. All owners are equal &mdash; any one of them can add/remove people or switch roles. Only individual users can be given this role, not security groups.</td></tr>
+      <tr><td><strong>Can chat</strong> (viewer)</td><td>Yes</td><td>No</td><td>Can interact with the agent but not modify it. Can be assigned to individuals or, via org-wide sharing, the whole tenant.</td></tr>
+    </tbody>
+  </table>
+  <p>An owner can also flip an <strong>org-wide sharing for chat access</strong> toggle per agent, which publishes it into the internal Agent Store so anyone in the tenant can discover and chat with it. This toggle is what tenant-level sharing policy directly constrains.</p>
+
+  <h3>Tenant-wide sharing policy (admin-level, the granular control)</h3>
+  <p>This is the lever for controlling <em>how far</em> any agent in the tenant is allowed to be shared, set once and enforced for everyone. Go to <strong>Microsoft 365 admin center &gt; Copilot &gt; Settings &gt; Data access &gt; Agents &gt; Sharing</strong>.</p>
+  <table>
+    <thead><tr><th>Setting</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><strong>All users</strong> (default)</td><td>Every owner can share their agent with anyone in the organization, including turning on org-wide sharing.</td></tr>
+      <tr><td><strong>Specific users or groups</strong></td><td>Only the named users or groups can share agents at all &mdash; the practical way to restrict who is allowed to spread agents beyond their own use, without banning agent creation itself.</td></tr>
+      <tr><td><strong>No users</strong></td><td>Disables org-wide sharing entirely. The org-wide sharing toggle appears grayed out in every agent&rsquo;s Share dialog. Direct sharing with named individuals can still be used depending on tenant configuration.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>This control is not retroactive.</strong> Changing the sharing policy only affects new sharing actions taken after the change. Agents that were already shared keep their existing access &mdash; you have to go back and manually update or revoke sharing on those agents individually.
+  </div>
+
+  <h3>Submitting to the org catalog is a separate, reviewed step</h3>
+  <p>Sharing (chat access) and cataloging (discoverability in the <strong>Built by your org</strong> section of the Agent Store) are managed independently. An owner keeps full control of who an agent is shared with at any time, but making it broadly discoverable requires submitting it to the org catalog, where an admin reviews and approves the submission before it is published.</p>
+
+  <h2>3. Removing unused agents and managing them at scale</h2>
+  <p>Individually reviewing every agent does not scale once Agent Builder adoption grows. Two tools exist specifically for bulk cleanup, both in the Microsoft 365 admin center.</p>
+
+  <h3>Agent management rules (bulk, conditions-based)</h3>
+  <p>Under <strong>Copilot &gt; Agents &gt; Agent management rules</strong>, admins define conditions, preview the impacted agents, then apply a governance action across all of them in one action &mdash; instead of opening agents one at a time.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Block ownerless agents without usage</h3>
+      <p>The direct answer to "clean up agents nobody is using." Targets agents that have lost their owner (the creator left the organization) <em>and</em> show no usage, and blocks them in bulk.</p>
+    </div>
+    <div class="card">
+      <h3>Reassign ownerless agents to manager</h3>
+      <p>For agents an admin does not want to remove, this rule reassigns ownership automatically to the previous owner&rsquo;s manager, based on Microsoft Entra ID hierarchy. Only supports agents created with Agent Builder.</p>
+    </div>
+    <div class="card">
+      <h3>Install Microsoft (1P) agents</h3>
+      <p>Proactively installs Microsoft-published agents tenant-wide in one action, instead of relying on individual adoption.</p>
+    </div>
+    <div class="card">
+      <h3>Apply a template / reject stale publish requests</h3>
+      <p>Applies a standard policy template to matching agents, or auto-rejects org-catalog publish requests that have sat unreviewed longer than a set number of days.</p>
+    </div>
+  </div>
+
+  <h3>Per-agent actions in the agent registry</h3>
+  <p>For one-off cleanup, the agent registry (<strong>Microsoft 365 admin center &gt; Agents &gt; All agents</strong>) gives every agent instance-level actions:</p>
+  <table>
+    <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Block</strong></td><td>Agent stays in the registry but becomes inactive tenant-wide; the creator is notified; reversible at any time.</td></tr>
+      <tr><td><strong>Reassign</strong></td><td>Transfers ownership to a different user; the new owner gets full control and editing rights, the old owner loses access.</td></tr>
+      <tr><td><strong>Delete</strong></td><td>Removes the agent, its Entra ID identity, and its configuration entirely. Historical telemetry is retained for compliance. Agent Builder agents can be deleted by their owner through the registry; agents built directly in Copilot Studio require Power Platform environment admin permissions to delete.</td></tr>
+    </tbody>
+  </table>
+  <p>All governance actions taken from the registry &mdash; block, reassign, delete &mdash; are logged in Microsoft Purview, so bulk cleanup remains auditable.</p>
+
+  <h2>4. Cost controls and reporting as agents spread across the org</h2>
+  <p>Agent Builder agents themselves don&rsquo;t consume Dataverse storage entitlement, but any agent that uses AI capabilities consumes <strong>Copilot Credits</strong>, and the more an agent is shared, the more it gets used, and the more it costs. Cost visibility and controls live in the <strong>Power Platform admin center &gt; Licensing &gt; Copilot Studio</strong> pages, which apply to agent usage broadly (Agent Builder, Copilot Studio, and other agent-consuming workloads alike).</p>
+
+  <h3>Reporting: four views of the same consumption</h3>
+  <table>
+    <thead><tr><th>View</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Tenant</strong></td><td>Purchased, allocated, and consumed Copilot Credit capacity across the whole organization.</td></tr>
+      <tr><td><strong>Environment</strong></td><td>Prepaid versus pay-as-you-go consumption per environment, and which environments are in overage.</td></tr>
+      <tr><td><strong>Agent</strong></td><td>Month-to-date billed credits, configured consumption limits, and status, for each individual agent.</td></tr>
+      <tr><td><strong>Report</strong></td><td>Downloadable, detailed consumption data for further analysis.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>Costs are not attributed to individual makers or end users.</strong> Copilot Studio and Agent Builder usage is billed at the environment and agent level only. If a heavily shared agent is driving unexpected cost, that shows up as agent-level or environment-level consumption, not a per-person breakdown &mdash; permissions and per-agent limits are the levers, not user-level billing.
+  </div>
+
+  <h3>Stopping runaway spend, not just watching it</h3>
+  <ul>
+    <li><strong>Per-agent consumption limits.</strong> In <strong>Licensing &gt; Copilot Studio &gt; Manage Agents</strong>, set a monthly credit cap on an individual agent so it cannot exceed a defined amount before enforcement kicks in.</li>
+    <li><strong>Pay-as-you-go billing policies.</strong> Link an environment to an Azure subscription to bill overage through Azure meters, then use Azure Cost Management to set budgets and alerts on the associated Power Platform account resource.</li>
+    <li><strong>Budgets and alerts warn; they do not stop usage.</strong> An Azure budget alert is a notification, not a circuit breaker. To create an actual stopping point, also configure the agent-level <strong>Stop usage</strong> limit, and assign an accountable business owner to each pay-as-you-go billing plan and environment.</li>
+    <li><strong>Overage enforcement without pay-as-you-go.</strong> If an environment runs out of prepaid capacity and has no pay-as-you-go link, agent flow actions get blocked until capacity is reallocated from elsewhere in the tenant, more credits are purchased, or pay-as-you-go is enabled.</li>
+  </ul>
+
+  <h2>5. What happens when an agent is copied to Copilot Studio</h2>
+  <p>The <strong>Copy to Copilot Studio</strong> feature unlocks lifecycle management, analytics and enterprise governance beyond what Agent Builder offers on its own &mdash; but it is a real migration, not a link. The agent gets a new home, and that home determines which rules now apply.</p>
+
+  <h3>Which environment does it land in?</h3>
+  <div class="step">
+    <span class="num">1</span>
+    <div class="body">
+      <h3>You choose the environment; it is not automatic</h3>
+      <p>The person copying the agent is prompted to pick the destination environment. The environment must have a Dataverse data store, sit in a supported data location, and the user must hold the right security role in it. There is no hidden default &mdash; whatever environment is picked in that dialog is where the agent is stored.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">2</span>
+    <div class="body">
+      <h3>Environment routing changes what gets preselected</h3>
+      <p>If an admin has turned on <strong>Environment routing</strong> in the Power Platform admin center, makers are automatically directed into their own <strong>personal developer environment</strong> instead of the tenant&rsquo;s shared default environment, and that routed environment is preselected in the copy dialog. Personal developer environments are private, per-maker sandboxes, similar in spirit to an individual OneDrive &mdash; they exist so experimentation doesn&rsquo;t collide with other makers&rsquo; work or with production content sitting in the default environment.</p>
+    </div>
+  </div>
+  <div class="step">
+    <span class="num">3</span>
+    <div class="body">
+      <h3>Without routing turned on, agents default to the default environment</h3>
+      <p>If environment routing is off (it is off by default and must be explicitly enabled), or no routing rule matches the maker, the copy lands in the tenant&rsquo;s shared default environment &mdash; the same environment most low-code assets end up in when nobody has set up a dedicated environment strategy.</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <strong>Personal developer environments are not permanent by default.</strong> They can be subject to automatic cleanup after a period of inactivity. If a maker stops signing in, the environment &mdash; and the copied agent living in it &mdash; can be turned off. Admins and users should periodically sign in to retain access, and admins can review the automatic cleanup policy to decide whether recovery is possible.
+  </div>
+
+  <h3>Do sharing controls carry over? No &mdash; the agent inherits new rules from the destination environment</h3>
+  <p>This is the part that catches people out: the Microsoft 365 admin center sharing policy that governed the agent in Agent Builder does <strong>not</strong> travel with it into Copilot Studio. Microsoft is explicit that the sharing limit control in the Microsoft 365 admin center is a different system from the sharing limit control in the Power Platform admin center. Once the copy completes, the agent is subject to whatever the <em>destination environment</em> has configured, not what the original agent had:</p>
+  <ul>
+    <li><strong>Managed Environment sharing limits</strong> &mdash; if the destination is a Managed Environment, admins can allow or block sharing with editors, allow or block sharing with viewers (individuals or security groups), restrict sharing to individuals only, and cap the number of viewers an agent can be shared with. These are configured per environment or applied at scale via environment groups.</li>
+    <li><strong>Data loss prevention (DLP) policies</strong> on the environment, which govern which connectors and data sources the copied agent can use.</li>
+    <li><strong>Advanced connector policies</strong>, which govern high-privilege connectors specifically.</li>
+  </ul>
+  <p>Practically: if you want a copied agent to inherit tight sharing discipline, that discipline has to already exist as policy on the environment you pick (or route makers into) &mdash; it is not something the Agent Builder agent brings with it.</p>
+
+  <h3>Ownership and identity also change hands</h3>
+  <p>Admin management of the agent moves entirely from the Microsoft 365 admin center to the Power Platform admin center once copied. The agent is stored in Dataverse and managed as part of a Power Platform solution, so ALM practices (versioning, staged deployment, security roles on the environment) apply to it going forward, and the original Agent Builder registry entry and the Copilot Studio copy are managed as two separate lifecycles from that point on.</p>
+
+  <div class="card">
+    <h3>Reference materials</h3>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder-share-manage-agents" target="_blank" rel="noopener">Share and manage agents (Agent Builder)</a>
+      <span class="u">learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder-share-manage-agents</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/admin/manage/agent-settings" target="_blank" rel="noopener">Agent settings in Microsoft 365 admin center</a>
+      <span class="u">learn.microsoft.com/microsoft-365/admin/manage/agent-settings</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-agent-365/builder/agent-registry" target="_blank" rel="noopener">Agent registry integration for Copilot Studio</a>
+      <span class="u">learn.microsoft.com/microsoft-agent-365/builder/agent-registry</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/copy-agent-to-copilot-studio" target="_blank" rel="noopener">Copy an agent to Copilot Studio</a>
+      <span class="u">learn.microsoft.com/microsoft-365/copilot/extensibility/copy-agent-to-copilot-studio</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/admin-sharing-controls-limits" target="_blank" rel="noopener">Control how agents are shared (Copilot Studio)</a>
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/admin-sharing-controls-limits</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/managed-environment-sharing-limits" target="_blank" rel="noopener">Limit sharing in Managed Environments</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/managed-environment-sharing-limits</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/default-environment-routing" target="_blank" rel="noopener">Environment routing (personal developer environments)</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/default-environment-routing</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness" target="_blank" rel="noopener">Manage costs for agents powered by the GitHub Copilot harness</a>
+      <span class="u">learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management (Copilot Credits)</a>
+      <span class="u">learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Curated by Joel Cade &middot; hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. All links point to public Microsoft documentation (verified September 2026). This is guidance, not a contract &mdash; confirm current terms and process against your own tenant configuration before acting on it.
+  </footer>
+</div>
+
+<script>
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
