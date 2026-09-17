@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Access and Catalog Strategy for Microsoft 365</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root{color-scheme:light;--cp-bg:#f7f4ef;--cp-bg-elevated:#fcfbf8;--cp-surface:#ffffff;--cp-surface-soft:#f5f5f5;--cp-border:#dedede;--cp-border-strong:#919191;--cp-text:#242424;--cp-text-muted:#5c5c5c;--cp-text-soft:#6f6f6f;--cp-accent:#0078d4;--cp-accent-hover:#005a9e;--cp-accent-soft:rgba(0,120,212,0.08);--cp-accent-fg:#ffffff;--cp-link:#0078d4;--cp-shadow:0 18px 48px rgba(0,0,0,0.12);--cp-success:#16a34a;--cp-warning:#f59e0b;--cp-danger:#dc2626;}
+html[data-theme="dark"]{color-scheme:dark;--cp-bg:#3d3b3a;--cp-bg-elevated:#343231;--cp-surface:#292929;--cp-surface-soft:#2e2e2e;--cp-border:#474747;--cp-border-strong:#5f5f5f;--cp-text:#dedede;--cp-text-muted:#919191;--cp-text-soft:#b0b0b0;--cp-accent:#50e6ff;--cp-accent-hover:#30e5d0;--cp-accent-soft:rgba(80,230,255,0.14);--cp-accent-fg:#1a1a1a;--cp-link:#4da6ff;--cp-shadow:0 18px 48px rgba(0,0,0,0.32);--cp-success:#4ade80;--cp-warning:#fbbf24;--cp-danger:#f87171;}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;background:var(--cp-bg);color:var(--cp-text);font-family:"Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.55;font-size:15px}
+.wrap{max-width:940px;margin:0 auto;padding:32px 28px 80px}
+.toolbar{position:sticky;top:0;z-index:10;display:flex;justify-content:flex-end;gap:10px;padding:10px 0;margin:-32px 0 0;background:linear-gradient(var(--cp-bg) 70%,transparent)}
+button.btn{font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border-radius:.625rem;padding:9px 18px;border:1px solid var(--cp-accent);background:var(--cp-accent);color:var(--cp-accent-fg)}
+button.btn:hover{background:var(--cp-accent-hover)}
+.backlink{font-size:13px;color:var(--cp-link);text-decoration:none}.backlink:hover{text-decoration:underline}
+header.masthead{border-bottom:3px solid var(--cp-accent);padding-bottom:18px;margin:14px 0 26px}
+.eyebrow{text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:600;color:var(--cp-accent);margin:0 0 6px}
+h1{font-size:27px;margin:0 0 8px;line-height:1.2}.sub{color:var(--cp-text-muted);margin:0;font-size:14px}
+h2{font-size:20px;margin:32px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--cp-border)}
+h3{font-size:16px;margin:24px 0 8px}p{margin:10px 0}ul,ol{padding-left:24px}li{margin:5px 0}
+a{color:var(--cp-link)}code,.u{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+.callout{border-left:4px solid var(--cp-accent);background:var(--cp-accent-soft);border-radius:0 10px 10px 0;padding:13px 16px;margin:18px 0}
+.callout.warn{border-left-color:var(--cp-warning);background:rgba(245,158,11,.1)}
+.card{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:14px;padding:16px 18px;margin:16px 0;box-shadow:0 0 2px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.14)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid2 .card{margin:0}
+.step{display:grid;grid-template-columns:34px 1fr;gap:12px;margin:18px 0}.step-num{width:28px;height:28px;border-radius:50%;background:var(--cp-accent);color:var(--cp-accent-fg);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}.step-body p:first-child{margin-top:0}
+table{width:100%;border-collapse:collapse;margin:14px 0;background:var(--cp-surface);font-size:14px}th,td{border:1px solid var(--cp-border);padding:9px 10px;text-align:left;vertical-align:top}th{background:var(--cp-surface-soft);font-weight:600}
+.pill{display:inline-block;border:1px solid var(--cp-border-strong);border-radius:999px;padding:2px 9px;font-size:12px;color:var(--cp-text-muted)}.feature-tags{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.tag{background:var(--cp-surface-soft);border:1px solid var(--cp-border);border-radius:8px;padding:3px 10px;font-size:11.5px;color:var(--cp-text-muted)}
+.ref{margin:10px 0}.ref a{font-weight:600}.ref .u{display:block;color:var(--cp-text-soft);word-break:break-all;margin-top:2px}
+footer.foot{margin-top:42px;padding-top:16px;border-top:1px solid var(--cp-border);color:var(--cp-text-soft);font-size:12.5px}footer.foot a{color:var(--cp-link);text-decoration:none}
+@media(max-width:680px){.grid2{grid-template-columns:1fr}}
+@media print{ @page{margin:14mm} body{background:#fff;font-size:11.5px}.wrap{max-width:none;padding:0}.toolbar,.backlink{display:none!important}.card,table,.callout{box-shadow:none;break-inside:avoid}a{color:var(--cp-text)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar"><button class="btn" id="printBtn" type="button">Print / Save as PDF</button></div>
+  <a class="backlink" href="index.html">&larr; All resources</a>
+  <header class="masthead">
+    <p class="eyebrow">Microsoft 365 Copilot &middot; Agent Governance</p>
+    <h1>Agent Access and Catalog Strategy for Microsoft 365</h1>
+    <p class="sub">How to make in-house agents discoverable without turning agent access into a shadow IT problem. &middot; September 2026</p>
+  </header>
+
+  <div class="callout"><strong>The one thing to remember:</strong> use Agent Store as the employee-facing catalog and Microsoft 365 admin center as the approval and lifecycle control plane. Build a separate catalog only when you need to represent agents that cannot be surfaced in Copilot.</div>
+
+  <h2>The short answer</h2>
+  <p>Yes. Microsoft provides an out-of-the-box catalog experience for agents: <strong>Agent Store in Microsoft Copilot</strong>. It is the central place where users discover and install agents from Microsoft, trusted partners, and your own organization.</p>
+  <p>For organization-built agents, the usual path is: a maker or developer builds the agent, submits it for admin review, an admin approves it in Microsoft 365 admin center, and the agent appears in Agent Store under the organization-owned collection.</p>
+
+  <table>
+    <thead><tr><th>Question</th><th>Recommended answer</th></tr></thead>
+    <tbody>
+      <tr><td>Where should users find approved agents?</td><td>Agent Store in Microsoft Copilot, with Teams app store exposure where Teams is a target channel.</td></tr>
+      <tr><td>Where should admins manage the lifecycle?</td><td>Microsoft 365 admin center, especially the Agents area, Agent Registry, Requests, and Copilot controls.</td></tr>
+      <tr><td>How should makers distribute broadly?</td><td>Publish to the Microsoft Copilot and Microsoft Teams channel from Copilot Studio, then wait for admin approval.</td></tr>
+      <tr><td>How should custom or external agents be included?</td><td>Package them with Microsoft 365 Agents Toolkit or integrate with Agent 365 SDK, then submit them for admin approval.</td></tr>
+      <tr><td>Should every prototype go into the catalog?</td><td>No. Use private sharing or a pilot group first, then promote only owned, reviewed, supported agents.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Recommended access model</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>1. One front door</h3>
+      <p>Make Agent Store the default user experience for approved in-house agents. Avoid publishing one-off links as the primary access model; they are hard to govern, hard to retire, and easy to lose.</p>
+    </div>
+    <div class="card">
+      <h3>2. Group-based deployment</h3>
+      <p>Deploy agents to security groups that map to business roles, pilot cohorts, or departments. Keep "entire organization" for agents with broad utility and low data/action risk.</p>
+    </div>
+    <div class="card">
+      <h3>3. Approval before scale</h3>
+      <p>Require admin review before an agent reaches the organizational catalog. Review the agent's owner, purpose, data sources, knowledge, tools, actions, and supported host products.</p>
+    </div>
+    <div class="card">
+      <h3>4. Lifecycle ownership</h3>
+      <p>Every published agent should have an owner, support contact, review date, intended audience, and retirement path. A catalog without lifecycle management becomes a cupboard full of enthusiastic experiments.</p>
+    </div>
+  </div>
+
+  <h2>How the catalog flow works</h2>
+  <div class="step"><span class="step-num">1</span><div class="step-body"><p><strong>Build and test the agent.</strong></p><p>Use Copilot Studio for most business agents. Use Agent Builder or SharePoint agents for lighter knowledge scenarios. Use Azure AI Foundry, custom code, Microsoft 365 Agents Toolkit, or Agent 365 SDK when you need a pro-code implementation or an agent built outside Copilot Studio.</p></div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-body"><p><strong>Submit for review.</strong></p><p>For Copilot Studio, select the <strong>Microsoft Copilot and Microsoft Teams</strong> channel, confirm the agent should be available in Microsoft Copilot, fill in the catalog details, and save or publish the request for admin review.</p></div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-body"><p><strong>Review in Microsoft 365 admin center.</strong></p><p>Admins go to <strong>Agents &rarr; All agents &rarr; Requests</strong>, open the pending agent, and review capabilities, data access, maker or developer details, risks, and intended availability.</p></div></div>
+  <div class="step"><span class="step-num">4</span><div class="step-body"><p><strong>Publish, reject, block, or deploy.</strong></p><p>Approved agents can be published to Agent Store and assigned to the whole organization, specific users, or groups. Admins can also block, remove, or restrict agents that are not appropriate for the tenant.</p></div></div>
+
+  <h2>What is managed where</h2>
+  <table>
+    <thead><tr><th>Surface</th><th>Best use</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Agent Store in Microsoft Copilot</td><td>User discovery and installation</td><td>The employee-facing catalog for approved agents, including organization-built agents.</td></tr>
+      <tr><td>Microsoft 365 admin center</td><td>Approval, assignment, deployment, blocking, removal, and inventory</td><td>Admins can review details such as publisher, channels, users, data and tools, security and compliance, certification, and activity.</td></tr>
+      <tr><td>Copilot Studio</td><td>Build, test, publish, and configure Copilot Studio agents</td><td>The preferred maker platform for many in-house business agents.</td></tr>
+      <tr><td>Teams admin and Teams app store</td><td>Teams app visibility and app governance</td><td>Relevant when the agent is also distributed through Teams.</td></tr>
+      <tr><td>Power Platform admin center</td><td>Environment, connector, DLP, capacity, and maker governance</td><td>Important for Copilot Studio agents because their tools and data access often depend on Power Platform environments and connectors.</td></tr>
+      <tr><td>Microsoft Agent 365</td><td>Enterprise control plane for agents at scale</td><td>Useful when the organization needs broader governance, identity, managed data access, observability, and policy across agents built on different platforms.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Recommended rollout pattern</h2>
+  <ol>
+    <li><strong>Define catalog rules.</strong> State what qualifies for publication, what must stay shared or pilot-only, and who can approve.</li>
+    <li><strong>Create maker guidance.</strong> Require clear name, description, owner, intended audience, data sources, actions, support model, and review date.</li>
+    <li><strong>Use rings.</strong> Start with maker test access, then pilot group, then department or role-based deployment, then organization-wide deployment only when justified.</li>
+    <li><strong>Separate install from assignment.</strong> Some agents should be visible for users to install. Others should be deployed directly to a group because they are part of a managed process.</li>
+    <li><strong>Review data and actions.</strong> Treat custom actions, connectors, APIs, and write operations as the highest-risk part of an agent, not the greeting text.</li>
+    <li><strong>Monitor and retire.</strong> Review usage, owner health, data dependencies, and stale agents quarterly.</li>
+  </ol>
+
+  <div class="callout warn"><strong>Boundary to remember:</strong> not every agent type has the same publishing path. For example, Microsoft documentation notes that declarative agents built with SharePoint cannot be published to an organizational catalog, so they are better treated as team-local knowledge assets rather than enterprise catalog entries.</div>
+
+  <h2>Decision guide</h2>
+  <table>
+    <thead><tr><th>If the agent is...</th><th>Use this access strategy</th></tr></thead>
+    <tbody>
+      <tr><td>A broadly useful HR, IT, finance, sales, or operations assistant</td><td>Publish to Agent Store after admin review and assign by group or organization.</td></tr>
+      <tr><td>A departmental agent with limited scope</td><td>Publish to Agent Store but assign only to the relevant security group.</td></tr>
+      <tr><td>A prototype or work-in-progress</td><td>Use private sharing or a pilot cohort. Do not add it to the organization catalog yet.</td></tr>
+      <tr><td>A SharePoint-created knowledge agent</td><td>Share with the team where it belongs. Do not design your enterprise catalog strategy around this path.</td></tr>
+      <tr><td>A custom-code, Foundry, or third-party platform agent</td><td>Package or integrate it with the Microsoft 365 Agents Toolkit or Agent 365 SDK, then submit for admin approval.</td></tr>
+      <tr><td>A regulated or action-heavy agent</td><td>Use explicit assignment, stronger review, owner attestation, and a shorter recertification cycle.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Minimum publication checklist</h2>
+  <div class="card">
+    <div class="feature-tags">
+      <span class="tag">Owner</span>
+      <span class="tag">Audience</span>
+      <span class="tag">Data sources</span>
+      <span class="tag">Actions</span>
+      <span class="tag">Security review</span>
+      <span class="tag">Support path</span>
+      <span class="tag">Review date</span>
+    </div>
+    <ul>
+      <li>Named business owner and technical owner.</li>
+      <li>Plain-language description of what the agent does and what it should not do.</li>
+      <li>Defined audience and assignment group.</li>
+      <li>Documented knowledge sources, connectors, APIs, and write actions.</li>
+      <li>Confirmation that data access follows least privilege.</li>
+      <li>Support contact, feedback route, and retirement plan.</li>
+      <li>Quarterly or semiannual review date, with shorter cycles for high-risk agents.</li>
+    </ul>
+  </div>
+
+  <h2>Reference materials</h2>
+  <div class="card">
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/copilot-agent-store" target="_blank" rel="noopener">Set up Agent Store in Microsoft Copilot</a><span class="u">https://learn.microsoft.com/microsoft-365/copilot/copilot-agent-store</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps" target="_blank" rel="noopener">Manage agents in the Microsoft 365 admin center</a><span class="u">https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/agent-essentials/m365-agents-admin-guide" target="_blank" rel="noopener">Agents admin guide for Microsoft 365</a><span class="u">https://learn.microsoft.com/microsoft-365/copilot/agent-essentials/m365-agents-admin-guide</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/publication-add-bot-to-microsoft-teams" target="_blank" rel="noopener">Connect and configure an agent for Teams and Microsoft 365</a><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/publication-add-bot-to-microsoft-teams</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/bring-agents-to-copilot" target="_blank" rel="noopener">Bring your agents into Microsoft Copilot</a><span class="u">https://learn.microsoft.com/microsoft-365/copilot/extensibility/bring-agents-to-copilot</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-agent-365/overview" target="_blank" rel="noopener">Overview of Microsoft Agent 365</a><span class="u">https://learn.microsoft.com/microsoft-agent-365/overview</span></div>
+  </div>
+
+  <footer class="foot">
+    This page is guidance, not a contract. Microsoft cloud capabilities, licensing, and admin center placement change over time. Confirm current terms, documentation, and tenant-specific settings before making production decisions.
+  </footer>
+</div>
+<script>
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
