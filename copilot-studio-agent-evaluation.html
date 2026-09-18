@@ -308,7 +308,7 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot Studio · Quality Engineering Reference</p>
     <h1>Copilot Studio Agent Evaluation — The Complete Guide</h1>
-    <p class="sub">Everything you need to design test sets, choose graders, set pass thresholds, automate runs in CI/CD, and turn failures into fixes. Compiled from public Microsoft documentation · July 2026.</p>
+    <p class="sub">Everything you need to design test sets, choose graders, set pass thresholds, automate runs in CI/CD, and turn failures into fixes. Compiled from public Microsoft documentation · July 2026, re-verified September 2026.</p>
   </header>
 
   <div class="callout">
@@ -322,7 +322,7 @@ footer.foot {
       <li><a href="#concepts">Core concepts &amp; vocabulary</a></li>
       <li><a href="#vs-testchat">Test chat vs. agent evaluation</a></li>
       <li><a href="#testsets">Building test sets: the six creation paths</a></li>
-      <li><a href="#graders">The seven grading methods</a></li>
+      <li><a href="#graders">The eight grading methods</a></li>
       <li><a href="#profiles">User profiles, auth &amp; connections</a></li>
       <li><a href="#running">Running evaluations &amp; reading results</a></li>
       <li><a href="#automation">Automation: REST API and connectors</a></li>
@@ -357,7 +357,7 @@ footer.foot {
     <div class="card">
       <span class="pill alt">What it does not do</span>
       <ul>
-        <li>It measures <strong>correctness and performance — not AI ethics or safety</strong></li>
+        <li>Its primary focus is <strong>correctness and performance</strong>; the content-safety method screens for harmful content but is not a safety guarantee</li>
         <li>An agent can pass every test and still produce an inappropriate answer</li>
         <li>It does not replace Responsible AI review or content-safety filters</li>
         <li>It does not test information <em>gaps</em> when questions are generated from the agent's own knowledge</li>
@@ -367,7 +367,7 @@ footer.foot {
   </div>
 
   <div class="callout warn">
-    <strong>Do not conflate evaluation with assurance.</strong> Microsoft is explicit: evaluations measure correctness and performance, not ethics or safety problems. Keep Responsible AI reviews and content-safety filters in place regardless of your pass rate.
+    <strong>Do not conflate evaluation with assurance.</strong> A <em>content safety</em> grading method now exists, and it is worth using, but Microsoft is explicit that it helps identify potentially harmful content without guaranteeing an agent is safe or appropriate for every scenario. Keep Responsible AI reviews and content-safety filters in place regardless of your pass rate.
   </div>
 
   <h2 id="concepts">2. Core concepts &amp; vocabulary</h2>
@@ -420,7 +420,7 @@ footer.foot {
     <tbody>
       <tr><td>Cases per set</td><td class="num-cell">Up to 100</td><td class="num-cell">Up to 20</td></tr>
       <tr><td>Turns per case</td><td class="num-cell">1 question / 1 answer</td><td class="num-cell">Up to 12 messages (6 Q&amp;A pairs)</td></tr>
-      <tr><td>Graders available</td><td>All seven</td><td>General quality, keyword match, tool use, custom</td></tr>
+      <tr><td>Graders available</td><td>All eight</td><td>General quality, content safety, keyword match, custom</td></tr>
       <tr><td>Tests for</td><td>Answer wording, capability selection, exact facts</td><td>Context retention, clarification, multi-step task completion</td></tr>
       <tr><td>Use when</td><td>You care about <em>what</em> the agent says to a given question</td><td>You care about <em>how</em> the agent behaves across a real interaction</td></tr>
     </tbody>
@@ -476,7 +476,7 @@ footer.foot {
     <strong>Generation can fail on content moderation.</strong> If a generated question trips your agent's moderation settings, generation fails outright. Usual causes: instructions or topics that steer the model into flagged content, sensitive material in a connected knowledge source, or moderation settings that are simply too strict. Adjust the source, the instructions, or the moderation level.
   </div>
 
-  <h2 id="graders">5. The seven grading methods</h2>
+  <h2 id="graders">5. The eight grading methods</h2>
 
   <p>A test set can carry several methods at once. Every method except <em>general quality</em> needs an expected value on each case — cases missing one return <em>Invalid</em>, not <em>Fail</em>.</p>
 
@@ -486,6 +486,7 @@ footer.foot {
     </thead>
     <tbody>
       <tr><td><strong>General quality</strong></td><td>LLM judgement of the response across relevance, groundedness, completeness and abstention</td><td>Single + conversation</td><td>0–100%</td><td>Nothing — on by default</td></tr>
+      <tr><td><strong>Content safety</strong></td><td>Whether the response contains harmful content &mdash; hatefulness and unfairness, sexual content, violence, or self-harm</td><td>Single + conversation</td><td>Pass/fail</td><td>Content type + permitted severity level (0&ndash;7)</td></tr>
       <tr><td><strong>Compare meaning</strong></td><td>Semantic match to the expected answer, regardless of wording</td><td>Single</td><td>0–100% (default pass 50)</td><td>Pass score + expected answer</td></tr>
       <tr><td><strong>Tool use</strong></td><td>Whether the expected tools or topics were actually invoked</td><td>Single</td><td>Pass/fail</td><td>Expected capabilities</td></tr>
       <tr><td><strong>Keyword match</strong></td><td>Presence of required words or phrases — <em>Any</em> or <em>All</em></td><td>Single + conversation</td><td>Pass/fail</td><td>Expected keywords</td></tr>
@@ -498,6 +499,7 @@ footer.foot {
   <h3>Choosing the right grader</h3>
   <p>Grader choice is the single biggest driver of false failures. Match the method to the quality signal:</p>
   <ul>
+    <li><strong>Harmful content must not appear</strong> (hate and unfairness, sexual content, violence, self-harm) &rarr; content safety. Add one content-safety method per content type you want graded.</li>
     <li><strong>No single correct answer</strong> (open questions, synthesis, summarization) &rarr; general quality, optionally with compare meaning.</li>
     <li><strong>One correct idea, many valid phrasings</strong> &rarr; compare meaning. Do not use keyword match (All) here — it fails on legitimate synonyms.</li>
     <li><strong>Specific terms must appear</strong> (a product name, a disclaimer, a policy reference) &rarr; keyword match.</li>
@@ -519,6 +521,10 @@ footer.foot {
     </tbody>
   </table>
   <p class="sub">Note: reducing the number of knowledge sources is <em>not</em> guaranteed to improve general-quality grading — the retrieved context for a given case can still be too large.</p>
+
+  <h3>Inside content safety</h3>
+  <p>Content safety grades a response against four harmful-content types: <strong>hatefulness and unfairness</strong>, <strong>sexual content</strong>, <strong>violence</strong>, and <strong>self-harm</strong>. For each type the evaluator assigns a severity level and the case passes when that severity sits within the threshold you configure. Thresholds run from <strong>level 0</strong> (strictest) to <strong>level 7</strong> (most permissive, allowing graphic or extreme content to pass). Add a separate content-safety method for each content type you want evaluated.</p>
+  <p class="sub">Content safety narrows the gap between evaluation and assurance, but it does not close it. Microsoft is explicit that these evaluations help identify potentially harmful content without guaranteeing an agent is safe or appropriate for every scenario.</p>
 
   <h3>Writing a good custom grader</h3>
   <p>A custom method has two parts. <strong>Evaluation instructions</strong> state the goal; <strong>labels</strong> define the outcomes and which of them count as a pass. Keep instructions goal-oriented and structured with headings and bullets. Label titles allow letters, numbers, space, and <code>- _ / &amp; + .</code> only.</p>
@@ -638,7 +644,7 @@ Labels:  Compliant (pass)  ·  Non-Compliant (fail)</div>
   <table>
     <thead><tr><th style="width:28%">Set</th><th>Contents</th><th style="width:26%">Primary graders</th></tr></thead>
     <tbody>
-      <tr><td>Safety &amp; personal data</td><td>Out-of-scope prompts, prompt-injection attempts, system-prompt probes, PII handling</td><td>Custom, keyword match</td></tr>
+      <tr><td>Safety &amp; personal data</td><td>Out-of-scope prompts, prompt-injection attempts, system-prompt probes, PII handling</td><td>Content safety, custom, keyword match</td></tr>
       <tr><td>Compliance &amp; verbatim</td><td>Regulated wording, required disclaimers, citation format</td><td>Text similarity, keyword match</td></tr>
       <tr><td>Factual accuracy</td><td>Core business questions with known answers</td><td>Compare meaning, exact match</td></tr>
       <tr><td>Knowledge grounding</td><td>Questions answerable only from a specific source; conflicting-source cases</td><td>General quality</td></tr>

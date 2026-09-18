@@ -211,7 +211,7 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Power Platform · Enablement Reference</p>
     <h1>Power Platform Licensing &amp; Managed Environments</h1>
-    <p class="sub">A plain-language overview of how Power Platform is licensed, and what changes when you turn on Managed Environments. Prepared as an enablement reference · Updated August 2026.</p>
+    <p class="sub">A plain-language overview of how Power Platform is licensed, and what changes when you turn on Managed Environments. Prepared as an enablement reference · Updated September 2026.</p>
   </header>
 
   <div class="callout">
@@ -376,13 +376,17 @@ footer.foot {
   </table>
   <p>Guidance that flattens this into a single &ldquo;you need a premium Power Platform license <em>or</em> a Microsoft 365 Copilot license&rdquo; is the usual source of confusion. Ask which <em>workload</em> is being licensed, not which environment.</p>
 
-  <h3>Compliance notifications are now live</h3>
-  <p>The licensing requirement itself is not new, but Microsoft now surfaces non-compliance proactively rather than silently:</p>
+  <h3>Compliance enforcement: notifications now, a hard block from February 2027</h3>
+  <p>The licensing requirement itself is not new, but Microsoft now surfaces non-compliance proactively rather than silently, and the courtesy period has an end date:</p>
   <ul>
     <li><strong>From March 2026</strong> &mdash; administrators are notified through the Microsoft 365 Message center and the Power Platform admin center.</li>
     <li><strong>From April 2026</strong> &mdash; recommendations appear under <em>Actions &rarr; Recommendations</em> identifying affected users.</li>
     <li><strong>From June 2026</strong> &mdash; end users see in-app notifications when they open an app in a managed environment without an appropriate license, escalating from <em>informational</em> to <em>warning</em> to <em>error</em> at seven-day intervals. Users can request a license directly from the notification.</li>
+    <li><strong>From February 2027</strong> &mdash; an appropriate license is <strong>strictly required to open an app</strong>. Users without one are blocked after the final notification stage and see the standard <em>You need a Power Apps license to use this app</em> message. Apps are not removed, and access resumes once a license is detected. Notifications continue alongside the block.</li>
   </ul>
+  <div class="callout warn">
+    <strong>Treat February 2027 as a real deadline, not a signal.</strong> Anything you have read describing managed-environment enforcement as notification-only with no access block was accurate before this change and is not accurate for 2027. Review license assignment for every managed-environment user well ahead of the cut-over.
+  </div>
   <p>To audit your own position, download the <strong>&ldquo;Users requiring licenses in Managed Environments&rdquo;</strong> report from <em>Licensing &rarr; Power Apps &rarr; Summary &rarr; Download report</em>. Note that it only lists users who actually launched an app in the selected month. Enabling an <strong>auto-claim policy</strong> in the Microsoft 365 admin center can pre-empt the issue entirely, provided you hold sufficient license capacity.</p>
 
   <h2>5. Per-user vs per-app: which is cheaper?</h2>
@@ -430,7 +434,7 @@ footer.foot {
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation (verified July 2026; the Dataverse long-term data retention section verified August 2026). Licensing SKUs and rules change frequently &mdash; always confirm current terms against the Power Platform Licensing Guide and your organization’s agreement before making purchasing decisions. This overview is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation (verified July 2026; the Dataverse long-term data retention section verified August 2026; managed-environment licensing compliance re-verified September 2026). Licensing SKUs and rules change frequently &mdash; always confirm current terms against the Power Platform Licensing Guide and your organization’s agreement before making purchasing decisions. This overview is guidance, not a contract.
   </footer>
 </div>
 

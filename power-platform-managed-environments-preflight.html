@@ -267,11 +267,15 @@ ul.check li::before {
   <header class="masthead">
     <p class="eyebrow">Microsoft Power Platform &middot; Pre-Deployment Checklist</p>
     <h1>Managed Environments: Pre-Deployment Inventory and Checklist</h1>
-    <p class="sub">Work out who is in the environment, who is actually licensed, and what it will cost &mdash; before you turn Managed Environments on. Includes a downloadable PowerShell inventory script &middot; August 2026.</p>
+    <p class="sub">Work out who is in the environment, who is actually licensed, and what it will cost &mdash; before you turn Managed Environments on. Includes a downloadable PowerShell inventory script &middot; August 2026, re-verified September 2026.</p>
   </header>
 
+  <div class="callout warn">
+    <strong>The deadline that changes the calculus:</strong> enforcement is notification-only <strong>until February 2027</strong>. From then on, a user without an appropriate license is <strong>blocked from opening apps</strong> in a managed environment and sees the standard <em>You need a Power Apps license to use this app</em> message. The courtesy notification period is exactly that &mdash; a period. Do the inventory and assign licenses before the block lands.
+  </div>
+
   <div class="callout">
-    <strong>The one thing to remember:</strong> enabling Managed Environments does <strong>not</strong> lock unlicensed users out. Enforcement is notification-based and escalates over roughly two weeks. That gives you runway &mdash; but the licensing obligation is real from the moment you switch it on, so do the inventory first rather than discovering the gap through in-app warnings.
+    <strong>The one thing to remember:</strong> enabling Managed Environments does <strong>not</strong> lock unlicensed users out today. Enforcement is notification-based and escalates over roughly two weeks. That gives you runway until <strong>February 2027</strong> &mdash; but the licensing obligation is real from the moment you switch it on, so do the inventory first rather than discovering the gap through in-app warnings.
   </div>
 
   <p>This page is the operational companion to <a href="power-platform-licensing-managed-environments.html">Power Platform Licensing &amp; Managed Environments</a>. That page explains the concepts: seeded versus premium, the licensing paths, and what Managed Environments actually unlocks. <strong>Start there if the model is new to you.</strong> This page assumes you have decided to proceed and need to work out who needs a license before you flip the switch.</p>
@@ -288,7 +292,7 @@ ul.check li::before {
   <p>So a genuine pre-enablement inventory has to be composed from three sources and joined manually. That is what the script further down does.</p>
 
   <div class="callout">
-    <strong>A lower-effort alternative worth considering.</strong> Because enforcement is notification-based rather than a hard block, you can enable Managed Environments on a single low-risk pilot environment, let the native report populate for a month, and get Microsoft's own verdict instead of reverse-engineering it. That is less work and higher fidelity. Do not do this on a business-critical environment with a nervous user base, and be aware users in the pilot will start seeing notifications.
+    <strong>A lower-effort alternative worth considering.</strong> Because enforcement is notification-based rather than a hard block <em>until February 2027</em>, you can enable Managed Environments on a single low-risk pilot environment, let the native report populate for a month, and get Microsoft's own verdict instead of reverse-engineering it. That is less work and higher fidelity. Do not do this on a business-critical environment with a nervous user base, be aware users in the pilot will start seeing notifications, and do not leave the pilot unlicensed past the February 2027 cut-over.
   </div>
 
   <h2>2. What actually qualifies</h2>
@@ -488,7 +492,7 @@ ul.check li::before {
 
   <h2>8. What enforcement looks like</h2>
 
-  <p>Notifications escalate rather than blocking immediately. Users keep working throughout.</p>
+  <p>Until February 2027, notifications escalate rather than blocking immediately, and users keep working throughout. After that, the final stage is an actual block.</p>
 
   <table>
     <thead><tr><th>Stage</th><th>What the user sees</th><th>Timing</th></tr></thead>
@@ -496,8 +500,11 @@ ul.check li::before {
       <tr><td><strong>Informational</strong></td><td>&ldquo;This app requires a valid Power Apps license. Request a license from your admin.&rdquo;</td><td>On first affected launch</td></tr>
       <tr><td><strong>Warning</strong></td><td>Same message, escalated presentation.</td><td>After 7 days without a license</td></tr>
       <tr><td><strong>Error</strong></td><td>&ldquo;Action required &mdash; this app requires a valid Power Apps license&hellip; for continued access.&rdquo;</td><td>After a further 7 days, and persists</td></tr>
+      <tr><td><strong>Blocked</strong></td><td>&ldquo;You need a Power Apps license to use this app.&rdquo; The app does not open.</td><td>From <strong>February 2027</strong>, after the final notification stage</td></tr>
     </tbody>
   </table>
+
+  <p>Apps are not removed from the environment, and access resumes as soon as an appropriate license is detected. Notifications continue after February 2027 alongside the block.</p>
 
   <p>Users can request a license directly from the notification. Requests surface in the Power Platform admin center under <strong>Actions &gt; Recommendations</strong>, and in the Microsoft 365 admin center under <strong>Billing &gt; Licenses &gt; Requests</strong>.</p>
 
