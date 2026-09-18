@@ -252,7 +252,7 @@ footer.foot a:hover { text-decoration: underline; }
   </header>
 
   <div class="callout">
-    <strong>The one thing to remember:</strong> a managed app is what you get when someone describes an app in <strong>Copilot Cowork</strong> or <strong>Copilot Studio</strong> and publishes it. It is a real full-stack application built with agentic coding, wired to your data through connectors, authenticated with Microsoft Entra, and governed from the <strong>Microsoft 365 admin center</strong> rather than the Power Platform admin center. It is <strong>not</strong> licensed per user: building and running managed apps is billed as <strong>usage, in Copilot Credits</strong>. That single fact changes how you size it, who approves it, and what goes wrong.
+    <strong>The one thing to remember:</strong> a managed app is what you get when someone describes an app in <strong>Copilot Cowork</strong> or <strong>Copilot Studio</strong> and publishes it. It is a real full-stack application built with agentic coding, wired to your data through connectors, authenticated with Microsoft Entra, and governed from the <strong>Microsoft 365 admin center</strong> rather than the Power Platform admin center. Commercially it is a <strong>hybrid</strong>, and that is the part people get wrong: <strong>building</strong> is usage-based and paid in Copilot Credits, while the capability to <strong>run</strong> apps built in Cowork is <strong>included with Power Apps Premium</strong> &mdash; drawing on that license's allowance of 40,000 Power Platform requests per user per 24 hours. AI-powered runtime inside the app always consumes credits on top.
   </div>
 
   <h2>1. What a managed app actually is</h2>
@@ -529,15 +529,50 @@ the status changes.</code></pre>
   <h2>6. Licensing and cost</h2>
 
   <div class="callout">
-    <strong>There is no per-user app license here.</strong> Building and running managed apps falls under <strong>usage-based billing</strong> and is paid for in <strong>Copilot Credits</strong>, from the same pool and the same governance model as Cowork itself. Model the cost as consumption, not as headcount multiplied by a monthly figure.
+    <strong>There are two meters here, and they are funded differently.</strong> <strong>Building</strong> apps falls under usage-based billing and is paid in <strong>Copilot Credits</strong>, from the same pool and governance model as Cowork itself. <strong>Running</strong> apps built in Cowork is <strong>included with Power Apps Premium</strong>. Getting this wrong in either direction produces a badly wrong forecast, so separate the two before you model anything.
+  </div>
+
+  <h3>The Power Apps Premium entitlement, precisely</h3>
+  <p>Microsoft's request-limits documentation states it plainly: <em>the capability to run apps built in Cowork is included with Power Apps Premium</em>. The Power Platform requests those apps generate count toward that license's standing allowance.</p>
+
+  <table>
+    <thead>
+      <tr><th>Detail</th><th>What it means</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>The allowance</strong></td>
+        <td><strong>40,000 Power Platform requests per user per 24 hours</strong> &mdash; the standard Power Apps Premium limit, not a separate app-specific pool. It is a <strong>daily</strong> figure, which is roughly 1.2 million a month, so it is far more generous than a monthly reading of the same number would suggest.</td>
+      </tr>
+      <tr>
+        <td><strong>What counts</strong></td>
+        <td>Power Platform requests: API requests to connectors and Dataverse generated as the app runs.</td>
+      </tr>
+      <tr>
+        <td><strong>Licenses that do <em>not</em> include it</strong></td>
+        <td><strong>Power Apps per app</strong>, <strong>Power Apps pay-as-you-go</strong>, and <strong>Dynamics 365 licenses that include Power Apps capabilities</strong>. This is the trap: holding a Power Apps license of some kind is not sufficient. It must be Premium.</td>
+      </tr>
+      <tr>
+        <td><strong>Never included</strong></td>
+        <td>AI-powered runtime &mdash; agents and Work IQ APIs invoked by the app &mdash; sits outside these limits and <strong>consumes Copilot Credits</strong> regardless of which license the user holds.</td>
+      </tr>
+      <tr>
+        <td><strong>Stacking</strong></td>
+        <td>A user with multiple paid licenses gets the sum of their allowances. Someone holding both a Dynamics 365 Enterprise base license and a Power Apps per user license has 80,000 requests per 24 hours.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Two ways people misread this.</strong> First, as <em>"40,000 operations a month"</em> &mdash; it is per user per <strong>day</strong>, roughly thirty times larger, and reading it as monthly makes the entitlement look far tighter than it is. Second, as <em>"Power Apps Premium covers managed apps, so there is no credit cost"</em> &mdash; it covers <strong>running</strong> apps built in Cowork, not <strong>building</strong> them, and it never covers AI runtime inside the app. The documented sentence names apps built in <strong>Cowork</strong> specifically; if your scenario is apps authored in Copilot Studio, confirm the current entitlement wording before you commit to it commercially.
   </div>
 
   <h3>What sits inside usage-based billing</h3>
   <p>The Microsoft 365 admin center currently manages these services under usage-based billing:</p>
   <ul>
     <li><strong>Cowork</strong> itself &mdash; model responses, tool and skill calls, image generation, browser tasks.</li>
-    <li><strong>Apps built with Copilot Cowork</strong> &mdash; both the building and the running.</li>
-    <li><strong>Work IQ API</strong>.</li>
+    <li><strong>Apps built with Copilot Cowork</strong> &mdash; the building, and the running where it is not covered by a Power Apps Premium entitlement.</li>
+    <li><strong>Work IQ API</strong> &mdash; including when an app calls it.</li>
   </ul>
   <p>More services are added over time, and spending policies have <strong>Auto-apply new services</strong> enabled by default. If you want new services reviewed before they inherit an existing policy, turn that setting off deliberately. Otherwise a future service quietly joins a budget someone already approved.</p>
 
@@ -562,12 +597,15 @@ the status changes.</code></pre>
 
   <h3>The cost mistakes worth pre-empting</h3>
   <ul>
-    <li><strong>Budgeting it like a seat.</strong> There is no per-user app license to multiply out. The variable is how much the apps are used, which means a small number of heavily used apps can cost more than a large number of occasional ones. Model the top few apps, not the app count.</li>
+    <li><strong>Assuming there is no per-user option.</strong> There is. Where users already hold Power Apps Premium, the run cost for Cowork-built apps is already covered, and the remaining variable is the build activity and any AI runtime. An organization with a large Premium estate is in a very different position from one starting cold.</li>
+    <li><strong>Assuming a Power Apps license is a Power Apps license.</strong> Per app, pay-as-you-go, and Dynamics 365 licenses carrying Power Apps capabilities <strong>do not</strong> include this. Check the actual SKU before promising anything.</li>
+    <li><strong>Reading the allowance as monthly.</strong> 40,000 requests per user per <strong>24 hours</strong>. Getting this wrong understates the headroom by roughly thirty times and leads to buying capacity nobody needs.</li>
+    <li><strong>Forgetting AI runtime is always metered.</strong> An app that calls an agent or the Work IQ APIs consumes Copilot Credits on every invocation, whatever license the user holds. An app that calls an agent on every page load is a consumption decision disguised as a design decision.</li>
     <li><strong>Using low limits as an access control.</strong> Covered above, and worth repeating because it is the single most common misconfiguration: inclusion in a Cowork-selecting policy <em>is</em> the grant.</li>
     <li><strong>Leaving auto-apply on without deciding to.</strong> It is on by default and it is the right setting for many organizations. It should still be a decision someone made.</li>
-    <li><strong>Missing the premium-license boundary.</strong> Building managed apps in a personal developer environment does not require Power Apps or Power Automate premium. Creating Power Apps or Power Automate resources in that same environment does, with auto-claim in play. Make sure the person forecasting cost knows which side of that line the makers are on.</li>
-    <li><strong>Ignoring what sits behind the connectors.</strong> Copilot Credits pay for the app. They do not pay for the third-party SaaS, Azure services, or Dynamics 365 licensing that the connectors reach into.</li>
-    <li><strong>Pricing a preview.</strong> Frontier previews run under existing preview terms, and capabilities and availability may change. Confirm against the Copilot Credits Guide before putting a figure in a proposal.</li>
+    <li><strong>Missing the premium-license boundary in personal developer environments.</strong> Building managed apps there does not require Power Apps or Power Automate premium. Creating Power Apps or Power Automate resources in that same environment does, with auto-claim in play.</li>
+    <li><strong>Ignoring what sits behind the connectors.</strong> Neither credits nor a Power Apps license pays for the third-party SaaS, Azure services, or Dynamics 365 licensing that the connectors reach into.</li>
+    <li><strong>Pricing a preview.</strong> Frontier previews run under existing preview terms, and capabilities and availability may change. Confirm against the Copilot Credits Guide and the Power Platform Licensing Guide before putting a figure in a proposal.</li>
   </ul>
 
   <h2>7. Power Apps or Copilot Studio?</h2>
@@ -602,12 +640,13 @@ the status changes.</code></pre>
   </div>
 
   <div class="callout">
-    <strong>The commercial distinction, stated plainly:</strong> Power Apps is <strong>per-user licensing</strong> &mdash; higher certainty, paid whether or not the app is used heavily, and requiring you to license everyone who might need it. Copilot Studio app building is <strong>consumption</strong> &mdash; no new SKU to get started and no need to license a potential audience in advance, but a bill that moves with usage. Neither is cheaper in the abstract. Which is cheaper depends entirely on how concentrated the usage turns out to be, which is usually not known until after the app exists.
+    <strong>The commercial distinction, restated:</strong> these are <strong>not</strong> two sealed pricing worlds. Power Apps is per-user licensing &mdash; higher certainty, paid whether or not the app is used heavily. Copilot Studio app building is consumption &mdash; no new SKU to get started and no need to license a potential audience in advance, but a bill that moves with usage. <strong>They overlap</strong>: Power Apps Premium already includes the capability to run apps built in Cowork, within its 40,000 requests per user per 24 hours. So an organization with an established Premium estate can adopt this with the run cost largely covered, leaving build activity and AI runtime as the variable. Which approach is cheaper depends on the licenses already in place and how concentrated the usage turns out to be &mdash; and the second of those is usually unknown until after the app exists.
   </div>
 
-  <p>Two things that are true regardless of which you start with:</p>
+  <p>Three things that are true regardless of which you start with:</p>
   <ul>
     <li><strong>Existing Power Apps investments carry forward.</strong> Apps keep running. Business logic, Dataverse tables, and connectors to systems of record keep doing their job and can be reused across apps, workflows, and agents. Choosing Copilot Studio for a new build does not strand anything already built.</li>
+    <li><strong>An existing Premium estate is an asset here, not a sunk cost.</strong> It already carries the entitlement to run Cowork-built apps. Check what is deployed before assuming a greenfield consumption model.</li>
     <li><strong>The choice is a starting point, not a boundary.</strong> Start with whichever experience and commercial model fits, then combine apps, agents, and workflows as the requirement develops. Treating it as a permanent architectural fork creates a decision that does not need making.</li>
   </ul>
 
@@ -656,6 +695,7 @@ the status changes.</code></pre>
       <li>Confirm Frontier enrollment is possible and identify the Global Administrator who will do it.</li>
       <li>Set up usage-based billing: choose prepaid, pay-as-you-go, or both, and connect the Azure subscription if required.</li>
       <li>Author the spending policy as an <strong>access decision first</strong> and a budget second. Scope it to a security group you control.</li>
+      <li><strong>Audit which users already hold Power Apps Premium</strong> before modeling cost. That entitlement covers running apps built in Cowork; per app, pay-as-you-go, and Dynamics 365 licenses with Power Apps capabilities do not.</li>
       <li>Decide consciously whether <strong>Auto-apply new services</strong> stays on.</li>
       <li>Check your existing Power Platform environment routing configuration <strong>before</strong> enabling apps. If you already have routing rules, plan the rule covering <em>Everyone</em> and verify the priority order, or some makers will not be able to use apps.</li>
       <li>Give finance and licensing stakeholders reader access to the cost dashboard rather than administrator roles.</li>
@@ -725,6 +765,11 @@ the status changes.</code></pre>
       <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-work-iq" target="_blank" rel="noopener noreferrer">Add Work IQ in Copilot Studio</a>
       <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-work-iq</span>
       How apps and agents reach organizational context inside the tenant boundary.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations" target="_blank" rel="noopener noreferrer">Requests limits and allocations</a>
+      <span class="u">https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations</span>
+      The authoritative source for the Power Apps Premium entitlement to run apps built in Cowork, the 40,000 requests per user per 24 hours allowance, the excluded license types, and the note that AI runtime consumes Copilot Credits regardless.
     </div>
     <div class="ref">
       <a href="https://learn.microsoft.com/en-us/power-apps/developer/code-apps/overview" target="_blank" rel="noopener noreferrer">Power Apps code apps overview</a>
