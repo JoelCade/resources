@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Managed Apps in Power Platform (Preview) &mdash; Build, Manage &amp; License</title>
+<title>Managed Apps (Preview) &mdash; Building, Governing &amp; Paying for Copilot-Built Apps</title>
 <script>
   (() => {
     const param = new URLSearchParams(window.location.search).get("scoutTheme");
@@ -246,443 +246,374 @@ footer.foot a:hover { text-decoration: underline; }
   <a class="backlink" href="index.html">&larr; All resources</a>
 
   <header class="masthead">
-    <p class="eyebrow">Microsoft Power Platform &middot; Preview Capability Guide</p>
-    <h1>Managed Apps in Power Platform (Preview)</h1>
-    <p class="sub">What the AI-generated, vibe-coded app experience became once it grew up: a real CLI, a real deployment pipeline, and real platform governance around your own code. How to build one, how to manage it, and what it actually costs. &middot; September 2026.</p>
+    <p class="eyebrow">Microsoft Copilot &amp; Power Platform &middot; Preview Capability Guide</p>
+    <h1>Managed Apps (Preview)</h1>
+    <p class="sub">Apps described in plain language in Copilot Cowork or Copilot Studio, generated as real full-stack code, published into your tenant, and governed from the Microsoft 365 admin center. How to build them, how to govern them, and how the usage-based bill actually works. &middot; September 2026.</p>
   </header>
 
   <div class="callout">
-    <strong>The one thing to remember:</strong> Managed Apps is not a new app designer and not a new license. It is the <strong>managed hosting and lifecycle layer</strong> Power Platform wraps around a web application you (or a coding agent) wrote. You keep the code, the framework, and the repository. The platform supplies Microsoft Entra identity, connector-brokered data access, DLP, sharing limits, Conditional Access, telemetry, and deployment. Commercially it behaves like a code app: <strong>end users need a Power Apps Premium license to run it</strong>, and everything the app touches is licensed and metered as it always was.
+    <strong>The one thing to remember:</strong> a managed app is what you get when someone describes an app in <strong>Copilot Cowork</strong> or <strong>Copilot Studio</strong> and publishes it. It is a real full-stack application built with agentic coding, wired to your data through connectors, authenticated with Microsoft Entra, and governed from the <strong>Microsoft 365 admin center</strong> rather than the Power Platform admin center. It is <strong>not</strong> licensed per user: building and running managed apps is billed as <strong>usage, in Copilot Credits</strong>. That single fact changes how you size it, who approves it, and what goes wrong.
   </div>
 
-  <h2>1. Where this came from, and why the name changed</h2>
+  <h2>1. What a managed app actually is</h2>
 
-  <p>There have been three overlapping names for closely related ideas over the last year, and mixing them up is the fastest way to give a customer the wrong answer.</p>
+  <p>App building starts as a conversation. A user chooses <strong>App (Preview)</strong> from the Copilot Studio home screen, or invokes the <code>/app</code> skill in a Copilot Cowork chat, and describes the business outcome, the users, the data, and the actions they need. Agentic coding turns that intent into a working app scaffold. From there the user iterates in natural language, previews the app, and can inspect the underlying code when they want more control.</p>
 
+  <p>What comes out the other side is deliberately not a toy:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">The artifact</span>
+      <h3>A full-stack app built on open standards</h3>
+      <ul>
+        <li>Real code, inspectable and extensible by developers who want to go deeper.</li>
+        <li>Git-backed source control, deployment stages, and version isolation, so the next version can be improved without disturbing the live one.</li>
+        <li>Published apps are discovered by users at <code>managedapps.cloud.microsoft.com</code>, or opened from a share link.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill muted">The platform around it</span>
+      <h3>Enterprise controls, on by default</h3>
+      <ul>
+        <li>Microsoft Entra authentication and authorization with no extra identity configuration.</li>
+        <li>Access to more than 1,500 connectors, plus Work IQ for organizational context.</li>
+        <li>Conditional Access, DLP, advanced connector policies, sharing limits, and data source restrictions applied automatically.</li>
+        <li>Microsoft-managed environments that inherit those policies rather than requiring you to configure them.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Two front doors, one capability</h3>
   <table>
     <thead>
-      <tr><th>Name</th><th>What it actually is</th><th>Status</th></tr>
+      <tr><th>Surface</th><th>How you start</th><th>Availability</th></tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Power Apps vibe</strong><br /><span style="font-size:12.5px;color:var(--cp-text-muted)">the "vibe-coded apps" experience</span></td>
-        <td>A browser-based, AI-native workspace at <code>vibe.powerapps.com</code>. You describe a business problem in natural language and it produces a plan, a data model, and a generated app together. The generated artifact was already code, not a canvas app.</td>
-        <td>Preview. Microsoft now points makers toward app building in Copilot Cowork and Copilot Studio, and vibe apps can be converted and downloaded as code.</td>
+        <td><strong>Copilot Cowork</strong></td>
+        <td>The built-in <code>/app</code> skill, or the <strong>Build an app</strong> suggested prompt on the Cowork home page. Describe the problem; the skill can generate a data schema in supported connectors and return an app with its data sources connected.</td>
+        <td>Requires tenant enrollment in the Microsoft Copilot <strong>Frontier</strong> preview program.</td>
       </tr>
       <tr>
-        <td><strong>Power Apps code apps</strong></td>
-        <td>The code-first counterpart: you build a React, Vue, or similar web app in your own IDE, wire it to connectors, and publish it into a Power Platform environment with the Power Apps CLI (<code>pa</code>). This is the runtime and governance model the vibe output lands on.</td>
-        <td>Preview, with published documentation, an admin enablement toggle, and a documented managed-platform capability matrix.</td>
-      </tr>
-      <tr>
-        <td><strong>Managed Apps</strong><br /><span style="font-size:12.5px;color:var(--cp-text-muted)">the subject of this page</span></td>
-        <td>The productized version of that same idea, with its own first-party toolchain: the <code>ms</code> CLI, an SDK, a Vite plugin, official project templates, a coding-agent plugin, and GitHub Actions for CI/CD. Same platform promise, a proper lifecycle around it.</td>
-        <td>Public preview. APIs, templates, and tooling may change before general availability.</td>
+        <td><strong>Copilot Studio</strong></td>
+        <td>The apps tile on the Copilot Studio home screen, alongside agents and workflows, so a single business process can combine all three.</td>
+        <td>Rolling out in public preview.</td>
       </tr>
     </tbody>
   </table>
 
   <div class="callout warn">
-    <strong>Say this to a customer, not more than this:</strong> "It is the same idea you saw demoed as vibe coding, now with a supported CLI, templates, source control, and a deployment pipeline. It is in public preview, so treat tooling and APIs as subject to change and do not put a tier-one production workload on it yet."
+    <strong>Name collision worth getting straight before a customer conversation.</strong> "Managed apps" is the Microsoft 365 admin center's term for apps built this way. It does <em>not</em> mean Managed Environments, and it is not the same thing as a Power Apps <strong>code app</strong> or a Power Apps <strong>vibe</strong> app, even though all three involve generated code. The admin center draws the line explicitly, and the line is about where the app is governed.
   </div>
 
-  <h3>What you keep, and what the platform takes over</h3>
-  <div class="grid2">
-    <div class="card">
-      <span class="pill">You own</span>
-      <h3>The application</h3>
-      <ul>
-        <li>The framework choice &mdash; React and TypeScript on Vite in the first-party template.</li>
-        <li>The UI, the state, the business logic, the tests.</li>
-        <li>The repository, the branches, and the review process.</li>
-        <li>Which data sources the app binds to, and which operations it is permitted to call.</li>
-      </ul>
-    </div>
-    <div class="card">
-      <span class="pill muted">Platform owns</span>
-      <h3>Everything around it</h3>
-      <ul>
-        <li>Microsoft Entra authentication and authorization on every session.</li>
-        <li>Connector brokering to 1,500+ data sources, callable from TypeScript.</li>
-        <li>DLP enforcement, sharing limits, app quarantine, tenant isolation.</li>
-        <li>Hosting, deployment, versioning, and operational health telemetry.</li>
-      </ul>
-    </div>
-  </div>
+  <table>
+    <thead>
+      <tr><th>App type</th><th>Appears in Microsoft 365 admin center &rarr; Apps &rarr; All apps?</th><th>Governed where</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Managed apps</strong> (built in Cowork or Copilot Studio)</td><td><strong>Yes</strong>, always shown</td><td>Microsoft 365 admin center</td></tr>
+      <tr><td>Integrated apps</td><td>Yes, on a separate tab</td><td>Microsoft 365 admin center, Settings &rarr; Integrated apps</td></tr>
+      <tr><td>Canvas, model-driven, code, and vibe apps</td><td><strong>No</strong></td><td>Power Platform admin center</td></tr>
+    </tbody>
+  </table>
 
-  <h2>2. Architecture: the four pieces that matter</h2>
-
-  <div class="grid2">
-    <div class="card">
-      <span class="pill">Toolchain</span>
-      <h3>The <code>ms</code> CLI</h3>
-      <p>Published to the public npm registry as <code>@microsoft/managed-apps-cli</code> and installed globally so the <code>ms</code> binary is on your PATH. It scaffolds, runs the local dev loop, adds data sources, builds, packs, uploads, deploys, shares, and manages auth. Companion packages supply the SDK (<code>@microsoft/managed-apps</code>) and the Vite plugin.</p>
-    </div>
-    <div class="card">
-      <span class="pill">Config</span>
-      <h3><code>ms.config.json</code></h3>
-      <p>The per-app manifest written by <code>ms app create</code>. It records the app ID, the environment ID, the repository mode, and every connection reference the app binds to &mdash; including the runtime action policy for shared connections. This file is the contract between your repository and the service.</p>
-    </div>
-    <div class="card">
-      <span class="pill">Repository mode</span>
-      <h3>Platform-managed or bring-your-own</h3>
-      <p>Apps are created either against a platform-managed Git repository, or in <strong>BYOB mode</strong> with <code>ms app create --repo none</code>, where you keep the code wherever you already keep code and the CLI uploads a built artifact instead. The mode drives how deployment works, so decide it on day one.</p>
-    </div>
-    <div class="card">
-      <span class="pill">Runtime</span>
-      <h3>The App Player</h3>
-      <p>Local development runs the app in the App Player with hot reload, against real connectors and real environment data. There is no "mock mode" to drift away from &mdash; what you test locally is what the platform brokers in production.</p>
-    </div>
-  </div>
-
-  <h2>3. Building one</h2>
-
-  <h3>Prerequisites</h3>
-  <ul>
-    <li><strong>Node.js LTS</strong> (v22 or higher for the managed apps toolchain) and <strong>Git</strong>, with Git credentials configured. On Windows, Git Credential Manager handles the first interactive authentication against the platform repository endpoint.</li>
-    <li>An <strong>environment with code apps enabled</strong>. An admin turns this on per environment, or at scale with environment groups and rules.</li>
-    <li>For the AI-assisted path, a <strong>coding agent CLI</strong> &mdash; GitHub Copilot CLI or Claude Code &mdash; with its own subscription, plus the Microsoft-published plugin.</li>
-    <li><strong>Not the default environment.</strong> The AI app-building experiences are excluded there, and the default environment is the wrong place for this work anyway.</li>
-  </ul>
-
-  <h3>The agent-assisted path</h3>
+  <h2>2. Building one</h2>
 
   <div class="step">
     <div class="num">1</div>
     <div class="body">
-      <h3>Install the plugin once</h3>
-      <p>From inside a Copilot CLI or Claude Code session, register the Microsoft marketplace and install the plugin. It is available in every project folder afterward.</p>
-<pre><code>/plugin marketplace add microsoft/Managed-Apps
-/plugin install microsoft-managed-apps@Managed-Apps</code></pre>
+      <h3>Describe the outcome, not the screens</h3>
+      <p>State the business problem, who uses it, what data it needs, and what actions it takes. You can reference Microsoft 365 sources directly &mdash; documents, spreadsheets, meetings, messages. "Build an app to run my daily scrum with my team" is a legitimate starting prompt; so is a paragraph describing an onboarding tracker with its data sources named.</p>
+      <p>Specificity about <em>data and actions</em> pays off more than specificity about layout. Layout is cheap to change in the next turn. A missing data source means the scaffold is built around the wrong shape.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="num">2</div>
     <div class="body">
-      <h3>Describe the app in an empty folder</h3>
-      <p>Run <code>/create-app</code>. The agent installs the CLI globally with your confirmation, asks what you want to build in plain language, scaffolds the project with <code>ms app create</code>, and starts the local dev server. Nothing reaches the cloud at this point.</p>
-      <p>Be specific about users, data, and the tasks the app performs. A vague prompt produces a generic app you then spend longer correcting than you would have spent writing the prompt properly.</p>
+      <h3>Let it connect the data</h3>
+      <p>Apps use connectors to reach business data, and Work IQ to reach organizational context inside the Microsoft 365 tenant boundary. This is not read-only: an app can surface information, take action, and write results back to the connected system. The app-building skill can also generate a data schema in supported connectors and hand you an app with those sources already wired.</p>
+      <div class="feature-tags">
+        <span class="tag">1,500+ connectors</span>
+        <span class="tag">Work IQ organizational context</span>
+        <span class="tag">Schema generation</span>
+        <span class="tag">Read and write</span>
+      </div>
     </div>
   </div>
 
   <div class="step">
     <div class="num">3</div>
     <div class="body">
-      <h3>Bind data sources deliberately</h3>
-      <p>Each binding runs <code>ms app add data-source</code> against a connector, regenerates typed TypeScript services, and hot-reloads them into the running app. Add what the app needs and no more &mdash; every binding is a governance surface and a licensing question.</p>
-      <div class="feature-tags">
-        <span class="tag">Dataverse</span>
-        <span class="tag">SharePoint</span>
-        <span class="tag">Excel</span>
-        <span class="tag">OneDrive</span>
-        <span class="tag">Outlook</span>
-        <span class="tag">Teams</span>
-        <span class="tag">Azure DevOps</span>
-        <span class="tag">Copilot Studio agents</span>
-        <span class="tag">Any other connector</span>
-      </div>
+      <h3>Iterate in conversation, inspect the code when you need to</h3>
+      <p>Ask for changes in natural language and the app updates as you go. Information workers can stay entirely in the conversation. Advanced makers and developers can open the structure and the code when they need real control. The same app serves both audiences, which is the point.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="num">4</div>
     <div class="body">
-      <h3>Iterate locally, not in production</h3>
-      <p>The inner loop is <code>ms app dev</code>, not deploy. Local dev does not validate connection policies, so it stays fast; the validation gate fires at pack and deploy time instead.</p>
+      <h3>Open it and test it as a user would</h3>
+      <p>Work saves automatically as you go, so opening the app to test is a normal part of the loop rather than a checkpoint.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="num">5</div>
     <div class="body">
-      <h3>Build, commit, then deploy</h3>
-      <p>The toolchain enforces a discipline worth keeping even when it does not: build must succeed, changes must be committed and pushed, and only then does <code>ms app deploy</code> run. Git-backed deployments are guarded when the working tree is dirty or local <code>main</code> is ahead of <code>origin/main</code>.</p>
+      <h3>Publish, then share deliberately</h3>
+      <p>Publishing makes the app and your latest changes available to the people you share it with. Sharing works like a Word document or a PowerPoint deck: generate a link and send it to anyone in your organization who can use Microsoft 365 Copilot.</p>
     </div>
   </div>
 
-  <div class="callout">
-    <strong>The rule that trips up every developer once:</strong> managed apps run in a sandbox that does not permit arbitrary outbound network calls. A raw <code>fetch</code> to Microsoft Graph, Azure REST, or any third-party API will work in nobody's production environment. <strong>If a connector exists, use the connector.</strong> If no connector covers the capability, the honest answer is that the scenario is not supported yet &mdash; not that you should write a direct call as a workaround.
-  </div>
-
-  <h3>The code-first path</h3>
-  <p>You do not need an AI agent in the loop. Install the CLI, scaffold from the template, and work in your IDE:</p>
-<pre><code>npm install -g @microsoft/managed-apps-cli
-ms auth login
-ms app create --display-name "Field inspection log" --repo none
-npm install
-ms app dev            # local App Player with hot reload
-ms app deploy         # build, pack, upload, deploy
-ms app share &lt;app-id&gt; --access edit</code></pre>
-  <p>Useful command families: <code>ms app</code> for the lifecycle, <code>ms connector</code> to discover connector actions in the environment, <code>ms auth</code> for sign-in and account switching, and <code>ms telemetry</code> to control CLI telemetry. Global options include <code>--environment-id</code>, <code>--cloud</code> for sovereign clouds, <code>--non-interactive</code>, and <code>--json</code>.</p>
-
-  <h2>4. Shipping it: CI/CD and release control</h2>
-
-  <p>Interactive sign-in is fine for a developer laptop. It is not available on a build runner, so continuous deployment runs as a service principal. Microsoft publishes three GitHub Actions for this.</p>
-
-  <table>
-    <thead>
-      <tr><th>Action</th><th>What it does</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><code>install-ms-cli</code></td><td>Installs the <code>ms</code> CLI on the runner.</td></tr>
-      <tr><td><code>ms-app-pack</code></td><td>Runs <code>ms app pack</code> &mdash; builds and packs the app into a deployable artifact. Optional, since deploy can pack internally.</td></tr>
-      <tr><td><code>ms-app-deploy</code></td><td>Runs <code>ms app deploy</code> &mdash; builds, packs, uploads, and deploys to the target environment, returning the app ID, commit, and play URL.</td></tr>
-    </tbody>
-  </table>
-
-  <p>Pin to the moving major version (<code>@v1</code>) for ongoing fixes, or to an immutable <code>@v1.x.y</code> when you need a fixed rollback point.</p>
-
-  <h3>Three prerequisites that cause most first-time CI failures</h3>
-  <ol>
-    <li><strong>A service principal with the right role on the target environment.</strong> System Administrator plus System Customizer for Dataverse-enabled environments; Environment Admin for non-Dataverse environments. All three of app ID, client secret, and tenant ID must be supplied, or the action falls back to an interactive flow that cannot complete on a runner.</li>
-    <li><strong><code>AllowExternalArtifactDeployment</code> enabled on the environment</strong> by a tenant administrator. Without it, bring-your-own-repository deploys fail with an explicit "external artifact deployment is not enabled" error. This is a deliberate admin gate, not a bug &mdash; it is the control that decides whether externally built artifacts may enter the environment at all.</li>
-    <li><strong>Deployment mode matches the repository mode.</strong> BYOB apps deploy an artifact; platform-managed and GitHub-backed apps deploy a specific commit.</li>
-  </ol>
-
   <div class="callout warn">
-    <strong>Preview gate worth adopting as policy:</strong> the preview build pipeline currently builds only from <code>main</code>. Feature branches cannot be previewed. Decide early whether that fits your branching strategy, because the workaround is either landing changes on <code>main</code> first or skipping the preview entirely &mdash; and one of those is a governance decision, not a developer convenience.
+    <strong>Tell every builder this once, in these words:</strong> anyone with the share link can open and use the app <strong>including all of its data</strong>. A share link is a data-access decision, not a convenience. Share only with the people who should see what the app can see.
   </div>
 
-  <h2>5. Managing and governing them</h2>
+  <h2>3. What sits underneath</h2>
 
-  <p>This is the strongest argument for the capability and the part most demos skip. A managed app inherits the same managed-platform controls as a canvas app, with a few documented exceptions.</p>
+  <p>Managed apps run in Microsoft-managed environments, and enabling app creation changes Power Platform environment routing in your tenant whether or not you were using it before. This is the part administrators find out about late, so it is worth reading carefully.</p>
 
-  <table>
-    <thead>
-      <tr><th>Control</th><th>Applies?</th><th>Notes</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Microsoft Entra authentication</td><td><strong>Yes</strong></td><td>Every user session authenticates against Entra ID. There is no anonymous mode.</td></tr>
-      <tr><td>Data loss prevention at launch</td><td><strong>Yes</strong></td><td>Connector policy is enforced when the app launches, the same as canvas apps.</td></tr>
-      <tr><td>Sharing limits</td><td><strong>Yes</strong></td><td>Follows Managed Environments canvas app sharing limits.</td></tr>
-      <tr><td>App quarantine</td><td><strong>Yes</strong></td><td>An admin can quarantine a misbehaving app without deleting it.</td></tr>
-      <tr><td>Conditional Access on an individual app</td><td><strong>Yes</strong></td><td>Available; note the separate Secure Implicit Connections gap below.</td></tr>
-      <tr><td>Consent dialog and admin consent suppression</td><td><strong>Yes</strong></td><td>Fine-grained connector permissions surface to end users; admins can suppress consent for OAuth connectors.</td></tr>
-      <tr><td>Tenant isolation and Azure B2B</td><td><strong>Yes</strong></td><td>Cross-tenant restrictions apply; guests can be shared in as with canvas apps.</td></tr>
-      <tr><td>Health metrics and monitoring</td><td><strong>Yes</strong></td><td>Operational health flows to both the admin center and the maker portal.</td></tr>
-      <tr><td>IP restriction via SAS IP binding / firewall</td><td><strong>No</strong></td><td>Compiled assets are served from a publicly accessible endpoint. Use Conditional Access block-by-location instead.</td></tr>
-      <tr><td>Secure Implicit Connections</td><td><strong>Not yet</strong></td><td>Not supported at the time of writing.</td></tr>
-      <tr><td>Power Platform Git integration</td><td><strong>No</strong></td><td>Source control lives in your own repository, not in Dataverse Git integration.</td></tr>
-      <tr><td>Power Apps for Windows</td><td><strong>No</strong></td><td>Browser-hosted only.</td></tr>
-      <tr><td>Power BI data integration</td><td><strong>Not yet</strong></td><td>No <code>PowerBIIntegration</code> equivalent, though the app can be embedded in a report using the Power Apps visual.</td></tr>
-      <tr><td>SharePoint forms integration</td><td><strong>No</strong></td><td>Not a supported host surface.</td></tr>
-    </tbody>
-  </table>
-
-  <h3>Admin enablement, in order</h3>
-  <ol>
-    <li>Power Platform admin center &rarr; <strong>Manage</strong> &rarr; <strong>Environments</strong> &rarr; the target environment &rarr; <strong>Settings</strong> &rarr; <strong>Product</strong> &rarr; <strong>Features</strong>.</li>
-    <li>Turn on the code apps feature toggle, then save. Use <strong>environment groups and rules</strong> to apply this across many environments rather than clicking through each one.</li>
-    <li>If external artifact deployment is required for your CI pattern, have a tenant admin enable <code>AllowExternalArtifactDeployment</code> on that environment.</li>
-    <li>For the AI-assisted building experiences, confirm the relevant Copilot tenant settings are on, and consider enabling external models at the environment level where higher generation quality matters.</li>
-  </ol>
-
-  <h3>Content Security Policy is stricter than people expect</h3>
-  <p>Generated apps enforce a platform-level Content Security Policy that restricts which origins the app may load content from. This protects users against cross-site scripting and content injection, but it also means external images and external content are blocked in published apps, and the policy cannot be customized per app, per environment, or per tenant. If a converted app suddenly shows broken images, this is almost always why &mdash; the fix is to allowlist the specific content-delivery origins in the target environment's code app CSP configuration, where that is permitted, or to host the assets inside the app bundle.</p>
-
-  <h2>6. Shared connections and least privilege</h2>
-
-  <p>This is the single most important governance detail in the capability, and it has no equivalent in canvas apps.</p>
-
-  <p>When a connection reference is <strong>shared</strong>, the same connection can back several apps and it carries the full permissions of whoever created it. Left unrestricted, an app that only needs to read a list could delete from it. Managed Apps closes that gap by requiring each app to declare, in <code>ms.config.json</code>, the connector operations it is allowed to invoke. The Connectors infrastructure enforces that limit <strong>per app</strong>, so two apps sharing one connection get two independent policies.</p>
-
-  <table>
-    <thead>
-      <tr><th>Reference shape</th><th>What you declare</th><th>Vocabulary</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Tabular</strong> &mdash; has dataset tables</td>
-        <td>A non-empty list on <strong>every table</strong>. A connector-level declaration does not satisfy the tables.</td>
-        <td><code>get</code>, <code>post</code>, <code>patch</code>, <code>delete</code></td>
-      </tr>
-      <tr>
-        <td><strong>Action connector</strong> &mdash; no dataset tables</td>
-        <td>A connector-level list of action IDs the app actually calls.</td>
-        <td>Action IDs from <code>ms connector list-actions</code>, allowed behaviors only</td>
-      </tr>
-      <tr>
-        <td><strong>Not shared</strong></td>
-        <td>Nothing. Do not add the declaration where it does not belong.</td>
-        <td>&mdash;</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p>Three things make this bite in practice:</p>
   <ul>
-    <li><strong>Nobody opts in.</strong> The CLI writes the shared-connection marker automatically whenever the connector's authentication type is shareable. An ordinary data-source add can produce a shared reference with no one asking for it. Read the config back after every add.</li>
-    <li><strong>It fails the deploy, not the dev loop.</strong> Validation runs at pack and deploy. A missing declaration surfaces late unless you check for it deliberately.</li>
-    <li><strong>Granting everything passes validation and protects nothing.</strong> Declaring every verb or every action satisfies the schema while removing the entire point of the policy. Infer the set from what the code actually calls, and have a human confirm it.</li>
+    <li><strong>Environment routing is turned on automatically for apps, in every tenant, and cannot be changed.</strong> It is a premium governance feature and apps enable it by default.</li>
+    <li><strong>Makers are routed to their own personal developer environments</strong>, which are <strong>managed environments by default</strong>. In a tenant with no prior routing rules, a rule routing <em>Everyone</em> to personal developer environments is created automatically, along with a new default environment group.</li>
+    <li><strong>Tenants with existing routing rules do not get that new rule</strong>, which means some makers may be unable to use apps until an admin adds a rule covering <em>Everyone</em>. If you already use routing, this is an action item, not a notification.</li>
+    <li><strong>The <em>Everyone</em> rule must sit last in priority order</strong>, and only one rule may target <em>Everyone</em>. Existing configurations that violate either constraint must be cleaned up before any further routing changes can be made.</li>
+    <li><strong>These personal developer environments have no Dataverse</strong> initially. Dataverse is added automatically only when the maker visits a Power Apps or Power Automate maker surface and lands in that environment, or an admin adds it deliberately.</li>
   </ul>
 
-  <div class="callout warn">
-    <strong>Never do this:</strong> removing the shared-connection identifier from the config to get past a validation failure. That field records how the connection was genuinely created; deleting it misrepresents the binding to every future reader and to the platform. Declare the operations instead.
-  </div>
-
-  <h2>7. Licensing and cost</h2>
-
   <div class="callout">
-    <strong>Headline:</strong> there is no separate "Managed Apps" SKU. The app itself is licensed like a Power Apps code app &mdash; <strong>every end user who runs it needs a Power Apps Premium license</strong>. Everything the app consumes is licensed and metered exactly as it would be from any other app.
+    <strong>The licensing tripwire hidden in that list:</strong> a maker who only builds managed apps in their personal developer environment <strong>does not</strong> need a Power Apps or Power Automate premium license, and auto-claim does not apply. The moment that maker creates a Power Apps or Power Automate resource in that environment, they <strong>do</strong> need the appropriate premium license to satisfy managed environment requirements, and auto-claim does apply. The boundary is the resource type, not the environment.
   </div>
 
-  <h3>What you are actually paying for</h3>
+  <h2>4. Governing them</h2>
+
+  <h3>Enablement</h3>
+  <ol>
+    <li><strong>Copilot Cowork access is granted by a spending policy</strong>, not by an allow list. Cowork is generally available, and the old practice of allowing or blocking users on the <strong>Cowork</strong> agent entry under <strong>Agents</strong> &rarr; <strong>All Agents</strong> no longer controls access. Access exists when a spending policy includes the user and selects Cowork as a service.</li>
+    <li><strong>Enabling or disabling Cowork enables or disables app building by default.</strong> They are not separate switches.</li>
+    <li><strong>App creation in Cowork additionally requires Frontier enrollment</strong>, which only a Global Administrator can complete. Power Platform administrators cannot enable it and are directed to contact someone who can. AI Administrator, AI Reader, and Global Reader are view-only for this.</li>
+  </ol>
+
+  <div class="callout warn">
+    <strong>A spending policy is an access control, not just a budget.</strong> Any user in scope of a policy that selects Cowork can use Cowork, regardless of how small the limit is. A policy with a one-credit limit still grants access. To keep someone out, <strong>leave them out of every Cowork-selecting policy</strong> rather than setting their limit low. Administrators who try to fence off access with tiny limits end up with access they did not intend to grant and a support queue they did not expect.
+  </div>
+
+  <h3>The inventory: Microsoft 365 admin center &rarr; Apps &rarr; All apps</h3>
+  <p>Every published app appears here automatically, with no manual registration. Created, updated, and deleted apps show up within about 15 minutes.</p>
+
   <table>
     <thead>
-      <tr><th>Cost line</th><th>Who pays</th><th>What drives it</th></tr>
+      <tr><th>Where</th><th>What you get</th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td><strong>Power Apps Premium</strong> (per user, per month)</td>
-        <td>Every end user who plays the app</td>
-        <td>Headcount. This is the dominant line for any app with a real user base, and the one to model first.</td>
-      </tr>
-      <tr>
-        <td><strong>Dataverse capacity</strong></td>
-        <td>Tenant</td>
-        <td>Database, file, and log storage if the app stores data in Dataverse. Entitlements accrue from licenses; overage is purchased.</td>
-      </tr>
-      <tr>
-        <td><strong>Managed Environments</strong></td>
-        <td>Tenant, via premium licensing</td>
-        <td>Several governance controls listed above &mdash; sharing limits in particular &mdash; are Managed Environments features. If you are relying on them, the environment has to be managed, which requires premium licensing for its users.</td>
-      </tr>
-      <tr>
-        <td><strong>Coding agent subscription</strong></td>
-        <td>The developer or the engineering org</td>
-        <td>GitHub Copilot or Claude Code, if you use the agent-assisted build path. This is a developer tooling cost, not a Power Platform meter, and it is charged per developer rather than per app user.</td>
-      </tr>
-      <tr>
-        <td><strong>Copilot Credits</strong></td>
-        <td>Tenant</td>
-        <td>Only if the app itself consumes metered AI at runtime &mdash; for example invoking a Copilot Studio agent through a connector. Generating the app is a build-time activity; calling an agent every time a user clicks a button is a per-transaction meter. Do not conflate the two.</td>
-      </tr>
-      <tr>
-        <td><strong>Premium and custom connectors</strong></td>
-        <td>Covered by Power Apps Premium</td>
-        <td>Included in the premium entitlement, but each binding is still a DLP and data-residency decision.</td>
-      </tr>
-      <tr>
-        <td><strong>Downstream service costs</strong></td>
-        <td>Varies</td>
-        <td>Whatever sits behind the connectors &mdash; Azure services, third-party SaaS, Dynamics 365 &mdash; is licensed on its own terms and is frequently the largest surprise.</td>
-      </tr>
+      <tr><td><strong>The table</strong></td><td>Name, owner, status, hosting location, environment group, and creation date by default. Additional columns include created by, last modified, app ID, and owner ID. Summary cards show total apps and blocked apps. Supports filter, sort, keyword search, column choice, CSV export, and refresh.</td></tr>
+      <tr><td><strong>Details tab</strong></td><td>Core metadata, including owner ID and app ID.</td></tr>
+      <tr><td><strong>Usage tab</strong></td><td>Adoption metrics, which populate as usage grows.</td></tr>
+      <tr><td><strong>Monitor tab</strong></td><td>App open success rate, session count, time to interactive at the 75th percentile, data request success rate, and data request latency at the 75th percentile. Alert rules can be created here with a review period of one hour or 24 hours.</td></tr>
+      <tr><td><strong>Data &amp; tools tab</strong></td><td>How the app is actually built: connectors, data sources, and dependencies. This is the tab to open when you need to answer "what does this app touch?"</td></tr>
     </tbody>
   </table>
+
+  <h3>Two actions that matter</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill warn">Reversible</span>
+      <h3>Block</h3>
+      <p>Immediately stops end-user access while preserving the app and its data. Users attempting to launch it see a blocked status. Use this for an app under investigation &mdash; flagged for non-compliance, suspicious behavior, or a security concern &mdash; where deletion would destroy evidence. Unblock once resolved.</p>
+    </div>
+    <div class="card">
+      <span class="pill muted">Permanent</span>
+      <h3>Delete</h3>
+      <p>Permanently removes the app, with a confirmation dialog summarizing the effect. This is the housekeeping tool for abandoned, test, and duplicate apps &mdash; which, in a tenant where anyone can produce an app in a conversation, is a category that grows on its own.</p>
+    </div>
+  </div>
+
+  <h3>Who can do what</h3>
+  <table>
+    <thead>
+      <tr><th>Role</th><th>App inventory</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Global Administrator</td><td>Full: view, delete, block</td></tr>
+      <tr><td>Power Platform Administrator</td><td>Full: view, delete, block</td></tr>
+      <tr><td>AI Administrator</td><td>Read-only</td></tr>
+      <tr><td>AI Reader</td><td>Read-only</td></tr>
+      <tr><td>Global Reader</td><td>Read-only</td></tr>
+      <tr><td>Exchange Administrator</td><td>Not shown</td></tr>
+    </tbody>
+  </table>
+
+  <p>Compliance work the inventory is genuinely good at: spotting apps running in non-approved regions, spotting apps outside expected environment groups, and identifying owners without chasing people across tools.</p>
+
+  <h2>5. Licensing and cost</h2>
+
+  <div class="callout">
+    <strong>There is no per-user app license here.</strong> Building and running managed apps falls under <strong>usage-based billing</strong> and is paid for in <strong>Copilot Credits</strong>, from the same pool and the same governance model as Cowork itself. Model the cost as consumption, not as headcount multiplied by a monthly figure.
+  </div>
+
+  <h3>What sits inside usage-based billing</h3>
+  <p>The Microsoft 365 admin center currently manages these services under usage-based billing:</p>
+  <ul>
+    <li><strong>Cowork</strong> itself &mdash; model responses, tool and skill calls, image generation, browser tasks.</li>
+    <li><strong>Apps built with Copilot Cowork</strong> &mdash; both the building and the running.</li>
+    <li><strong>Work IQ API</strong>.</li>
+  </ul>
+  <p>More services are added over time, and spending policies have <strong>Auto-apply new services</strong> enabled by default. If you want new services reviewed before they inherit an existing policy, turn that setting off deliberately. Otherwise a future service quietly joins a budget someone already approved.</p>
+
+  <h3>How you pay</h3>
+  <table>
+    <thead>
+      <tr><th>Mechanism</th><th>What it is</th><th>Where it is configured</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Prepaid Copilot Credits</strong></td><td>Capacity packs purchased up front and drawn down.</td><td>Copilot &rarr; Cost management &rarr; Configuration</td></tr>
+      <tr><td><strong>Pay-as-you-go</strong></td><td>Billed against a connected Azure subscription as consumed.</td><td>Copilot &rarr; Cost management &rarr; Configuration</td></tr>
+      <tr><td><strong>Spending policies</strong></td><td>Scope which users and groups may consume, which services are covered, organization-level and user-level limits, alerts, and the billing method.</td><td>Copilot &rarr; Cost management</td></tr>
+      <tr><td><strong>Credit requests</strong></td><td>Users request access or a higher limit; administrators route and approve.</td><td>Copilot &rarr; Cost management &rarr; Credit requests</td></tr>
+    </tbody>
+  </table>
+
+  <p>The Cost management dashboard reports consumption by policy, user, group, agent, and service. Reader roles can review consumption without gaining permission to change policies or billing configuration, which means finance and licensing stakeholders can be given visibility without being given control. Use that separation rather than handing out administrator roles for reporting.</p>
+
+  <div class="callout warn">
+    <strong>Preview behavior to warn users about:</strong> a user who does not meet the credit requirements to run an app first receives a warning. Access is then blocked after <strong>20 app operations or five minutes of use, whichever comes first</strong>. If a pilot audience has not been placed in a funded spending policy, they will hit that wall mid-demo and conclude the app is broken.
+  </div>
 
   <h3>The cost mistakes worth pre-empting</h3>
   <ul>
-    <li><strong>"It is just code, so it must be cheaper."</strong> Writing the app got cheaper. Running it did not. A hundred users still means a hundred Power Apps Premium licenses, and an AI-generated prototype produced in an afternoon carries the same per-user run-rate as one that took a quarter to build. The generation cost is the small number.</li>
-    <li><strong>Prototype sprawl.</strong> When the cost of producing an app collapses, the number of apps does not stay flat. The governance problem arrives before the licensing problem, and both arrive faster than they did with canvas apps. Decide where prototypes live, how long they live, and who is allowed to promote one to a licensed user base.</li>
-    <li><strong>Counting AI generation as a runtime meter.</strong> Building the app with a coding agent bills against the developer's agent subscription. It does not consume Copilot Credits for each end user. Confusing these produces a forecast that is wrong by an order of magnitude in either direction.</li>
-    <li><strong>Forgetting the governance dependency.</strong> Several of the controls that make this capability defensible are Managed Environments features. If the plan assumes those controls, the licensing model has to assume premium.</li>
-    <li><strong>Pricing a preview.</strong> Preview terms are not production terms. Confirm current licensing against the Power Platform Licensing Guide and the published pricing page before putting a number in a proposal.</li>
+    <li><strong>Budgeting it like a seat.</strong> There is no per-user app license to multiply out. The variable is how much the apps are used, which means a small number of heavily used apps can cost more than a large number of occasional ones. Model the top few apps, not the app count.</li>
+    <li><strong>Using low limits as an access control.</strong> Covered above, and worth repeating because it is the single most common misconfiguration: inclusion in a Cowork-selecting policy <em>is</em> the grant.</li>
+    <li><strong>Leaving auto-apply on without deciding to.</strong> It is on by default and it is the right setting for many organizations. It should still be a decision someone made.</li>
+    <li><strong>Missing the premium-license boundary.</strong> Building managed apps in a personal developer environment does not require Power Apps or Power Automate premium. Creating Power Apps or Power Automate resources in that same environment does, with auto-claim in play. Make sure the person forecasting cost knows which side of that line the makers are on.</li>
+    <li><strong>Ignoring what sits behind the connectors.</strong> Copilot Credits pay for the app. They do not pay for the third-party SaaS, Azure services, or Dynamics 365 licensing that the connectors reach into.</li>
+    <li><strong>Pricing a preview.</strong> Frontier previews run under existing preview terms, and capabilities and availability may change. Confirm against the Copilot Credits Guide before putting a figure in a proposal.</li>
   </ul>
 
-  <h2>8. When to reach for this, and when not to</h2>
+  <h2>6. The developer path</h2>
+
+  <p>Managed apps are real code, and Microsoft publishes a first-party toolchain for teams who want to take one further or build one from scratch without the conversation. It is worth knowing this exists, because it is the answer to "what happens when our developers want to own this properly?"</p>
+
+  <ul>
+    <li><strong><code>@microsoft/managed-apps-cli</code></strong> on the public npm registry, providing the <code>ms</code> binary: create, dev, add data sources, build, pack, deploy, play, share, and delete. Companion packages supply the SDK and a Vite plugin.</li>
+    <li><strong>First-party project templates</strong> and a coding-agent plugin that works with GitHub Copilot CLI and Claude Code, published in the <code>microsoft/Managed-Apps</code> repository.</li>
+    <li><strong>GitHub Actions</strong> for CI/CD: install the CLI on the runner, pack the app, and deploy it as a service principal with no developer in the loop.</li>
+    <li><strong>Least-privilege connector policies.</strong> When a connection reference is shared, the app must declare in its config which connector operations it is permitted to invoke, and the Connectors infrastructure enforces that limit per app. Tabular references declare per-table verbs; action connectors declare action IDs. Declaring everything satisfies validation and protects nothing, so infer the set from what the code actually calls.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>This is a preview toolchain.</strong> The repository states plainly that APIs, templates, and tooling may change before general availability. Treat pinned versions and a rollback plan as mandatory rather than prudent.
+  </div>
+
+  <h2>7. When to reach for this, and when not to</h2>
 
   <table>
     <thead>
       <tr><th>Situation</th><th>Better answer</th></tr>
     </thead>
     <tbody>
-      <tr><td>A bespoke UI that canvas cannot express, or a design system the business insists on</td><td><strong>Managed app.</strong> This is the scenario it exists for.</td></tr>
-      <tr><td>A development team that already works in React, Git, and pull requests, and finds canvas authoring alien</td><td><strong>Managed app.</strong> It meets them where they are while keeping the governance.</td></tr>
-      <tr><td>A rapid prototype to prove a business problem is worth solving</td><td><strong>Managed app</strong>, with an explicit end date and an explicit promotion decision.</td></tr>
-      <tr><td>Standard forms over Dataverse, with business process flows and a records-management pattern</td><td><strong>Model-driven app.</strong> You would be rebuilding an enormous amount of supplied behavior.</td></tr>
-      <tr><td>A straightforward internal task app that a maker can own and maintain</td><td><strong>Canvas app.</strong> Lower ceiling, but far lower support burden and no build pipeline.</td></tr>
-      <tr><td>An external or anonymous audience</td><td><strong>Power Pages.</strong> Managed apps authenticate every user through Entra ID.</td></tr>
-      <tr><td>A conversational interface, or an agent that reasons over knowledge</td><td><strong>Copilot Studio.</strong> A managed app can call an agent through a connector, but it is not an agent.</td></tr>
-      <tr><td>A tier-one production workload with a hard go-live date this quarter</td><td><strong>Wait, or use a generally available option.</strong> This is public preview, and tooling and APIs may change before general availability.</td></tr>
+      <tr><td>A team needs an interactive tool over Microsoft 365 and business data, and needs it this week</td><td><strong>Managed app.</strong> This is exactly the scenario, and the governance comes with it rather than after it.</td></tr>
+      <tr><td>A business process needs an app, an agent, and a workflow working together</td><td><strong>Copilot Studio</strong>, building all three side by side.</td></tr>
+      <tr><td>An individual or small team wants to remove a recurring manual task</td><td><strong>Managed app</strong> from Cowork, shared by link to a named few.</td></tr>
+      <tr><td>Standard forms over Dataverse with business process flows and records management</td><td><strong>Model-driven app.</strong> You would be rebuilding a great deal of supplied behavior.</td></tr>
+      <tr><td>A developer team wants to own a web app in their own repository with their own pipeline</td><td><strong>Power Apps code apps</strong>, or the managed apps CLI path above. Note that code apps are governed in the Power Platform admin center, not the Microsoft 365 admin center.</td></tr>
+      <tr><td>An external, anonymous, or unauthenticated audience</td><td><strong>Power Pages.</strong> Managed apps authenticate every user with Entra ID and share to people who can use Microsoft 365 Copilot.</td></tr>
+      <tr><td>A conversational interface that reasons over knowledge</td><td><strong>A Copilot Studio agent.</strong> An app is a structured experience; an agent is a conversation. Build both when the process needs both.</td></tr>
+      <tr><td>A regulated, tier-one production workload going live this quarter</td><td><strong>Wait, or use a generally available option.</strong> This is preview, under preview terms, with capabilities that may change.</td></tr>
     </tbody>
   </table>
 
-  <h2>9. Rollout checklist</h2>
+  <h2>8. Rollout checklist</h2>
 
   <div class="card">
-    <h3>Before the first app</h3>
+    <h3>Before you turn it on</h3>
     <ul>
-      <li>Pick a non-default environment in a supported region and enable code apps on it.</li>
-      <li>Decide the repository mode &mdash; platform-managed or bring-your-own &mdash; and stay consistent inside a portfolio.</li>
-      <li>If CI is in scope, create the service principal, grant it the correct environment role, and have an admin enable external artifact deployment.</li>
-      <li>Confirm the DLP policy that applies to the environment, and check it against the connectors the apps are expected to use.</li>
-      <li>Agree who pays for Power Apps Premium, and at what user count the business case is reviewed.</li>
+      <li>Confirm Frontier enrollment is possible and identify the Global Administrator who will do it.</li>
+      <li>Set up usage-based billing: choose prepaid, pay-as-you-go, or both, and connect the Azure subscription if required.</li>
+      <li>Author the spending policy as an <strong>access decision first</strong> and a budget second. Scope it to a security group you control.</li>
+      <li>Decide consciously whether <strong>Auto-apply new services</strong> stays on.</li>
+      <li>Check your existing Power Platform environment routing configuration <strong>before</strong> enabling apps. If you already have routing rules, plan the rule covering <em>Everyone</em> and verify the priority order, or some makers will not be able to use apps.</li>
+      <li>Give finance and licensing stakeholders reader access to the cost dashboard rather than administrator roles.</li>
     </ul>
   </div>
 
   <div class="card">
-    <h3>Per app</h3>
+    <h3>In the first month</h3>
     <ul>
-      <li>Read <code>ms.config.json</code> back after every data-source add and check whether the reference became shared.</li>
-      <li>Declare least-privilege operations for every shared reference, and have a human confirm the list rather than accepting an inferred one silently.</li>
-      <li>Verify the build succeeds and the branch is pushed before any deploy.</li>
-      <li>Test the published app, not just the local one &mdash; Content Security Policy and connector consent behave differently there.</li>
-      <li>Share deliberately, and remember that sharing limits apply.</li>
+      <li>Watch the <strong>All apps</strong> inventory weekly while the initial wave is created. This is when ownership and duplication are cheapest to fix.</li>
+      <li>Set alert rules on the Monitor tab for the apps that matter, rather than waiting for users to report problems.</li>
+      <li>Review the <strong>Data &amp; tools</strong> tab on any app that reaches more than a handful of users, and confirm the connectors match what you expected.</li>
+      <li>Filter for apps in non-approved regions or outside expected environment groups, and act on what you find.</li>
+      <li>Brief builders that a share link exposes the app <em>and its data</em> to anyone who receives it.</li>
     </ul>
   </div>
 
   <div class="card">
     <h3>Ongoing</h3>
     <ul>
-      <li>Watch operational health metrics in the admin center alongside your own application telemetry.</li>
-      <li>Re-check the declared operation policy whenever a table or connector is added &mdash; a new table invalidates the config and fails the next deploy.</li>
-      <li>Keep a register of which prototypes are still alive and which have earned a licensed user base.</li>
-      <li>Re-read the preview terms at each toolchain upgrade. In public preview, the contract moves.</li>
+      <li>Keep a deletion rhythm for abandoned, test, and duplicate apps. Prototype volume only ever grows.</li>
+      <li>Use <strong>Block</strong> rather than <strong>Delete</strong> for anything under investigation.</li>
+      <li>Export the inventory periodically for offline review and reporting.</li>
+      <li>Re-read the preview terms at each notable capability change. In preview, the contract moves.</li>
     </ul>
   </div>
 
   <h2>Reference materials</h2>
   <div class="card">
     <div class="ref">
-      <a href="https://github.com/microsoft/Managed-Apps" target="_blank" rel="noopener noreferrer">Microsoft Managed Apps &mdash; official repository</a>
+      <a href="https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-apps-in-copilot-cowork-and-copilot-studio/" target="_blank" rel="noopener noreferrer">Build apps in Copilot Cowork and Copilot Studio</a>
+      <span class="u">https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-apps-in-copilot-cowork-and-copilot-studio/</span>
+      The announcement: the two surfaces, the connector and Work IQ story, open standards, and centralized control.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/admin/manage/apps/" target="_blank" rel="noopener noreferrer">Apps overview for admins</a>
+      <span class="u">https://learn.microsoft.com/microsoft-365/admin/manage/apps/</span>
+      Key concepts, the safe-by-default governance model, enablement permissions, and the preview credit-threshold behavior.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/admin/manage/apps/inventory" target="_blank" rel="noopener noreferrer">View and oversee apps across your tenant</a>
+      <span class="u">https://learn.microsoft.com/microsoft-365/admin/manage/apps/inventory</span>
+      The All apps inventory: scope, role matrix, columns, detail panel tabs, and the block and delete actions.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-overview-copilot-credits" target="_blank" rel="noopener noreferrer">Usage-based billing and cost management for Copilot Credits</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-overview-copilot-credits</span>
+      Which services are covered, prepaid versus pay-as-you-go, spending policies, the cost dashboard, and reader-role separation.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/copilot/cowork/cowork-admin-governance" target="_blank" rel="noopener noreferrer">Manage Copilot Cowork for your organization</a>
+      <span class="u">https://learn.microsoft.com/microsoft-365/copilot/cowork/cowork-admin-governance</span>
+      Why a spending policy is an access control, migrating from the deprecated agent-based control, models, plugins, and Purview coverage.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/use-cowork" target="_blank" rel="noopener noreferrer">Use Copilot Cowork</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/use-cowork</span>
+      The end-user build loop: describe, refine, open, publish, and share, plus the share-link data warning.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/power-platform/admin/apps-default-environment-routing" target="_blank" rel="noopener noreferrer">Environment routing for apps</a>
+      <span class="u">https://learn.microsoft.com/power-platform/admin/apps-default-environment-routing</span>
+      The automatic routing change, personal developer environments, the Everyone rule and priority constraints, and the premium-license boundary.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-work-iq" target="_blank" rel="noopener noreferrer">Add Work IQ in Copilot Studio</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-work-iq</span>
+      How apps and agents reach organizational context inside the tenant boundary.
+    </div>
+    <div class="ref">
+      <a href="https://www.microsoft.com/en-us/microsoft-365-copilot/frontier-program" target="_blank" rel="noopener noreferrer">Microsoft Copilot Frontier program</a>
+      <span class="u">https://www.microsoft.com/en-us/microsoft-365-copilot/frontier-program</span>
+      The enrollment path required for app creation in Cowork.
+    </div>
+    <div class="ref">
+      <a href="https://github.com/microsoft/Managed-Apps" target="_blank" rel="noopener noreferrer">microsoft/Managed-Apps &mdash; developer toolchain</a>
       <span class="u">https://github.com/microsoft/Managed-Apps</span>
-      Templates, the coding-agent plugin, GitHub Actions, and the public issue tracker.
-    </div>
-    <div class="ref">
-      <a href="https://www.npmjs.com/package/@microsoft/managed-apps-cli" target="_blank" rel="noopener noreferrer">@microsoft/managed-apps-cli on npm</a>
-      <span class="u">https://www.npmjs.com/package/@microsoft/managed-apps-cli</span>
-      Current command surface, global options, and release notes for the <code>ms</code> CLI.
-    </div>
-    <div class="ref">
-      <a href="https://learn.microsoft.com/power-apps/developer/code-apps/overview" target="_blank" rel="noopener noreferrer">Power Apps code apps overview</a>
-      <span class="u">https://learn.microsoft.com/power-apps/developer/code-apps/overview</span>
-      Admin enablement, the managed-platform capability matrix, documented limitations, and the Power Apps Premium requirement for end users.
-    </div>
-    <div class="ref">
-      <a href="https://learn.microsoft.com/power-apps/vibe/overview" target="_blank" rel="noopener noreferrer">Overview of the new Power Apps vibe experience (preview)</a>
-      <span class="u">https://learn.microsoft.com/power-apps/vibe/overview</span>
-      The AI-native building experience this capability grew out of, including prerequisites and regional availability.
-    </div>
-    <div class="ref">
-      <a href="https://learn.microsoft.com/power-apps/vibe/convert-vibe-to-code" target="_blank" rel="noopener noreferrer">Convert a vibe app to a code app</a>
-      <span class="u">https://learn.microsoft.com/power-apps/vibe/convert-vibe-to-code</span>
-      The migration path from the generated app to a code-first project, including the Content Security Policy allowlist caveat.
-    </div>
-    <div class="ref">
-      <a href="https://learn.microsoft.com/power-apps/maker/common/faq-vibe" target="_blank" rel="noopener noreferrer">FAQ for Power Apps vibe experience (preview)</a>
-      <span class="u">https://learn.microsoft.com/power-apps/maker/common/faq-vibe</span>
-      The published limitations list, including the fixed Content Security Policy behavior.
-    </div>
-    <div class="ref">
-      <a href="https://learn.microsoft.com/power-apps/developer/code-apps/how-to/quickstart-github-copilot" target="_blank" rel="noopener noreferrer">Quickstart: Build a code app with GitHub Copilot</a>
-      <span class="u">https://learn.microsoft.com/power-apps/developer/code-apps/how-to/quickstart-github-copilot</span>
-      The end-to-end agent-assisted walkthrough, from plugin install to a shared, governed app.
-    </div>
-    <div class="ref">
-      <a href="https://www.microsoft.com/power-platform/products/power-apps/pricing" target="_blank" rel="noopener noreferrer">Power Apps pricing</a>
-      <span class="u">https://www.microsoft.com/power-platform/products/power-apps/pricing</span>
-      Current Power Apps Premium pricing and plan comparison.
-    </div>
-    <div class="ref">
-      <a href="https://learn.microsoft.com/power-platform/admin/environment-groups" target="_blank" rel="noopener noreferrer">Environment groups and rules</a>
-      <span class="u">https://learn.microsoft.com/power-platform/admin/environment-groups</span>
-      How to apply the enablement setting across many environments instead of one at a time.
+      Project templates, the coding-agent plugin, GitHub Actions, and the public issue tracker for the <code>ms</code> CLI path.
     </div>
   </div>
 
   <footer class="foot">
-    Compiled from public Microsoft documentation, the public Managed Apps repository, and published package documentation, September 2026. Managed Apps is in <strong>public preview</strong>: APIs, templates, tooling, and commercial terms may change before general availability, and this guidance evolves with them. This is guidance, not a contract. Confirm current product behavior, licensing terms, and process against the official documentation and the Power Platform Licensing Guide before making architectural or commercial commitments. &middot; <a href="index.html">All resources</a>
+    Compiled from public Microsoft documentation, the Microsoft Copilot blog, and the public Managed Apps repository, September 2026. Managed apps are in <strong>preview</strong>, with app creation in Copilot Cowork gated behind the Frontier program and app building in Copilot Studio rolling out in public preview: capabilities, availability, and commercial terms may change, and this guidance evolves with them. This is guidance, not a contract. Confirm current product behavior, licensing terms, and process against the official documentation and the Copilot Credits Guide before making architectural or commercial commitments. &middot; <a href="index.html">All resources</a>
   </footer>
 </div>
 <script>
