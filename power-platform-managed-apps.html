@@ -248,7 +248,7 @@ footer.foot a:hover { text-decoration: underline; }
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot &amp; Power Platform &middot; Preview Capability Guide</p>
     <h1>Managed Apps (Preview)</h1>
-    <p class="sub">Apps described in plain language in Copilot Cowork or Copilot Studio, generated as real full-stack code, published into your tenant, and governed from the Microsoft 365 admin center. How to build them, how to govern them, and how the usage-based bill actually works. &middot; September 2026.</p>
+    <p class="sub">Apps described in plain language in Copilot Cowork or Copilot Studio, generated as real full-stack code, published onto a Microsoft-operated runtime in your tenant, and governed from the Microsoft 365 admin center. How to build them, how they version toward production, how to govern them, and how the usage-based bill actually works. &middot; September 2026.</p>
   </header>
 
   <div class="callout">
@@ -283,7 +283,8 @@ footer.foot a:hover { text-decoration: underline; }
     </div>
   </div>
 
-  <h3>Two front doors, one capability</h3>
+  <h3>Two front doors, one engine</h3>
+  <p>The important structural fact: <strong>Copilot Studio is the engine behind both surfaces</strong>. Cowork is not a separate, lesser app builder that produces a different kind of artifact. The building experience, the resulting app, and the governance are the same, which means a user can start in one surface and continue in the other without relearning anything or migrating anything.</p>
   <table>
     <thead>
       <tr><th>Surface</th><th>How you start</th><th>Availability</th></tr>
@@ -296,11 +297,36 @@ footer.foot a:hover { text-decoration: underline; }
       </tr>
       <tr>
         <td><strong>Copilot Studio</strong></td>
-        <td>The apps tile on the Copilot Studio home screen, alongside agents and workflows, so a single business process can combine all three.</td>
+        <td>The <strong>App (Preview)</strong> tile on the Copilot Studio home screen, or <strong>Apps</strong> in the navigation bar to reach the app workspace, where you can start a new app or continue an existing one.</td>
         <td>Rolling out in public preview.</td>
       </tr>
     </tbody>
   </table>
+
+  <h3>Apps, agents, and workflows are three different tools</h3>
+  <p>Copilot Studio now hosts all three, and the reason to care is that people reach for the wrong one constantly. They are not competing options; they solve different shapes of problem, and a serious business process often needs more than one.</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Structure</span>
+      <h3>Apps</h3>
+      <p>Guide a person through data, forms, lists, and actions in an interactive experience. Reach for an app when a <strong>human needs a place to go and work</strong>.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Reasoning</span>
+      <h3>Agents</h3>
+      <p>Answer questions and take action conversationally. Reach for an agent when the problem is <strong>interpretation and judgment</strong> rather than structured data entry.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Consistency</span>
+      <h3>Workflows</h3>
+      <p>Execute repeatable steps against defined triggers with defined outcomes. Reach for a workflow when the process must happen <strong>the same way every time, without a person</strong>.</p>
+    </div>
+    <div class="card">
+      <span class="pill muted">In combination</span>
+      <h3>Most real processes</h3>
+      <p>An intake app, a workflow that routes and notifies, and an agent that answers questions about the backlog. Building all three in one studio is the actual argument for this capability.</p>
+    </div>
+  </div>
 
   <div class="callout warn">
     <strong>Name collision worth getting straight before a customer conversation.</strong> "Managed apps" is the Microsoft 365 admin center's term for apps built this way. It does <em>not</em> mean Managed Environments, and it is not the same thing as a Power Apps <strong>code app</strong> or a Power Apps <strong>vibe</strong> app, even though all three involve generated code. The admin center draws the line explicitly, and the line is about where the app is governed.
@@ -325,6 +351,7 @@ footer.foot a:hover { text-decoration: underline; }
       <h3>Describe the outcome, not the screens</h3>
       <p>State the business problem, who uses it, what data it needs, and what actions it takes. You can reference Microsoft 365 sources directly &mdash; documents, spreadsheets, meetings, messages. "Build an app to run my daily scrum with my team" is a legitimate starting prompt; so is a paragraph describing an onboarding tracker with its data sources named.</p>
       <p>Specificity about <em>data and actions</em> pays off more than specificity about layout. Layout is cheap to change in the next turn. A missing data source means the scaffold is built around the wrong shape.</p>
+      <p>In Copilot Studio you can also choose the <strong>model</strong> and the <strong>reasoning level</strong> before generating. Treat that as a real lever: a higher reasoning level on a genuinely complex first generation usually costs less than three corrective turns afterward.</p>
     </div>
   </div>
 
@@ -346,15 +373,16 @@ footer.foot a:hover { text-decoration: underline; }
     <div class="num">3</div>
     <div class="body">
       <h3>Iterate in conversation, inspect the code when you need to</h3>
-      <p>Ask for changes in natural language and the app updates as you go. Information workers can stay entirely in the conversation. Advanced makers and developers can open the structure and the code when they need real control. The same app serves both audiences, which is the point.</p>
+      <p>Ask for changes in natural language &mdash; add a feature, change a layout, modify how data is displayed &mdash; and each change is applied and reflected in the preview without manually rebuilding the interface. Information workers can stay entirely in the conversation.</p>
+      <p>Advanced makers and developers can switch between the live app and a <strong>code view</strong>, or show both at once, to inspect the files created during generation. That matters for two reasons beyond curiosity: it is how a developer validates that the generated app does what it claims, and it is the path to extending the app when a scenario needs deeper control. An app nobody can read is not an enterprise asset.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="num">4</div>
     <div class="body">
-      <h3>Open it and test it as a user would</h3>
-      <p>Work saves automatically as you go, so opening the app to test is a normal part of the loop rather than a checkpoint.</p>
+      <h3>Work from the app workspace once you have more than one</h3>
+      <p>In Copilot Studio, <strong>Apps</strong> in the navigation opens a workspace listing the apps you have built. Search by name and review publishing status, owner, environment, and last modified date; open one to keep building, or use <strong>Play</strong> to test it as a user would. This becomes the maker's home surface quickly &mdash; the tile on the landing page is for starting, the workspace is for operating.</p>
     </div>
   </div>
 
@@ -362,7 +390,7 @@ footer.foot a:hover { text-decoration: underline; }
     <div class="num">5</div>
     <div class="body">
       <h3>Publish, then share deliberately</h3>
-      <p>Publishing makes the app and your latest changes available to the people you share it with. Sharing works like a Word document or a PowerPoint deck: generate a link and send it to anyone in your organization who can use Microsoft 365 Copilot.</p>
+      <p>Publishing makes the app and your latest changes available to the people you share it with. Sharing works like a Word document or a PowerPoint deck: generate a link and send it to anyone in your organization who can use Microsoft 365 Copilot, or add users directly.</p>
     </div>
   </div>
 
@@ -370,7 +398,59 @@ footer.foot a:hover { text-decoration: underline; }
     <strong>Tell every builder this once, in these words:</strong> anyone with the share link can open and use the app <strong>including all of its data</strong>. A share link is a data-access decision, not a convenience. Share only with the people who should see what the app can see.
   </div>
 
-  <h2>3. What sits underneath</h2>
+  <h3>What a good first prompt looks like</h3>
+  <p>The difference between a usable first generation and a frustrating one is almost entirely in how much structure the prompt carries. Compare a bare request with one that names the fields, the roles, the states, the views, and the notifications:</p>
+<pre><code>Create an app to manage equipment maintenance requests.
+
+Include an intake form capturing: asset ID, fault category, priority,
+reported-by, description, requested completion date, and photo attachments.
+
+Assign each request to an owner, a reviewer, and an approver.
+
+Use the statuses: New, Triaged, In progress, Blocked, Completed.
+
+Add views for My requests, Awaiting my approval, and All open requests.
+
+Notify the owner when a request is assigned and the requester when
+the status changes.</code></pre>
+  <p>Everything in that prompt is a decision the generator would otherwise make for you, and every one of those decisions is cheaper to state than to correct. Layout is the one thing worth leaving vague &mdash; it is trivial to adjust in the next turn.</p>
+
+  <h2>3. Versioning and the path to production</h2>
+
+  <p>This is the section that separates a managed app from a disposable prototype, and it is the part most easily missed in a demo.</p>
+
+  <p>Apps follow familiar application lifecycle management principles. The app's human-readable source can be <strong>versioned through Git-backed source control</strong>. Makers can preview and test changes before publishing. Crucially, there is <strong>version isolation</strong>: the published version stays stable in production while the next version is being built, so iteration does not put the live experience at risk.</p>
+
+  <div class="callout">
+    <strong>Why this changes the conversation:</strong> the standard objection to AI-generated apps is "fine for a prototype, unsafe for anything real." Separate build, preview, and publish stages with a stable production version answer that directly. It is the difference between a clever demo and something you can put a business process on. When you evaluate this capability, evaluate <em>this</em>, not the speed of the first generation.
+  </div>
+
+  <h3>The Microsoft-operated runtime</h3>
+  <p>A published app runs on a <strong>Microsoft-operated runtime inside your tenant</strong>. The platform hosts both the client and the service logic and applies organizational security and policy to it, rather than handing you an artifact you then have to host and secure yourself. What that runtime supplies:</p>
+  <ul>
+    <li><strong>Microsoft Entra identity</strong> for authentication and access control.</li>
+    <li><strong>Conditional Access</strong> enforcement.</li>
+    <li><strong>Advanced connector policies</strong> and data loss prevention.</li>
+    <li><strong>Monitoring and inventory</strong>, so administrators can see what exists.</li>
+    <li><strong>Usage analytics</strong> out of the box, without instrumenting the app yourself.</li>
+  </ul>
+  <p>The practical consequence: there is no hosting decision, no certificate to manage, no identity integration to write, and no separate monitoring stack to stand up. That is most of the reason this is worth using instead of generating a web app with a coding agent and hosting it yourself.</p>
+
+  <h3>Work IQ: organizational context, not just data access</h3>
+  <p>Apps integrate natively with Work IQ, which contributes three distinct things worth separating:</p>
+  <table>
+    <thead>
+      <tr><th>Capability</th><th>What it means in the app</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Context</strong></td><td>The app understands the user and the organization around them &mdash; people, relationships, and how work connects.</td></tr>
+      <tr><td><strong>Data</strong></td><td>Retrieval of work and business data that is <strong>permission-aware</strong>, so a user sees only what they are already entitled to see.</td></tr>
+      <tr><td><strong>Workspaces</strong></td><td>Secure retention of user inputs and app outputs, so the app has somewhere to keep state.</td></tr>
+    </tbody>
+  </table>
+  <p>Permission-aware retrieval is the detail to raise with a security reviewer. It means the app does not become a way to see data the user could not otherwise reach.</p>
+
+  <h2>4. What sits underneath</h2>
 
   <p>Managed apps run in Microsoft-managed environments, and enabling app creation changes Power Platform environment routing in your tenant whether or not you were using it before. This is the part administrators find out about late, so it is worth reading carefully.</p>
 
@@ -386,7 +466,7 @@ footer.foot a:hover { text-decoration: underline; }
     <strong>The licensing tripwire hidden in that list:</strong> a maker who only builds managed apps in their personal developer environment <strong>does not</strong> need a Power Apps or Power Automate premium license, and auto-claim does not apply. The moment that maker creates a Power Apps or Power Automate resource in that environment, they <strong>do</strong> need the appropriate premium license to satisfy managed environment requirements, and auto-claim does apply. The boundary is the resource type, not the environment.
   </div>
 
-  <h2>4. Governing them</h2>
+  <h2>5. Governing them</h2>
 
   <h3>Enablement</h3>
   <ol>
@@ -446,7 +526,7 @@ footer.foot a:hover { text-decoration: underline; }
 
   <p>Compliance work the inventory is genuinely good at: spotting apps running in non-approved regions, spotting apps outside expected environment groups, and identifying owners without chasing people across tools.</p>
 
-  <h2>5. Licensing and cost</h2>
+  <h2>6. Licensing and cost</h2>
 
   <div class="callout">
     <strong>There is no per-user app license here.</strong> Building and running managed apps falls under <strong>usage-based billing</strong> and is paid for in <strong>Copilot Credits</strong>, from the same pool and the same governance model as Cowork itself. Model the cost as consumption, not as headcount multiplied by a monthly figure.
@@ -490,7 +570,50 @@ footer.foot a:hover { text-decoration: underline; }
     <li><strong>Pricing a preview.</strong> Frontier previews run under existing preview terms, and capabilities and availability may change. Confirm against the Copilot Credits Guide before putting a figure in a proposal.</li>
   </ul>
 
-  <h2>6. The developer path</h2>
+  <h2>7. Power Apps or Copilot Studio?</h2>
+
+  <p>This is the question that comes up in every conversation about managed apps, and the binary framing is the wrong one. Both are enterprise-ready. They differ in <strong>authoring experience</strong> and <strong>commercial model</strong>, not in whether they can be trusted with a business process. The right question is which one fits the problem in front of you today, on the understanding that you can combine them later.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Predictable and precise</span>
+      <h3>Power Apps fits when&hellip;</h3>
+      <ul>
+        <li>The organization already owns and runs Power Apps, with the skills and governance in place.</li>
+        <li>Costs must be <strong>fully predictable</strong> and forecastable per user, not variable with usage.</li>
+        <li>The workload is tied to <strong>Dynamics 365</strong> or deep Dataverse data modeling.</li>
+        <li>Design precision matters &mdash; drag-and-drop layout control and Power Fx for exact logic.</li>
+        <li>Governance is expected to live in the <strong>Power Platform admin center</strong>.</li>
+        <li>The app itself is the deliverable, with AI optional rather than central.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill">Fast and consumption-based</span>
+      <h3>Copilot Studio fits when&hellip;</h3>
+      <ul>
+        <li>You want to <strong>widen who can build</strong> beyond the existing maker community.</li>
+        <li>The organization prefers <strong>usage-based billing</strong> and wants to start without licensing every potential user up front.</li>
+        <li>Microsoft 365 Copilot is already deployed and Copilot Credits are already being managed.</li>
+        <li>The process needs an <strong>app, an agent, and a workflow together</strong>.</li>
+        <li>Natural-language authoring with optional code inspection suits the people doing the building.</li>
+        <li>Governance is expected to live in the <strong>Microsoft 365 admin center</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>The commercial distinction, stated plainly:</strong> Power Apps is <strong>per-user licensing</strong> &mdash; higher certainty, paid whether or not the app is used heavily, and requiring you to license everyone who might need it. Copilot Studio app building is <strong>consumption</strong> &mdash; no new SKU to get started and no need to license a potential audience in advance, but a bill that moves with usage. Neither is cheaper in the abstract. Which is cheaper depends entirely on how concentrated the usage turns out to be, which is usually not known until after the app exists.
+  </div>
+
+  <p>Two things that are true regardless of which you start with:</p>
+  <ul>
+    <li><strong>Existing Power Apps investments carry forward.</strong> Apps keep running. Business logic, Dataverse tables, and connectors to systems of record keep doing their job and can be reused across apps, workflows, and agents. Choosing Copilot Studio for a new build does not strand anything already built.</li>
+    <li><strong>The choice is a starting point, not a boundary.</strong> Start with whichever experience and commercial model fits, then combine apps, agents, and workflows as the requirement develops. Treating it as a permanent architectural fork creates a decision that does not need making.</li>
+  </ul>
+
+
+
+  <h2>8. The developer path</h2>
 
   <p>Managed apps are real code, and Microsoft publishes a first-party toolchain for teams who want to take one further or build one from scratch without the conversation. It is worth knowing this exists, because it is the answer to "what happens when our developers want to own this properly?"</p>
 
@@ -505,7 +628,7 @@ footer.foot a:hover { text-decoration: underline; }
     <strong>This is a preview toolchain.</strong> The repository states plainly that APIs, templates, and tooling may change before general availability. Treat pinned versions and a rollback plan as mandatory rather than prudent.
   </div>
 
-  <h2>7. When to reach for this, and when not to</h2>
+  <h2>9. When to reach for this, and when not to</h2>
 
   <table>
     <thead>
@@ -516,6 +639,8 @@ footer.foot a:hover { text-decoration: underline; }
       <tr><td>A business process needs an app, an agent, and a workflow working together</td><td><strong>Copilot Studio</strong>, building all three side by side.</td></tr>
       <tr><td>An individual or small team wants to remove a recurring manual task</td><td><strong>Managed app</strong> from Cowork, shared by link to a named few.</td></tr>
       <tr><td>Standard forms over Dataverse with business process flows and records management</td><td><strong>Model-driven app.</strong> You would be rebuilding a great deal of supplied behavior.</td></tr>
+      <tr><td>Costs must be forecastable to the penny before the project starts</td><td><strong>Power Apps.</strong> Per-user licensing trades flexibility for certainty, which is the correct trade in some organizations.</td></tr>
+      <tr><td>Pixel-level design control, or logic complex enough to want an expression language</td><td><strong>Power Apps</strong>, with drag-and-drop layout and Power Fx.</td></tr>
       <tr><td>A developer team wants to own a web app in their own repository with their own pipeline</td><td><strong>Power Apps code apps</strong>, or the managed apps CLI path above. Note that code apps are governed in the Power Platform admin center, not the Microsoft 365 admin center.</td></tr>
       <tr><td>An external, anonymous, or unauthenticated audience</td><td><strong>Power Pages.</strong> Managed apps authenticate every user with Entra ID and share to people who can use Microsoft 365 Copilot.</td></tr>
       <tr><td>A conversational interface that reasons over knowledge</td><td><strong>A Copilot Studio agent.</strong> An app is a structured experience; an agent is a conversation. Build both when the process needs both.</td></tr>
@@ -523,7 +648,7 @@ footer.foot a:hover { text-decoration: underline; }
     </tbody>
   </table>
 
-  <h2>8. Rollout checklist</h2>
+  <h2>10. Rollout checklist</h2>
 
   <div class="card">
     <h3>Before you turn it on</h3>
@@ -543,6 +668,7 @@ footer.foot a:hover { text-decoration: underline; }
       <li>Watch the <strong>All apps</strong> inventory weekly while the initial wave is created. This is when ownership and duplication are cheapest to fix.</li>
       <li>Set alert rules on the Monitor tab for the apps that matter, rather than waiting for users to report problems.</li>
       <li>Review the <strong>Data &amp; tools</strong> tab on any app that reaches more than a handful of users, and confirm the connectors match what you expected.</li>
+      <li>Check that anything heading for real production use is actually being <strong>versioned</strong>, with the published version left stable while the next one is built. An app being edited live in production is a prototype wearing a production badge.</li>
       <li>Filter for apps in non-approved regions or outside expected environment groups, and act on what you find.</li>
       <li>Brief builders that a share link exposes the app <em>and its data</em> to anyone who receives it.</li>
     </ul>
@@ -599,6 +725,16 @@ footer.foot a:hover { text-decoration: underline; }
       <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-work-iq" target="_blank" rel="noopener noreferrer">Add Work IQ in Copilot Studio</a>
       <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-work-iq</span>
       How apps and agents reach organizational context inside the tenant boundary.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/power-apps/developer/code-apps/overview" target="_blank" rel="noopener noreferrer">Power Apps code apps overview</a>
+      <span class="u">https://learn.microsoft.com/en-us/power-apps/developer/code-apps/overview</span>
+      The separate, Power Platform-governed code-first option, for when the comparison in section 7 lands on the Power Apps side.
+    </div>
+    <div class="ref">
+      <a href="https://www.microsoft.com/power-platform/products/power-apps/pricing" target="_blank" rel="noopener noreferrer">Power Apps pricing</a>
+      <span class="u">https://www.microsoft.com/power-platform/products/power-apps/pricing</span>
+      Current per-user plan pricing, for modeling the predictable-cost side of the choice.
     </div>
     <div class="ref">
       <a href="https://www.microsoft.com/en-us/microsoft-365-copilot/frontier-program" target="_blank" rel="noopener noreferrer">Microsoft Copilot Frontier program</a>
