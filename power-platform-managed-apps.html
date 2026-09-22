@@ -252,7 +252,7 @@ footer.foot a:hover { text-decoration: underline; }
   </header>
 
   <div class="callout">
-    <strong>The one thing to remember:</strong> a managed app is what you get when someone describes an app in <strong>Copilot Cowork</strong> or <strong>Copilot Studio</strong> and publishes it. It is a real full-stack application built with agentic coding, wired to your data through connectors, authenticated with Microsoft Entra, and governed from the <strong>Microsoft 365 admin center</strong> rather than the Power Platform admin center. Commercially it is a <strong>hybrid</strong>, and that is the part people get wrong: <strong>building</strong> is usage-based and paid in Copilot Credits, while the capability to <strong>run</strong> apps built in Cowork is <strong>included with Power Apps Premium</strong> &mdash; drawing on that license's allowance of 40,000 Power Platform requests per user per 24 hours. AI-powered runtime inside the app always consumes credits on top.
+    <strong>The one thing to remember:</strong> a managed app is what you get when someone describes an app in <strong>Copilot Cowork</strong> or <strong>Copilot Studio</strong> and publishes it. It is a real full-stack application built with agentic coding, wired to your data through connectors, authenticated with Microsoft Entra, and governed from the <strong>Microsoft 365 admin center</strong> rather than the Power Platform admin center. Commercially it is a <strong>hybrid</strong>, and that is the part people get wrong: <strong>building</strong> and <strong>running</strong> are metered as two separate services in Copilot Credits, but a user holding <strong>Power Apps Premium</strong> has their license checked first, so runtime is included within that license's allowance of 40,000 Power Platform requests per user per 24 hours. AI-powered runtime inside the app always consumes credits on top.
   </div>
 
   <h2>1. What a managed app actually is</h2>
@@ -293,12 +293,12 @@ footer.foot a:hover { text-decoration: underline; }
       <tr>
         <td><strong>Copilot Cowork</strong></td>
         <td>The built-in <code>/app</code> skill, or the <strong>Build an app</strong> suggested prompt on the Cowork home page. Describe the problem; the skill can generate a data schema in supported connectors and return an app with its data sources connected.</td>
-        <td>Requires tenant enrollment in the Microsoft Copilot <strong>Frontier</strong> preview program.</td>
+        <td>Public preview from <strong>September 10, 2026</strong>. Requires tenant enrollment in the Microsoft Copilot <strong>Frontier</strong> preview program.</td>
       </tr>
       <tr>
         <td><strong>Copilot Studio</strong></td>
         <td>The <strong>App (Preview)</strong> tile on the Copilot Studio home screen, or <strong>Apps</strong> in the navigation bar to reach the app workspace, where you can start a new app or continue an existing one.</td>
-        <td>Rolling out in public preview.</td>
+        <td>Public preview from <strong>September 14, 2026</strong>. On by default for makers.</td>
       </tr>
     </tbody>
   </table>
@@ -436,6 +436,22 @@ the status changes.</code></pre>
   </ul>
   <p>The practical consequence: there is no hosting decision, no certificate to manage, no identity integration to write, and no separate monitoring stack to stand up. That is most of the reason this is worth using instead of generating a web app with a coding agent and hosting it yourself.</p>
 
+  <h3>Shared responsibility</h3>
+  <p>The cleanest way to answer a security reviewer asking "who is on the hook for what?" is to draw the line once and keep drawing it in the same place. You control the app. Microsoft operates the identity, policy, and runtime layer beneath it.</p>
+  <table>
+    <thead>
+      <tr><th>What you own</th><th>What Microsoft operates</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>The app: its screens, logic, and content</td><td>The Microsoft-hosted runtime the app runs on</td></tr>
+      <tr><td>The app's code, built on open web standards, which you can view and edit</td><td>Microsoft Entra sign-in</td></tr>
+      <tr><td>Which data sources and connectors the app uses, within your organization's policies</td><td>Enforcement of connector policies and tenant boundaries at runtime</td></tr>
+      <tr><td>Whether the app can be shared, and when a new version is published</td><td>Inventory, monitoring, and usage reporting in the Microsoft 365 admin center</td></tr>
+      <tr><td>Deciding who is accountable for each published app</td><td>Platform security for the hosted runtime</td></tr>
+    </tbody>
+  </table>
+  <p>Published apps use Microsoft-hosted infrastructure and approved application dependencies. Customers do not provision infrastructure, configure hosting, or stand up a deployment pipeline for these apps.</p>
+
   <h3>Work IQ: organizational context, not just data access</h3>
   <p>Apps integrate natively with Work IQ, which contributes three distinct things worth separating:</p>
   <table>
@@ -460,13 +476,39 @@ the status changes.</code></pre>
     <li><strong>Tenants with existing routing rules do not get that new rule</strong>, which means some makers may be unable to use apps until an admin adds a rule covering <em>Everyone</em>. If you already use routing, this is an action item, not a notification.</li>
     <li><strong>The <em>Everyone</em> rule must sit last in priority order</strong>, and only one rule may target <em>Everyone</em>. Existing configurations that violate either constraint must be cleaned up before any further routing changes can be made.</li>
     <li><strong>These personal developer environments have no Dataverse</strong> initially. Dataverse is added automatically only when the maker visits a Power Apps or Power Automate maker surface and lands in that environment, or an admin adds it deliberately.</li>
+    <li><strong>Tenants with no Power Platform deployment at all still get a baseline.</strong> Where an organization has not configured policies, or has never deployed Power Platform, a <strong>default environment group is created with a baseline set of policies already in place</strong>. App-specific policies for sharing and content security are applied by default and can be adjusted afterwards from the Microsoft 365 admin center and the Power Platform admin center.</li>
   </ul>
+
+  <div class="callout">
+    <strong>Environment policy is the real boundary.</strong> What an app is permitted to do is decided by the environment it was created in, not by the app. Connector permissions and data access policies scoped to that environment constrain what the app can reach <em>both while it is being built and after it is published</em>. If you want a different answer for a group of makers, change their environment, not their app.
+  </div>
 
   <div class="callout">
     <strong>The licensing tripwire hidden in that list:</strong> a maker who only builds managed apps in their personal developer environment <strong>does not</strong> need a Power Apps or Power Automate premium license, and auto-claim does not apply. The moment that maker creates a Power Apps or Power Automate resource in that environment, they <strong>do</strong> need the appropriate premium license to satisfy managed environment requirements, and auto-claim does apply. The boundary is the resource type, not the environment.
   </div>
 
   <h2>5. Governing them</h2>
+
+  <p>Governance follows the app from build through publish and run. Existing policies are inherited from the maker's Power Platform environment, and enforcement stays with the app <strong>at runtime</strong> rather than being applied once at deployment. Apps access connected data on behalf of the signed-in user, so publishing or sharing an app never grants access to data a person could not otherwise reach.</p>
+
+  <table>
+    <thead>
+      <tr><th>Control area</th><th>What applies to an app</th><th>Where it comes from</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Identity</strong></td><td>Microsoft Entra sign-in and per-app Conditional Access</td><td>Your existing tenant identity configuration</td></tr>
+      <tr><td><strong>Data</strong></td><td>Connector permissions, data policies, and advanced connector policies</td><td>The policies scoped to the app's environment</td></tr>
+      <tr><td><strong>Audit support</strong></td><td>Git-backed change history, inventory and activity signals</td><td>The app lifecycle and the admin center inventory</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Choosing where people can build apps</h3>
+  <p>App creation is available to makers by default, and apps can be created in more than one place. Wherever they are made, the same rules apply to them. Administrators choose which creation paths are open to the organization from <strong>Microsoft 365 admin center &rarr; Apps &rarr; Overview</strong>, under <em>Choose where people can make apps</em>:</p>
+  <ul>
+    <li><strong>Copilot Studio</strong> &mdash; makers build apps in Copilot Studio. <strong>On by default, and the recommended path.</strong></li>
+    <li><strong>Copilot Cowork</strong> &mdash; people create apps through chat. Availability is governed by your organization's participation in the Frontier program.</li>
+  </ul>
+  <p>Turning a path off prevents makers from creating <em>new</em> apps that way. <strong>Apps that are already published continue to run.</strong> Beyond the on/off switch, administrators can restrict <em>which</em> makers are able to build apps in Copilot Studio via API or PowerShell, so a defined group can evaluate the capability before it is opened more widely. That is the control to reach for in a staged rollout: a pilot cohort rather than a tenant-wide flip.</p>
 
   <h3>Enablement</h3>
   <ol>
@@ -526,14 +568,49 @@ the status changes.</code></pre>
 
   <p>Compliance work the inventory is genuinely good at: spotting apps running in non-approved regions, spotting apps outside expected environment groups, and identifying owners without chasing people across tools.</p>
 
+  <h3>Visibility and lifecycle, paired</h3>
+  <p>Each app in the inventory carries the context needed to decide whether it needs attention, and the action to act on that decision. Read the two columns together; visibility without a corresponding action is just a report.</p>
+  <table>
+    <thead>
+      <tr><th>What you can see</th><th>What you can do</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Who built the app, and its lifecycle state</td><td>Block or disable a published app</td></tr>
+      <tr><td>Which data sources and connectors it uses</td><td>Remove a connector, or bring the app back within policy</td></tr>
+      <tr><td>Which policies apply to it</td><td>Confirm the app is configured as intended, and control whether it can be shared</td></tr>
+      <tr><td>Usage and operational metrics</td><td>Retire apps that are no longer used</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Decide who is accountable for overseeing published apps before makers begin publishing</strong>, as you would for any other application estate. This is the cheapest governance decision available and the one most often deferred until the inventory is already crowded.</p>
+
   <h2>6. Licensing and cost</h2>
 
   <div class="callout">
-    <strong>There are two meters here, and they are funded differently.</strong> <strong>Building</strong> apps falls under usage-based billing and is paid in <strong>Copilot Credits</strong>, from the same pool and governance model as Cowork itself. <strong>Running</strong> apps built in Cowork is <strong>included with Power Apps Premium</strong>. Getting this wrong in either direction produces a badly wrong forecast, so separate the two before you model anything.
+    <strong>There are two meters here, and they are funded differently.</strong> <strong>Building</strong> and <strong>running</strong> apps are metered as two separate services under usage-based billing, paid in <strong>Copilot Credits</strong>, from the same pool and governance model as Cowork itself. But a user's <strong>Power Apps Premium</strong> license is checked first at runtime, so where Premium is already deployed, much of the run cost is already covered. Getting this wrong in either direction produces a badly wrong forecast, so separate the two before you model anything.
   </div>
 
+  <h3>Two meters, metered separately on purpose</h3>
+  <p>Building and running apps are both charged through Copilot Credits usage-based billing, but they are metered as <strong>two separate services</strong>. That separation is deliberate, and it is useful: it lets you manage cost for app makers and for app users independently.</p>
+  <ul>
+    <li><strong>Building an app</strong> consumes credits during authoring. Consumption varies with the language model used, the complexity of the app, and the amount of generation and iteration involved. This is the <strong>maker-side</strong> cost, and it rises with the number of makers and how much they iterate.</li>
+    <li><strong>Hosting, running, and managing an app</strong> consumes credits once the app is deployed to the Microsoft-managed host. Consumption varies with the volume and complexity of the tasks the app processes. This is the <strong>user-side</strong> cost, and it scales with adoption.</li>
+  </ul>
+
+  <table>
+    <thead>
+      <tr><th>What drives consumption</th><th>How it is charged</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Connector API calls</td><td rowspan="5"><strong>Copilot Credits</strong></td></tr>
+      <tr><td>Mid-tier API calls</td></tr>
+      <tr><td>Active users</td></tr>
+      <tr><td>Number of apps</td></tr>
+      <tr><td>AI tools</td></tr>
+    </tbody>
+  </table>
+
   <h3>The Power Apps Premium entitlement, precisely</h3>
-  <p>Microsoft's request-limits documentation states it plainly: <em>the capability to run apps built in Cowork is included with Power Apps Premium</em>. The Power Platform requests those apps generate count toward that license's standing allowance.</p>
+  <p>Microsoft's request-limits documentation states it plainly: <em>the capability to run apps built in Cowork is included with Power Apps Premium</em>. The current app-management guidance generalizes the same rule to apps built in Copilot Studio: when someone runs an app, <strong>their Power Apps Premium license is checked first</strong>. If they hold one, usage is included within existing Power Apps Premium request limits. If they do not hold one, or once the request limit is reached, usage is billed through Copilot Credits usage-based billing.</p>
 
   <table>
     <thead>
@@ -546,7 +623,7 @@ the status changes.</code></pre>
       </tr>
       <tr>
         <td><strong>What counts</strong></td>
-        <td>Power Platform requests: API requests to connectors and Dataverse generated as the app runs.</td>
+        <td>Power Platform requests generated as the app runs. Named explicitly: <strong>data connector calls, app launches, asset loads, and build and publish actions</strong>.</td>
       </tr>
       <tr>
         <td><strong>Licenses that do <em>not</em> include it</strong></td>
@@ -564,8 +641,24 @@ the status changes.</code></pre>
   </table>
 
   <div class="callout warn">
-    <strong>Two ways people misread this.</strong> First, as <em>"40,000 operations a month"</em> &mdash; it is per user per <strong>day</strong>, roughly thirty times larger, and reading it as monthly makes the entitlement look far tighter than it is. Second, as <em>"Power Apps Premium covers managed apps, so there is no credit cost"</em> &mdash; it covers <strong>running</strong> apps built in Cowork, not <strong>building</strong> them, and it never covers AI runtime inside the app. The documented sentence names apps built in <strong>Cowork</strong> specifically; if your scenario is apps authored in Copilot Studio, confirm the current entitlement wording before you commit to it commercially.
+    <strong>Two ways people misread this.</strong> First, as <em>"40,000 operations a month"</em> &mdash; it is per user per <strong>day</strong>, roughly thirty times larger, and reading it as monthly makes the entitlement look far tighter than it is. Second, as <em>"Power Apps Premium covers apps built this way, so there is no credit cost"</em> &mdash; it covers <strong>running</strong> them, not <strong>building</strong> them, and it never covers AI runtime inside the app. Note also that the entitlement is <strong>Premium only</strong>: it is not included with Power Apps per app, Power Apps pay-as-you-go, or Dynamics 365 licenses that carry Power Apps capabilities.
   </div>
+
+  <h3>Planning for cost</h3>
+  <p>Look at your existing Power Apps Premium footprint first. If the people who will use these apps already hold Premium, a substantial share of runtime consumption may already be covered, and your exposure is concentrated in <strong>authoring</strong> and in <strong>AI-powered runtime</strong> rather than in everyday use. If they do not, runtime is billed from the first request and should be modeled accordingly.</p>
+  <ul>
+    <li><strong>Separate the two cost curves when you forecast.</strong> Authoring cost rises with the number of makers and how much they iterate. Runtime cost rises with how many people use the resulting apps and how hard those apps work. A pilot with five makers and fifty users has a very different shape from one with fifty makers and five hundred users, even at similar total spend.</li>
+    <li><strong>Plan for AI-powered runtime separately.</strong> Because agents and Work IQ APIs sit outside request limits, an app that calls them frequently behaves differently from one that mostly reads and writes business data. That difference will not show up in a licensing conversation that only considers user counts.</li>
+    <li><strong>Get real numbers rather than estimates.</strong> A pilot focused on one team and one process over a defined period produces actual consumption data, which is a far more reliable basis for budgeting than anything modeled before the app is running.</li>
+  </ul>
+
+  <h3>Credit caps, and what is coming</h3>
+  <p>Cost management for these apps is handled from the Microsoft 365 admin center. <strong>Credit caps apply per user today</strong>, for both maker and runtime consumption, and are managed through Copilot Credits usage-based billing.</p>
+  <ul>
+    <li><strong>For makers</strong>, a cap is a per-user app-building budget. It can be standardized across the organization or tailored to groups such as departments with their own budgets, which is what limits authoring cost as makers iterate.</li>
+    <li><strong>For end users</strong>, caps currently work the same way, applying per user to runtime consumption.</li>
+    <li><strong>Environment-level controls are expected within the next few months.</strong> For end-user runtime consumption they are the more natural long-term fit: an environment-level cap behaves like a <em>project</em> budget, covering everyone working on a given project rather than each person individually. If per-user caps feel like an awkward instrument for your runtime scenario, that is because they are, and it is a gap with a stated fix.</li>
+  </ul>
 
   <h3>What sits inside usage-based billing</h3>
   <p>The Microsoft 365 admin center currently manages these services under usage-based billing:</p>
@@ -693,6 +786,9 @@ the status changes.</code></pre>
     <h3>Before you turn it on</h3>
     <ul>
       <li>Confirm Frontier enrollment is possible and identify the Global Administrator who will do it.</li>
+      <li>Decide which creation paths stay open under <strong>Apps &rarr; Overview &rarr; Choose where people can make apps</strong>, and whether to restrict Copilot Studio app building to a pilot group via API or PowerShell before opening it more widely.</li>
+      <li><strong>Name the person accountable for overseeing published apps</strong> before makers start publishing.</li>
+      <li>Set <strong>credit caps</strong> for makers, and for end users if they will not be covered by Power Apps Premium. Caps are per user today; environment-level controls are expected later.</li>
       <li>Set up usage-based billing: choose prepaid, pay-as-you-go, or both, and connect the Azure subscription if required.</li>
       <li>Author the spending policy as an <strong>access decision first</strong> and a budget second. Scope it to a security group you control.</li>
       <li><strong>Audit which users already hold Power Apps Premium</strong> before modeling cost. That entitlement covers running apps built in Cowork; per app, pay-as-you-go, and Dynamics 365 licenses with Power Apps capabilities do not.</li>
@@ -770,6 +866,11 @@ the status changes.</code></pre>
       <a href="https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations" target="_blank" rel="noopener noreferrer">Requests limits and allocations</a>
       <span class="u">https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations</span>
       The authoritative source for the Power Apps Premium entitlement to run apps built in Cowork, the 40,000 requests per user per 24 hours allowance, the excluded license types, and the note that AI runtime consumes Copilot Credits regardless.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener noreferrer">Copilot Studio licensing and billing</a>
+      <span class="u">https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing</span>
+      The licensing guide to check for current rates and the authoritative wording on what building and running apps consume.
     </div>
     <div class="ref">
       <a href="https://learn.microsoft.com/en-us/power-apps/developer/code-apps/overview" target="_blank" rel="noopener noreferrer">Power Apps code apps overview</a>
