@@ -1,0 +1,800 @@
+{
+  "site": {
+    "title": "Joel Cade — Resources",
+    "eyebrow": "Enablement Library",
+    "heading": "Resources",
+    "sub": "A collection of enablement references and guides. Curated by Joel Cade."
+  },
+  "topics": [
+    {
+      "slug": "licensing",
+      "label": "Licensing &amp; Cost"
+    },
+    {
+      "slug": "governance",
+      "label": "Governance &amp; Admin"
+    },
+    {
+      "slug": "copilot-studio",
+      "label": "Copilot Studio"
+    },
+    {
+      "slug": "architecture",
+      "label": "Architecture"
+    },
+    {
+      "slug": "alm",
+      "label": "ALM &amp; DevOps"
+    },
+    {
+      "slug": "quality",
+      "label": "Quality &amp; Value"
+    },
+    {
+      "slug": "scout",
+      "label": "Microsoft Scout"
+    },
+    {
+      "slug": "calculators",
+      "label": "Calculators"
+    }
+  ],
+  "formats": [
+    {
+      "slug": "checklist",
+      "label": "Checklist"
+    },
+    {
+      "slug": "interactive",
+      "label": "Interactive"
+    },
+    {
+      "slug": "script",
+      "label": "Script"
+    },
+    {
+      "slug": "printable",
+      "label": "Printable"
+    },
+    {
+      "slug": "external",
+      "label": "External"
+    }
+  ],
+  "sections": [
+    {
+      "slug": "start-here",
+      "label": "Start Here",
+      "blurb": "Where to begin if the platform or the agent story is new to you.",
+      "resources": [
+        {
+          "title": "Power Platform Admin — Starter Kit",
+          "href": "power-platform-admin-starter-kit.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "governance"
+          ],
+          "desc": "A curated path of free, public Microsoft resources for a brand-new Power Platform admin — sequenced from day-one foundations (PL-900) through the admin center, security, governance, and delivery best practices (ALM, Well-Architected).",
+          "source": null,
+          "tags": [
+            "Getting started",
+            "Administration",
+            "Governance"
+          ]
+        },
+        {
+          "title": "Enabling Copilot Studio Building for an Organization",
+          "href": "enable-copilot-studio-building.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "licensing"
+          ],
+          "desc": "Every supported way to entitle makers to build agents in Microsoft Copilot Studio: the four access configurations (Copilot Studio user license, the Copilot Studio authors role in PPAC, a Microsoft 365 Copilot license, or a trial) and the two commercial models behind them &mdash; seat-based (tenant Copilot Credit pack + per-user license) and pay-as-you-go (PAYG on an environment in PPAC + the Environment Maker role). Side-by-side comparison, who doesn't need a license, and a quick decision guide.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Licensing",
+            "Pay-as-you-go",
+            "PPAC"
+          ]
+        },
+        {
+          "title": "Copilot Studio Agent Academy",
+          "href": "https://microsoft.github.io/agent-academy/",
+          "external": true,
+          "formats": [],
+          "topics": [
+            "copilot-studio"
+          ],
+          "desc": "Microsoft's free, open-source training program for building with Copilot Studio, taking a maker from never having opened the product to production-ready agents with MCP integrations and multi-agent orchestration. Structured as three ranks &mdash; <strong>Recruit</strong>, <strong>Operative</strong> and <strong>Commander</strong> (coming soon) &mdash; each with its own badge, plus two independent tracks you can take in any order: <strong>Special Ops</strong> standalone missions on a single topic or integration, and the <strong>Cowork Collective</strong> hands-on labs for Copilot Cowork in Microsoft 365. Two things to set expectations on before pointing a customer at it: no environment is provided, so learners bring their own tenant or a free trial (Dataverse and solution import are needed, and the MCP module requires the Frontier program), and difficulty ramps deliberately, with later modules depending on artifacts built in earlier ones.",
+          "source": "External &middot; Microsoft (open source) &middot; <span class=\"u\">microsoft.github.io/agent-academy</span> &middot; short link <span class=\"u\">aka.ms/agent-academy</span>",
+          "tags": [
+            "Copilot Studio",
+            "Training",
+            "Getting started",
+            "MCP",
+            "Copilot Cowork"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "licensing",
+      "label": "Licensing, Cost &amp; Credits",
+      "blurb": "Working out what something costs, who needs a license, and why credits are being consumed.",
+      "resources": [
+        {
+          "title": "Budget &amp; Cost Alert Options for Copilot Credits",
+          "href": "copilot-credit-budget-alerts.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "copilot-studio",
+            "licensing",
+            "governance"
+          ],
+          "desc": "Every control for capping and alerting on Copilot Credit spend, mapped across the three consoles that own them &mdash; Power Platform admin center, Microsoft 365 Cost Management, and Azure Cost Management. Separates the controls that genuinely stop consumption from the ones that only send an email.",
+          "source": null,
+          "tags": [
+            "Copilot Credits",
+            "Cost management",
+            "PPAC",
+            "Pay-as-you-go",
+            "Printable"
+          ]
+        },
+        {
+          "title": "Analyzing Copilot Credit Consumption: Tenant to Agent",
+          "href": "copilot-credit-consumption-analysis.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "copilot-studio",
+            "licensing",
+            "governance"
+          ],
+          "desc": "A complete map of where consumption is reported and how to read it at every scope &mdash; tenant, environment, agents across environments, agents within an environment, and functionality within a single agent. Defines billed vs nonbillable credits, decodes the cost distribution chart against the full rate card, covers data-freshness traps, and sets an analysis cadence.",
+          "source": null,
+          "tags": [
+            "Copilot Credits",
+            "Cost analysis",
+            "PPAC",
+            "Billed vs nonbillable",
+            "Printable"
+          ]
+        },
+        {
+          "title": "Power Platform Licensing &amp; Managed Environments",
+          "href": "power-platform-licensing-managed-environments.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "licensing",
+            "governance"
+          ],
+          "desc": "A plain-language overview of how Power Platform is licensed and what changes when you turn on Managed Environments — seeded vs premium, licensing paths, the managed-environment premium-license rule, and per-user vs per-app guidance. Links to the official Microsoft references.",
+          "source": null,
+          "tags": [
+            "Licensing",
+            "Managed Environments",
+            "Copilot Studio"
+          ]
+        },
+        {
+          "title": "Managed Environments: Pre-Deployment Inventory &amp; Checklist",
+          "href": "power-platform-managed-environments-preflight.html",
+          "external": false,
+          "formats": [
+            "checklist",
+            "script",
+            "printable"
+          ],
+          "topics": [
+            "licensing",
+            "governance"
+          ],
+          "desc": "The operational companion to the licensing overview. How to work out who is in an environment, who is actually licensed, and what the gap will cost before you turn Managed Environments on — plus a downloadable read-only PowerShell script that joins Dataverse users to Entra license assignments and classifies every user. Covers the Dynamics 365 Pro trap, group-based licensing, and what enforcement actually looks like.",
+          "source": null,
+          "tags": [
+            "Licensing",
+            "Managed Environments",
+            "PowerShell",
+            "Checklist",
+            "Printable"
+          ]
+        },
+        {
+          "title": "What Changed in Copilot Studio Billing",
+          "href": "copilot-studio-harness-billing-changes.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "licensing",
+            "governance"
+          ],
+          "desc": "The GitHub Copilot harness brought a second billing model to Copilot Studio in August 2026. Three harnesses and which one bills how, the four assumptions that break (billing starts at build not publish, no Microsoft 365 Copilot license inclusion, no per-event rate card, enforcement stops makers too), what a task actually costs, what did not change, and the working rule for choosing a harness.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Copilot Credits",
+            "GitHub Copilot harness",
+            "Usage-based billing",
+            "Licensing"
+          ]
+        },
+        {
+          "title": "Evaluating &amp; Optimizing Copilot Credit Consumption",
+          "href": "copilot-studio-credit-optimization.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "licensing",
+            "governance"
+          ],
+          "desc": "A four-phase playbook &mdash; measure, diagnose, optimize, govern &mdash; for teams running Copilot Studio agents in production. Which harness you are on and what a GitHub Copilot harness task actually costs, the full credit rate card and the stacking rule, where consumption is actually reported, the ten cost drivers, eight optimization levers with real cost deltas, enforcement behavior at 100% and 125%, and a printable checklist.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Copilot Credits",
+            "Cost optimization",
+            "PPAC",
+            "Governance"
+          ]
+        },
+        {
+          "title": "Why Is a Non-Autonomous Agent Consuming Copilot Credits?",
+          "href": "copilot-credit-consumption-diagnostic.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "licensing"
+          ],
+          "desc": "A diagnostic guide for the most common credit surprise: an internal agent used only by Microsoft 365 Copilot licensed employees that still meters. The four conditions behind the \"No charge\" column, a sixty-second triage, twelve root causes with verification steps and fixes, what is never included regardless of license, and answers to the common licensing questions.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Copilot Credits",
+            "Microsoft 365 Copilot",
+            "Troubleshooting",
+            "Licensing"
+          ]
+        },
+        {
+          "title": "Governing Copilot Credit Cost for GitHub Copilot Harness Agents",
+          "href": "https://microsoft.github.io/mcscatblog/posts/copilot-harness-cost-governance/",
+          "external": true,
+          "formats": [],
+          "topics": [
+            "copilot-studio",
+            "licensing",
+            "governance"
+          ],
+          "desc": "The admin-side counterpart to the two guides above, from the Microsoft Customer Advisory Team. Because harness agents can consume Copilot Credits during maker exploration, before anything is published, the controls have to move earlier. Covers a five-step baseline (discover harness agents via the <span class=\"u\">isCLIAgent</span> property in Power Platform Inventory, classify each environment as maker development or funded production, review allocation and tenant-pool and pay-as-you-go and enforcement settings, apply agent-level monthly limits, then re-run the review), with both the PPAC click path and the Power Platform API requests for doing it at scale.",
+          "source": "External &middot; Microsoft Customer Advisory Team blog &middot; <span class=\"u\">microsoft.github.io/mcscatblog</span>",
+          "tags": [
+            "Copilot Credits",
+            "GitHub Copilot harness",
+            "PPAC",
+            "Power Platform API",
+            "Governance"
+          ]
+        },
+        {
+          "title": "Power Platform Cost Controls &amp; Billing Policies",
+          "href": "power-platform-cost-controls.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "licensing",
+            "governance"
+          ],
+          "desc": "How Power Platform and Copilot Studio consumption bills to Azure — why billing policies attach to environments and never to users, the three layers of cost control, and how to stop one runaway agent running up the bill.",
+          "source": null,
+          "tags": [
+            "Licensing",
+            "Cost management",
+            "Administration"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "building-agents",
+      "label": "Building &amp; Integrating Agents",
+      "blurb": "Hands-on guides for authoring agents and wiring them to external systems.",
+      "resources": [
+        {
+          "title": "Modern Copilot Studio: The New Orchestrator On-Ramp",
+          "href": "modern-copilot-studio-orchestrator.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio"
+          ],
+          "desc": "A builder's guide to the new agent-and-workflow paradigm in Copilot Studio — what changed and why, the modern component model (instructions, knowledge, tools, memory, skills, connected agents), agents vs. workflows, migrating classic agents without just porting them, and an honest read on today's gaps. Points to the deck, mini-site, and migration plugin.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Modern agents",
+            "Workflows",
+            "Migration"
+          ]
+        },
+        {
+          "title": "Copilot Studio and Microsoft Foundry: How the Two Halves Fit Together",
+          "href": "copilot-studio-and-foundry.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "copilot-studio",
+            "architecture"
+          ],
+          "desc": "Not a platform bake-off. The five supported seams between the low-code agent platform and the pro-code AI platform &mdash; Foundry models in prompts, Foundry IQ knowledge bases, connected Foundry agents, A2A agents, and registering agents for observability &mdash; plus how to pick the right one from the symptom you actually have.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Microsoft Foundry",
+            "Architecture",
+            "Integration",
+            "Printable"
+          ]
+        },
+        {
+          "title": "When Built-In Knowledge Sources Are Not Enough",
+          "href": "knowledge-sources-vs-azure-ai-search.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "copilot-studio",
+            "quality"
+          ],
+          "desc": "Why grounded agents answer inconsistently and how to tell a configuration problem from an architecture problem. The five-stage retrieval pipeline, the silent failure modes that produce no error, a triage order to work through first, the retrieval dials built-in sources do not expose, and seven signals that it is time to move to a purpose-built Azure AI Search index &mdash; plus how that connects to Copilot Studio and what you take on when it does.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Knowledge sources",
+            "Azure AI Search",
+            "RAG",
+            "Printable"
+          ]
+        },
+        {
+          "title": "Connecting Copilot Studio to Snowflake Cortex Agents",
+          "href": "copilot-studio-snowflake-cortex-agent.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "governance"
+          ],
+          "desc": "How to let a Copilot Studio agent answer questions from Snowflake data by calling a Cortex Agent through the Snowflake connector, configured as a tool rather than a scripted topic. Covers the Microsoft Entra External OAuth trust, the stored procedure that bridges SQL to the Cortex Agent REST endpoint, tool and input descriptions that make orchestration route correctly, and the production hardening the published quickstart leaves out.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Snowflake Cortex",
+            "Entra OAuth",
+            "Agent tools"
+          ]
+        },
+        {
+          "title": "Connecting Copilot Studio to UKG",
+          "href": "connecting-copilot-studio-to-ukg.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "copilot-studio",
+            "governance"
+          ],
+          "desc": "A field guide to authenticating a Copilot Studio agent against UKG Pro Workforce Management and UKG Pro HCM. Why the two product families need different authentication models, the certified connector landscape and the authentication gap in it, the form-encoding and percent-encoding traps that produce an HTTP 500 that looks like a platform bug, and how to hand a token back to the agent through an agent flow.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "UKG Pro",
+            "Agent flows",
+            "OAuth",
+            "Printable"
+          ]
+        },
+        {
+          "title": "Editing &amp; Publishing Copilot Studio Agents with VS Code",
+          "href": "vscode-copilot-studio-agents.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "alm"
+          ],
+          "desc": "A code-first workflow for authoring Microsoft Copilot Studio agents in Visual Studio Code — install the Power Platform Tools extension, authenticate, pull an agent's solution locally, edit topics and instructions under source control, then repack, import, and publish. Includes a handy pac CLI command reference.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "VS Code",
+            "pac CLI",
+            "ALM"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "building-apps",
+      "label": "Building Apps",
+      "blurb": "Natural-language app building, and how the resulting apps are governed and billed.",
+      "resources": [
+        {
+          "title": "Managed Apps (Preview)",
+          "href": "power-platform-managed-apps.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "governance",
+            "licensing",
+            "copilot-studio",
+            "architecture"
+          ],
+          "desc": "Apps described in plain language in Copilot Cowork or Copilot Studio, generated as real full-stack code, published onto a Microsoft-operated runtime in your tenant, and governed from the Microsoft 365 admin center &mdash; not the Power Platform admin center. Covers both build surfaces and the single engine behind them, when to reach for an app versus an agent versus a workflow, the versioning model that makes this more than a prototype, the automatic environment-routing change that catches admins out, the All apps inventory and its block-versus-delete actions, and the hybrid commercial model &mdash; building and running metered as two separate services in Copilot Credits, a Power Apps Premium license checked first at runtime within its 40,000 requests per user per day, and AI runtime always metered on top.",
+          "source": null,
+          "tags": [
+            "Managed Apps",
+            "Copilot Cowork",
+            "Copilot Studio",
+            "Copilot Credits",
+            "Power Apps",
+            "Governance",
+            "Preview",
+            "Printable"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "governance",
+      "label": "Governance, ALM &amp; Administration",
+      "blurb": "Running the platform at scale: guardrails, tenant administration, and release management.",
+      "resources": [
+        {
+          "title": "Agent Access and Catalog Strategy for Microsoft 365",
+          "href": "agent-access-catalog-strategy.html",
+          "external": false,
+          "formats": [
+            "guide",
+            "printable"
+          ],
+          "topics": [
+            "governance",
+            "copilot-studio",
+            "microsoft-365-copilot"
+          ],
+          "desc": "How to make in-house agents discoverable without creating a shadow catalog. Covers Agent Store, Microsoft 365 admin center approval, group-based deployment, Copilot Studio publishing, external agent packaging, and lifecycle ownership.",
+          "source": null,
+          "tags": [
+            "Agent Store",
+            "Microsoft 365 Copilot",
+            "Copilot Studio",
+            "Governance",
+            "Printable"
+          ]
+        },
+        {
+          "title": "Zoned Agent Governance",
+          "href": "agent-governance-zones.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "governance",
+            "copilot-studio"
+          ],
+          "desc": "How to administer AI agents across Microsoft 365 Copilot, Copilot Studio and Power Platform without blocking the business or losing track of what got built. The three zones and what changes between them, why sharing and publishing are different problems, the controls that implement each zone (environment groups, rules, routing, connector policy, agent identity), where each surface is monitored and why agent counts never match, plus a seven-step rollout and the common failure patterns.",
+          "source": null,
+          "tags": [
+            "Governance",
+            "Copilot Studio",
+            "Microsoft 365 Copilot",
+            "Environment groups",
+            "Purview"
+          ]
+        },
+        {
+          "title": "Agent Builder Governance",
+          "href": "agent-builder-governance.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "governance",
+            "copilot-studio",
+            "microsoft-365-copilot"
+          ],
+          "desc": "How Agent Builder sharing actually works, the granular tenant-wide sharing policy that constrains every owner, the two bulk tools for cleaning up ownerless or unused agents, Copilot Credit cost reporting and spend controls, and what really happens when an agent is copied to Copilot Studio — which environment it lands in, whether it goes to a personal developer environment, and why its Microsoft 365 sharing settings do not carry over.",
+          "source": null,
+          "tags": [
+            "Governance",
+            "Agent Builder",
+            "Copilot Studio",
+            "Sharing",
+            "Cost management"
+          ]
+        },
+        {
+          "title": "CoE Starter Kit &rarr; Power Platform Admin Center",
+          "href": "coe-starter-kit-to-admin-center.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "governance"
+          ],
+          "desc": "The Center of Excellence Starter Kit is no longer actively maintained. A capability-by-capability map of where each function lives natively today (Inventory, Usage, Monitor, Actions), what has no replacement at all, and the licensing dependency that makes the move less free than it looks.",
+          "source": null,
+          "tags": [
+            "Governance",
+            "Administration",
+            "Migration"
+          ]
+        },
+        {
+          "title": "Power Platform ALM, Pipelines &amp; Your Wider DevOps Strategy",
+          "href": "power-platform-alm-pipelines.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "alm",
+            "governance"
+          ],
+          "desc": "The ins and outs of application lifecycle management on Power Platform — solutions, environment strategy, pipelines (platform vs. custom host, gated extensions, delegated deployments), and Dataverse Git integration — plus an honest split of where GitHub Actions and Azure DevOps fit alongside them. Includes a maturity ladder and a pitfalls checklist.",
+          "source": null,
+          "tags": [
+            "ALM",
+            "Pipelines",
+            "GitHub Actions",
+            "Git integration",
+            "Governance"
+          ]
+        },
+        {
+          "title": "Power Platform Disaster Recovery Principles",
+          "href": "power-platform-disaster-recovery.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "governance",
+            "alm"
+          ],
+          "desc": "What the platform recovers automatically and what stays your responsibility. The three layers of resilience (availability zones, self-service disaster recovery, backup and restore), real backup retention limits, everything that does not fail over cleanly, an environment tiering model, how to run a drill, and the anti-patterns that turn a DR plan into a wish.",
+          "source": null,
+          "tags": [
+            "Disaster recovery",
+            "Business continuity",
+            "Dataverse",
+            "Managed Environments",
+            "Architecture"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "quality",
+      "label": "Quality, Testing &amp; Value",
+      "blurb": "Proving an agent works, and proving it was worth building.",
+      "resources": [
+        {
+          "title": "Copilot Studio Agent Evaluation — The Complete Guide",
+          "href": "copilot-studio-agent-evaluation.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "quality",
+            "alm"
+          ],
+          "desc": "Everything needed to run agent quality as an engineering discipline: single-response vs. conversation test sets and their limits, the eight grading methods and when to use each, user profiles and the data-exposure gotcha, REST API and connector automation for CI/CD, risk-based pass thresholds, and the four-layer triage framework that turns a failed test case into the right fix.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Agent evaluation",
+            "Testing",
+            "CI/CD",
+            "Quality"
+          ]
+        },
+        {
+          "title": "Measuring the Business Value of Copilot Studio Agents",
+          "href": "copilot-studio-agent-value-measurement.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "copilot-studio",
+            "quality"
+          ],
+          "desc": "The value-tracking counterpart to agent evaluation: the four value drivers and how finance prices each, the discovery questions and impact/effort map that come before any build, the telemetry baseline that survives audit, Microsoft's published Agent Assisted Hours and Agent Assisted Value formulas with a worked example, a surface-by-surface map of where to read each number, how to build your own ROI reporting with Copilot Agent Kit and Power BI, and a one-page executive scorecard.",
+          "source": null,
+          "tags": [
+            "Copilot Studio",
+            "Business value",
+            "ROI",
+            "Analytics",
+            "Power BI",
+            "Viva Insights"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "scout",
+      "label": "Microsoft Scout",
+      "blurb": "Getting Scout running, and putting it to work.",
+      "resources": [
+        {
+          "title": "Enabling Microsoft Scout for Your Organization",
+          "href": "microsoft-scout-enablement.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "scout",
+            "governance"
+          ],
+          "desc": "A step-by-step admin guide to turning on Microsoft Scout for users in a customer tenant — prerequisites, the four enablement gates (Copilot Frontier, organization attestation, Intune device policy, and licensing), how AI model access is provided via GitHub Copilot, and a rollout checklist.",
+          "source": null,
+          "tags": [
+            "Microsoft Scout",
+            "Admin",
+            "Intune",
+            "Licensing"
+          ]
+        },
+        {
+          "title": "Have Your Microsoft Scout Build Your Second Brain",
+          "href": "build-your-second-brain.html",
+          "external": false,
+          "formats": [
+            "guide"
+          ],
+          "topics": [
+            "scout"
+          ],
+          "desc": "A copy-paste, how-to walkthrough: hand 11 prompts to Microsoft Scout and it builds an LLM-maintained personal wiki (Karpathy's pattern) for you — vault structure, an AGENTS.md schema, conventions, seeding, and the ingest/query/lint operations. Optional steps add structured claims, an assistant persona, and a nightly dream loop.",
+          "source": null,
+          "tags": [
+            "Second Brain",
+            "Knowledge Vault",
+            "Microsoft Scout",
+            "Walkthrough"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "tools",
+      "label": "Calculators &amp; Tools",
+      "blurb": "Interactive models and downloadable scripts.",
+      "resources": [
+        {
+          "title": "AI Builder to Copilot Credits Sizing Calculator",
+          "href": "ai-builder-to-copilot-credits-calculator.html",
+          "external": false,
+          "formats": [
+            "interactive"
+          ],
+          "topics": [
+            "calculators",
+            "licensing",
+            "copilot-studio"
+          ],
+          "desc": "An interactive model for what an existing AI Builder workload costs once it is metered in Copilot Credits. Enter monthly volume per capability against the published rates in both currencies and get the per-capability multiplier, the monthly and annual delta, and remaining runway. Set the capacity basis to match how the customer actually holds AI Builder today &mdash; purchased add-on or seeded with licensing &mdash; because on an entitlement basis there is no paid baseline, so the multiplier is suppressed and the result is reported as net-new spend rather than an increase. There is no conversion rate between the two currencies, so this models the cost difference instead. Includes the timing, scope and reporting gotchas that change the answer.",
+          "source": null,
+          "tags": [
+            "AI Builder",
+            "Copilot Credits",
+            "Licensing",
+            "Cost modeling",
+            "Entitlement",
+            "Interactive"
+          ]
+        },
+        {
+          "title": "Copilot Credit Estimator",
+          "href": "https://microsoft.github.io/copilot-studio-estimator/",
+          "external": true,
+          "formats": [
+            "interactive"
+          ],
+          "topics": [
+            "calculators",
+            "licensing",
+            "copilot-studio"
+          ],
+          "desc": "Microsoft's own public estimator for forecasting an agent's monthly Copilot Credit volume. Pick a licensing option, an agent type, and the features the agent uses, and it returns an estimated monthly credit figure for <strong>a single agent</strong>. Covers Copilot Studio plus seven Dynamics 365 workloads &mdash; Sales, Customer Service, Contact Center, Finance, Supply Chain Management, Project Operations, and Business Central &mdash; with Microsoft 365 marked coming soon. Results can be downloaded. Rates are shown at 1 credit = $0.01. Microsoft is explicit that this is informational guidance, not a pricing calculator and not a basis for contractual forecasts, so pair it with a buffer and check the current Licensing Guide before quoting.",
+          "source": "External &middot; Microsoft &middot; <span class=\"u\">microsoft.github.io/copilot-studio-estimator</span> &middot; short link <span class=\"u\">aka.ms/copilotcreditestimator</span>",
+          "tags": [
+            "Copilot Credits",
+            "Copilot Studio",
+            "Dynamics 365",
+            "Sizing",
+            "Interactive"
+          ]
+        },
+        {
+          "title": "Consumption Central for Microsoft Copilot",
+          "href": "https://github.com/microsoft/ConsumptionCentral-for-Microsoft-Copilot",
+          "external": true,
+          "formats": [
+            "template"
+          ],
+          "topics": [
+            "calculators",
+            "licensing",
+            "copilot-studio",
+            "governance"
+          ],
+          "desc": "Microsoft's open-source Power BI template for Copilot credit consumption and cost, and the reporting layer that sits above the admin center. Fifteen pages covering consumption, cost, optimization and forecast for each of <strong>Copilot Cowork / Work IQ, Copilot Studio, GitHub Copilot and Azure AI Foundry</strong>, plus a combined overview. No product is required and one is enough &mdash; load whatever data you have and the rest come up empty without breaking. Three setup paths: Local CSV in about ten minutes, Fabric for weekly unattended refresh, or Viva Direct for Cowork data with no file exports. Synthetic sample data ships with every path, so it demos with no tenant data at all. Two caveats before a customer builds a process on it: support runs through GitHub issues rather than Microsoft support, and the identified Viva Insights variant processes personal data.",
+          "source": "External &middot; Microsoft (open source) &middot; <span class=\"u\">github.com/microsoft/ConsumptionCentral-for-Microsoft-Copilot</span>",
+          "tags": [
+            "Copilot Credits",
+            "Power BI",
+            "Cost reporting",
+            "Forecasting",
+            "Cross-product"
+          ]
+        }
+      ]
+    }
+  ]
+}
