@@ -246,6 +246,45 @@ li { margin: 4px 0; }
 .assumptions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 @media (max-width: 760px) { .assumptions { grid-template-columns: 1fr; } }
 .field { display: flex; flex-direction: column; gap: 4px; }
+.dropzone {
+  border: 2px dashed var(--cp-border-strong);
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--cp-surface-soft);
+  transition: border-color 0.15s, background 0.15s;
+}
+.dropzone:hover, .dropzone:focus-visible, .dropzone.drag {
+  border-color: var(--cp-accent);
+  background: var(--cp-accent-soft);
+  outline: none;
+}
+.dz-title { margin: 0 0 6px; font-weight: 600; font-size: 15px; }
+.dz-sub { margin: 0; font-size: 12.5px; color: var(--cp-text-soft); }
+.dz-status { margin: 14px 0 0; font-size: 13px; color: var(--cp-text-muted); }
+.dz-status.err { color: var(--cp-danger, #dc2626); font-weight: 600; }
+.import-result { margin-top: 18px; }
+.import-opts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 12px; }
+.import-opts .opt { font-size: 13px; display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.table-wrap { overflow-x: auto; }
+table.map { margin-top: 12px; }
+table.map .tool-name { font-weight: 600; display: block; word-break: break-word; }
+table.map .tool-meta { font-size: 11.5px; color: var(--cp-text-soft); display: block; margin-top: 2px; }
+table.map select {
+  width: 100%;
+  min-width: 190px;
+  padding: 6px 8px;
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 7px;
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  font: inherit;
+  font-size: 13px;
+}
+table.map tr.ignored { opacity: 0.5; }
+table.map tr.guessed select { border-color: var(--cp-warning, #f59e0b); }
+.hide { display: none !important; }
 .field label { font-size: 12px; font-weight: 600; color: var(--cp-text-soft); text-transform: uppercase; letter-spacing: 0.05em; }
 .field .hint { font-size: 12px; color: var(--cp-text-soft); font-weight: 400; text-transform: none; letter-spacing: 0; }
 input[type="number"] {
@@ -434,6 +473,7 @@ footer.foot {
     <h2>On this page</h2>
     <ol>
       <li><a href="#how">How to use it</a></li>
+      <li><a href="#import">Import an activity export</a></li>
       <li><a href="#assumptions">Price assumptions</a></li>
       <li><a href="#calculator">The calculator</a></li>
       <li><a href="#reading">Reading the result</a></li>
@@ -448,10 +488,64 @@ footer.foot {
   <p>Everything on this page runs in the browser. Nothing is uploaded, stored, or transmitted, so it is safe to run against real consumption figures.</p>
 
   <div class="step-list">
-    <p><strong>1. Pull the real numbers.</strong> In the Power Automate portal, open <em>AI Builder &rarr; Activity</em> and filter to a representative month. That page now reports consumption in both currencies, broken down by capability, which is exactly the shape this calculator expects.</p>
+    <p><strong>1. Pull the real numbers.</strong> In the Power Automate portal, open <em>Automation Center &rarr; Monitor &rarr; AI Builder activity</em> and filter to a representative period. Either read the figures off the page and type them in below, or export the grid to CSV and use the importer in the next section, which reads the export directly and fills the calculator for you.</p>
     <p><strong>2. Enter monthly volume per capability</strong> in the units the rate card publishes &mdash; thousands of tokens for prompts, pages for document work, thousands of characters for text analysis, images for vision. Leave a row at zero if it is not in use.</p>
     <p><strong>3. Set the capacity basis and check the price assumptions.</strong> Tell the calculator whether the existing AI Builder capacity was purchased as a capacity add-on or arrived seeded with Power Platform licensing, because it changes what the result means. The price defaults reflect public list pricing; if a negotiated rate applies, substitute it, since the discount moves the answer materially.</p>
     <p><strong>4. Read the multiplier column, not just the total.</strong> The total tells you the size of the change. The multiplier tells you which workload is driving it. On an entitlement basis the multiplier is suppressed, because there is no paid baseline to divide by.</p>
+  </div>
+
+  <h2 id="import">Import an activity export</h2>
+
+  <p>If you exported the <em>AI Builder activity</em> grid to CSV, drop the files here and the calculator fills itself in. Add one file per environment to model the whole tenant at once. Parsing happens entirely in your browser using the local file API; nothing is uploaded, and no network request is made with your data.</p>
+
+  <div class="card">
+    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose or drop AI Builder activity CSV files">
+      <p class="dz-title">Drop CSV files here, or click to choose</p>
+      <p class="dz-sub">Expects the exported columns: Processed time, Tool name, Input, Used in, Estimated consumption. Multiple files are combined.</p>
+      <input type="file" id="csvInput" accept=".csv,text/csv" multiple hidden />
+    </div>
+
+    <p class="dz-status hide" id="importStatus"></p>
+
+    <div class="import-result hide" id="importResult">
+      <div class="import-opts">
+        <label class="opt"><input type="checkbox" id="normalize" checked /> Scale to a 30-day month</label>
+        <label class="opt"><input type="checkbox" id="skipTest" checked /> Exclude Quick Test runs</label>
+      </div>
+
+      <p class="hint">Each tool in the export is matched to a billing capability automatically, using the tool name and the credit pattern per run. The match is a best effort, because exported tool names are author-defined and the export does not state which capability or model a tool used. <strong>Check every row before applying</strong>, and correct anything the importer guessed wrong. Rows set to <em>Ignore</em> are excluded.</p>
+
+      <div class="table-wrap">
+        <table class="calc map" id="mapTable">
+          <thead>
+            <tr>
+              <th scope="col">Tool in export</th>
+              <th scope="col" class="num-cell">Runs</th>
+              <th scope="col" class="num-cell">AI Builder credits</th>
+              <th scope="col" class="num-cell">Per run</th>
+              <th scope="col">Billing capability</th>
+              <th scope="col" class="num-cell">Units</th>
+            </tr>
+          </thead>
+          <tbody id="mapBody"></tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total</th>
+              <td class="num-cell" id="mapRuns">0</td>
+              <td class="num-cell" id="mapCredits">0</td>
+              <td class="num-cell">&mdash;</td>
+              <td></td>
+              <td class="num-cell">&mdash;</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn" id="applyBtn" type="button">Apply to calculator</button>
+        <button class="btn ghost" id="discardBtn" type="button">Discard import</button>
+      </div>
+    </div>
   </div>
 
   <h2 id="assumptions">Price assumptions</h2>
@@ -946,6 +1040,356 @@ above 1.0  more expensive after the move</div>
   });
 
   document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  // ---------------------------------------------------------------- CSV import
+
+  const WANTED = ["Processed time", "Tool name", "Input", "Used in", "Estimated consumption"];
+
+  function splitHeader(line) {
+    const out = [];
+    let cur = "", q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (q && line[i + 1] === '"') { cur += '"'; i++; } else { q = !q; }
+      } else if (ch === "," && !q) { out.push(cur); cur = ""; }
+      else { cur += ch; }
+    }
+    out.push(cur);
+    return out.map((s) => s.replace(/^\uFEFF/, "").trim());
+  }
+
+  // Index-aware scanner: only materializes the columns we actually need, so a
+  // multi-megabyte export does not build millions of throwaway strings.
+  function parseSelective(text, need, caps) {
+    const rows = [];
+    const n = text.length;
+    let i = text.charCodeAt(0) === 0xfeff ? 1 : 0;
+    while (i < n && text.charCodeAt(i) !== 10) i++;
+    i++;
+
+    let col = 0, start = i, quoted = false, cur = [];
+
+    const flush = (end) => {
+      if (need.has(col)) {
+        let s = text.slice(start, end);
+        if (quoted && s.length > 1 && s.charCodeAt(0) === 34 && s.charCodeAt(s.length - 1) === 34) {
+          s = s.slice(1, -1).replace(/""/g, '"');
+        }
+        const cap = caps[col];
+        cur[col] = cap && s.length > cap ? s.slice(0, cap) : s;
+      }
+      col++;
+      quoted = false;
+    };
+
+    while (i < n) {
+      const c = text.charCodeAt(i);
+      if (c === 34) {
+        quoted = true;
+        i++;
+        while (i < n) {
+          if (text.charCodeAt(i) === 34) {
+            if (text.charCodeAt(i + 1) === 34) { i += 2; continue; }
+            i++; break;
+          }
+          i++;
+        }
+        continue;
+      }
+      if (c === 44) { flush(i); i++; start = i; continue; }
+      if (c === 13 || c === 10) {
+        flush(i);
+        if (cur.length) rows.push(cur);
+        cur = []; col = 0;
+        if (c === 13 && text.charCodeAt(i + 1) === 10) i++;
+        i++; start = i;
+        continue;
+      }
+      i++;
+    }
+    if (start < n || col > 0) { flush(n); if (cur.length) rows.push(cur); }
+    return rows;
+  }
+
+  const gcd2 = (a, b) => (b === 0 ? a : gcd2(b, a % b));
+
+  function guessCapability(name, inputs, values) {
+    const nm = (name || "").toLowerCase();
+    const isDoc = inputs.doc > 0;
+    const isImg = inputs.img > 0;
+
+    const pos = values.filter((v) => v > 0);
+    const ints = pos.filter((v) => Number.isInteger(v));
+    let g = 0;
+    for (const v of ints) { g = gcd2(g, v); if (g === 1) break; }
+
+    // Document- and image-input tools are the vision and document family. The
+    // per-run credit figure is a reliable signal here, because these capabilities
+    // bill at a flat rate per page or per image.
+    if (isDoc || isImg) {
+      if (/\bocr\b|text\s*recognition/.test(nm)) return "ocr";
+      if (/object\s*detect/.test(nm)) return "objectDetect";
+      if (g > 0 && g % 100 === 0) return "docCustom";
+      if (g > 0 && g % 32 === 0) return "docPrebuilt";
+      if (g === 3) return "ocr";
+      if (g > 0 && g % 8 === 0) return "objectDetect";
+      return isDoc ? "docPrebuilt" : "ocr";
+    }
+
+    // Text-input tools are either a prompt or one of the prebuilt text models.
+    // Only distinctive prebuilt names are matched; everything else defaults to a
+    // prompt, which is both the common case and the safer wrong answer, since a
+    // prompt misread as a text model overstates cost rather than hiding it.
+    if (/translat/.test(nm)) return "translate";
+    if (/sentiment|language\s*detect|key\s*phrase/.test(nm)) return "textSimple";
+    if (/entity\s*extract/.test(nm)) return "textAdvanced";
+    return "promptBasic";
+  }
+
+  const IMPORT = { tools: [], days: 0, files: 0, rows: 0, skipped: 0 };
+
+  const dz = document.getElementById("dropzone");
+  const csvInput = document.getElementById("csvInput");
+  const statusEl = document.getElementById("importStatus");
+  const resultEl = document.getElementById("importResult");
+  const mapBody = document.getElementById("mapBody");
+  const normalizeEl = document.getElementById("normalize");
+  const skipTestEl = document.getElementById("skipTest");
+
+  function setStatus(msg, isErr) {
+    statusEl.textContent = msg || "";
+    statusEl.classList.toggle("hide", !msg);
+    statusEl.classList.toggle("err", !!isErr);
+  }
+
+  async function handleFiles(fileList) {
+    const files = Array.from(fileList || []).filter(
+      (f) => /\.csv$/i.test(f.name) || f.type === "text/csv"
+    );
+    if (!files.length) { setStatus("No CSV files found in that selection.", true); return; }
+
+    setStatus("Reading " + files.length + " file" + (files.length === 1 ? "" : "s") + "...");
+    await new Promise((r) => setTimeout(r, 0));
+
+    const agg = new Map();
+    let minD = null, maxD = null, total = 0, skipped = 0, bad = 0;
+
+    for (const f of files) {
+      let text;
+      try { text = await f.text(); } catch (err) { bad++; continue; }
+
+      const nl = text.indexOf("\n");
+      const header = splitHeader(nl === -1 ? text : text.slice(0, nl));
+      const idx = {};
+      WANTED.forEach((w) => {
+        idx[w] = header.findIndex((h) => h.toLowerCase() === w.toLowerCase());
+      });
+
+      if (idx["Tool name"] === -1 || idx["Estimated consumption"] === -1) { bad++; continue; }
+
+      const need = new Set(Object.values(idx).filter((v) => v >= 0));
+      const caps = {};
+      if (idx["Input"] >= 0) caps[idx["Input"]] = 40;
+
+      const rows = parseSelective(text, need, caps);
+      text = null;
+
+      for (const r of rows) {
+        const tool = (r[idx["Tool name"]] || "").trim();
+        if (!tool) continue;
+
+        const usedIn = idx["Used in"] >= 0 ? (r[idx["Used in"]] || "").trim() : "";
+        if (skipTestEl.checked && /quick test/i.test(usedIn)) { skipped++; continue; }
+
+        const rawC = r[idx["Estimated consumption"]] || "";
+        const m = rawC.match(/[\d,]*\.?\d+/);
+        const credits = m ? parseFloat(m[0].replace(/,/g, "")) : 0;
+        if (!Number.isFinite(credits)) continue;
+
+        const when = idx["Processed time"] >= 0 ? r[idx["Processed time"]] || "" : "";
+        const dm = when.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+        if (dm) {
+          let yy = parseInt(dm[3], 10);
+          if (yy < 100) yy += 2000;
+          const d = Date.UTC(yy, parseInt(dm[1], 10) - 1, parseInt(dm[2], 10));
+          if (!Number.isNaN(d)) {
+            if (minD === null || d < minD) minD = d;
+            if (maxD === null || d > maxD) maxD = d;
+          }
+        }
+
+        let rec = agg.get(tool);
+        if (!rec) {
+          rec = { name: tool, runs: 0, credits: 0, doc: 0, img: 0, vals: [], files: new Set() };
+          agg.set(tool, rec);
+        }
+        rec.runs++;
+        rec.credits += credits;
+        if (rec.vals.length < 400) rec.vals.push(credits);
+
+        const inp = idx["Input"] >= 0 ? (r[idx["Input"]] || "").trim() : "";
+        if (/^document/i.test(inp)) rec.doc++;
+        else if (/^image/i.test(inp)) rec.img++;
+
+        rec.files.add(f.name);
+        total++;
+      }
+    }
+
+    if (!agg.size) {
+      setStatus(
+        bad
+          ? "Could not read those files. Check they are the AI Builder activity export, with Tool name and Estimated consumption columns."
+          : "No usable rows were found in that export.",
+        true
+      );
+      resultEl.classList.add("hide");
+      return;
+    }
+
+    const days = minD !== null && maxD !== null ? Math.round((maxD - minD) / 86400000) + 1 : 0;
+
+    IMPORT.tools = Array.from(agg.values())
+      .map((t) => ({
+        name: t.name,
+        runs: t.runs,
+        credits: t.credits,
+        nFiles: t.files.size,
+        target: guessCapability(t.name, { doc: t.doc, img: t.img }, t.vals),
+        guessed: true
+      }))
+      .sort((a, b) => b.credits - a.credits);
+
+    IMPORT.days = days;
+    IMPORT.files = files.length - bad;
+    IMPORT.rows = total;
+    IMPORT.skipped = skipped;
+
+    const bits = [
+      IMPORT.files + " file" + (IMPORT.files === 1 ? "" : "s"),
+      total.toLocaleString("en-US") + " runs",
+      IMPORT.tools.length + " distinct tools"
+    ];
+    if (days) bits.push(days + "-day span");
+    if (skipped) bits.push(skipped.toLocaleString("en-US") + " Quick Test runs excluded");
+    if (bad) bits.push(bad + " file" + (bad === 1 ? "" : "s") + " skipped");
+    setStatus("Imported " + bits.join(" \u00b7 ") + ".");
+
+    renderMap();
+    resultEl.classList.remove("hide");
+  }
+
+  function factor() {
+    if (!normalizeEl.checked || !IMPORT.days || IMPORT.days <= 0) return 1;
+    return 30 / IMPORT.days;
+  }
+
+  function unitsFor(t) {
+    if (t.target === "ignore") return 0;
+    const rate = RATES.find((r) => r.id === t.target);
+    if (!rate || !rate.aib) return 0;
+    return (t.credits / rate.aib) * factor();
+  }
+
+  function renderMap() {
+    const opts = RATES.map(
+      (r) => '<option value="' + r.id + '">' + r.name + "</option>"
+    ).join("");
+    mapBody.innerHTML = "";
+
+    IMPORT.tools.forEach((t, i) => {
+      const per = t.runs ? t.credits / t.runs : 0;
+      const meta = [];
+      if (t.nFiles > 1) meta.push("seen in " + t.nFiles + " files");
+      if (/^prompt/.test(t.target) && per > 400) {
+        meta.push("high cost per run, check the model tier");
+      }
+      const tr = document.createElement("tr");
+      tr.dataset.i = String(i);
+      tr.innerHTML =
+        '<td><span class="tool-name"></span><span class="tool-meta"></span></td>' +
+        '<td class="num-cell">' + t.runs.toLocaleString("en-US") + "</td>" +
+        '<td class="num-cell">' + num(t.credits) + "</td>" +
+        '<td class="num-cell">' + num(per) + "</td>" +
+        '<td><select aria-label="Billing capability for this tool">' + opts +
+          '<option value="ignore">Ignore this tool</option></select></td>' +
+        '<td class="num-cell" data-cell="units">0</td>';
+      tr.querySelector(".tool-name").textContent = t.name;
+      tr.querySelector(".tool-meta").textContent = meta.join(" \u00b7 ");
+      const sel = tr.querySelector("select");
+      sel.value = t.target;
+      sel.addEventListener("change", () => {
+        t.target = sel.value;
+        t.guessed = false;
+        renderTotals();
+      });
+      mapBody.appendChild(tr);
+    });
+    renderTotals();
+  }
+
+  function renderTotals() {
+    let runs = 0, credits = 0;
+    IMPORT.tools.forEach((t, i) => {
+      const tr = mapBody.querySelector('tr[data-i="' + i + '"]');
+      if (!tr) return;
+      const ignored = t.target === "ignore";
+      tr.classList.toggle("ignored", ignored);
+      tr.classList.toggle("guessed", t.guessed && !ignored);
+      tr.querySelector('[data-cell="units"]').textContent = ignored ? "\u2014" : num(unitsFor(t));
+      if (!ignored) { runs += t.runs; credits += t.credits; }
+    });
+    document.getElementById("mapRuns").textContent = runs.toLocaleString("en-US");
+    document.getElementById("mapCredits").textContent = num(credits);
+  }
+
+  function applyImport() {
+    const totals = {};
+    IMPORT.tools.forEach((t) => {
+      if (t.target === "ignore") return;
+      totals[t.target] = (totals[t.target] || 0) + unitsFor(t);
+    });
+    RATES.forEach((r) => {
+      const v = totals[r.id] || 0;
+      document.getElementById("vol-" + r.id).value = v > 0 ? Math.round(v) : 0;
+    });
+    recalc();
+    const anchor = document.getElementById("calculator");
+    if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  dz.addEventListener("click", () => csvInput.click());
+  dz.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); csvInput.click(); }
+  });
+  ["dragenter", "dragover"].forEach((ev) =>
+    dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add("drag"); })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove("drag"); })
+  );
+  dz.addEventListener("drop", (e) => {
+    if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+  });
+  csvInput.addEventListener("change", (e) => {
+    handleFiles(e.target.files);
+    e.target.value = "";
+  });
+
+  normalizeEl.addEventListener("change", renderTotals);
+  skipTestEl.addEventListener("change", () => {
+    if (IMPORT.tools.length) setStatus("Re-import the files to apply that change.", false);
+  });
+
+  document.getElementById("applyBtn").addEventListener("click", applyImport);
+  document.getElementById("discardBtn").addEventListener("click", () => {
+    IMPORT.tools = [];
+    IMPORT.days = 0;
+    mapBody.innerHTML = "";
+    resultEl.classList.add("hide");
+    setStatus("");
+  });
 
   recalc();
 })();
