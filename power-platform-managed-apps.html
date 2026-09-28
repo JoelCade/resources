@@ -311,11 +311,11 @@ footer.foot a:hover { text-decoration: underline; }
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot &amp; Power Platform &middot; Preview Capability Guide</p>
     <h1>Managed Apps (Preview)</h1>
-    <p class="sub">Apps described in plain language in Copilot Cowork or Copilot Studio, generated as real full-stack code, published onto a Microsoft-operated runtime in your tenant, and governed from the Microsoft 365 admin center. How to build them, how they version toward production, how to govern them, and how the usage-based bill actually works. &middot; September 2026.</p>
+    <p class="sub">Apps built in Copilot Cowork, Copilot Code, Copilot Studio, or an SDK-compatible tool, published onto Microsoft Copilot Managed Runtime in your tenant, and governed from the Microsoft 365 admin center. How to build them, how they version toward production, how to govern them, and how the usage-based bill actually works. &middot; Updated September 2026.</p>
   </header>
 
   <div class="callout">
-    <strong>The one thing to remember:</strong> a managed app is what you get when someone describes an app in <strong>Copilot Cowork</strong> or <strong>Copilot Studio</strong> and publishes it. It is a real full-stack application built with agentic coding, wired to your data through connectors, authenticated with Microsoft Entra, and governed from the <strong>Microsoft 365 admin center</strong> rather than the Power Platform admin center. Commercially it is a <strong>hybrid</strong>, and that is the part people get wrong: <strong>building</strong> and <strong>running</strong> are metered as two separate services in Copilot Credits, but a user holding <strong>Power Apps Premium</strong> has their license checked first, so runtime is included within that license's allowance of 40,000 Power Platform requests per user per 24 hours. AI-powered runtime inside the app always consumes credits on top.
+    <strong>The one thing to remember:</strong> a managed app is real full-stack code deployed to <strong>Microsoft Copilot Managed Runtime</strong>, an enterprise platform inside the Microsoft 365 tenant boundary. The app can originate in <strong>Copilot Cowork</strong>, <strong>Copilot Code</strong>, <strong>Copilot Studio</strong>, or an SDK-compatible tool; once deployed, it inherits Microsoft Entra identity, governed data access, lifecycle controls, and centralized oversight in the <strong>Microsoft 365 admin center</strong>. Commercially it is a <strong>hybrid</strong>, and that is the part people get wrong: <strong>building</strong> and <strong>running</strong> are metered as two separate services in Copilot Credits, but a user holding <strong>Power Apps Premium</strong> has their license checked first, so runtime is included within that license's allowance of 40,000 Power Platform requests per user per 24 hours. AI-powered runtime inside the app always consumes credits on top.
   </div>
 
   <h2>1. What a managed app actually is</h2>
@@ -346,8 +346,8 @@ footer.foot a:hover { text-decoration: underline; }
     </div>
   </div>
 
-  <h3>Two front doors, one engine</h3>
-  <p>The important structural fact: <strong>Copilot Studio is the engine behind both surfaces</strong>. Cowork is not a separate, lesser app builder that produces a different kind of artifact. They are two authoring entry points into the same Git-backed managed-app model, using the same engine, SDK, runtime, security, DLP, governance, and administration. The only real difference is the build experience and where the user starts &mdash; which means a maker can begin in one surface and continue in the other, provided both paths are enabled in your tenant.</p>
+  <h3>Build where you want, run on one managed foundation</h3>
+  <p>The important structural fact is the separation between <strong>open creation</strong> and <strong>managed operation</strong>. Cowork and Copilot Studio remain the natural-language entry points most information workers and makers will see, while Copilot Code and the Copilot Managed Runtime SDK extend the same model to professional developers and compatible third-party tools. The build experience can change without changing the operating model: deployed apps use the same runtime, identity, governed data access, Git-backed lifecycle, security policies, inventory, and monitoring.</p>
   <table>
     <thead>
       <tr><th>Surface</th><th>How you start</th><th>Availability</th></tr>
@@ -362,6 +362,11 @@ footer.foot a:hover { text-decoration: underline; }
         <td><strong>Copilot Studio</strong></td>
         <td>The <strong>App (Preview)</strong> tile on the Copilot Studio home screen, or <strong>Apps</strong> in the navigation bar to reach the app workspace, where you can start a new app or continue an existing one.</td>
         <td>Public preview from <strong>September 14, 2026</strong>. On by default for makers.</td>
+      </tr>
+      <tr>
+        <td><strong>Copilot Code and SDK-compatible tools</strong></td>
+        <td>Developers work with editable, Git-backed code and familiar web technologies, using the Copilot Managed Runtime SDK and CLI to scaffold, configure, preview, deploy, and version the app.</td>
+        <td>The host and SDK are in <strong>public preview</strong>. Tool support depends on the integration or plugin.</td>
       </tr>
     </tbody>
   </table>
@@ -554,7 +559,7 @@ the status changes.</code></pre>
   </div>
 
   <h3>The Microsoft-operated runtime</h3>
-  <p>A published app runs on a <strong>Microsoft-operated runtime inside your tenant</strong>. The platform hosts both the client and the service logic and applies organizational security and policy to it, rather than handing you an artifact you then have to host and secure yourself. What that runtime supplies:</p>
+  <p>A published app runs on <strong>Microsoft Copilot Managed Runtime</strong>, a Microsoft-operated platform inside the Microsoft 365 tenant boundary. The host runs both the client and service logic and applies organizational security and policy to it, rather than handing you an artifact you then have to host and secure yourself. Microsoft introduced the host and SDK in public preview in September 2026; the platform already powers apps built through Copilot Cowork, Copilot Code, and Copilot Studio. What that runtime supplies:</p>
   <ul>
     <li><strong>Microsoft Entra identity</strong> for authentication and access control.</li>
     <li><strong>Conditional Access</strong> enforcement.</li>
@@ -927,10 +932,13 @@ the status changes.</code></pre>
 
   <h2>8. The developer path</h2>
 
-  <p>Managed apps are real code, and Microsoft publishes a first-party toolchain for teams who want to take one further or build one from scratch without the conversation. It is worth knowing this exists, because it is the answer to "what happens when our developers want to own this properly?"</p>
+  <p>Managed apps are real code, and the <strong>Copilot Managed Runtime SDK</strong> is the connective layer between that code and the host. It gives Microsoft tools, compatible third-party tools, and professional developers a common path from local development to an enterprise-managed runtime. It is worth knowing this exists, because it is the answer to "what happens when our developers want to own this properly?"</p>
 
   <ul>
     <li><strong><code>@microsoft/managed-apps-cli</code></strong> on the public npm registry, providing the <code>ms</code> binary: create, dev, add data sources, build, pack, deploy, play, share, and delete. Companion packages supply the SDK and a Vite plugin.</li>
+    <li><strong>Typed connector services for TypeScript.</strong> Developers define the app's data connections and generate typed services for governed access to connectors, enterprise data, identity, and Copilot work context.</li>
+    <li><strong>One lifecycle toolchain.</strong> The CLI and SDK cover scaffolding, project configuration, local preview, deployment, and versioning rather than appearing only at the packaging step.</li>
+    <li><strong>Bring-your-own-tool support.</strong> SDK-compatible third-party development experiences can deploy to the same host. Microsoft cites Lovable as an example: the app can keep its familiar build experience while gaining tenant sign-in, policy enforcement, and centralized inventory when it runs.</li>
     <li><strong>First-party project templates</strong> and a coding-agent plugin that works with GitHub Copilot CLI and Claude Code, published in the <code>microsoft/Managed-Apps</code> repository.</li>
     <li><strong>GitHub Actions</strong> for CI/CD: install the CLI on the runner, pack the app, and deploy it as a service principal with no developer in the loop.</li>
     <li><strong>Least-privilege connector policies.</strong> When a connection reference is shared, the app must declare in its config which connector operations it is permitted to invoke, and the Connectors infrastructure enforces that limit per app. Tabular references declare per-table verbs; action connectors declare action IDs. Declaring everything satisfies validation and protects nothing, so infer the set from what the code actually calls.</li>
@@ -1002,6 +1010,11 @@ the status changes.</code></pre>
 
   <h2>Reference materials</h2>
   <div class="card">
+    <div class="ref">
+      <a href="https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-where-you-want-run-with-confidence-now-microsoft-hosts-and-manages-the-code-created-by-copilot/" target="_blank" rel="noopener noreferrer">Build where you want, run with confidence: Microsoft Copilot Managed Runtime</a>
+      <span class="u">https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-where-you-want-run-with-confidence-now-microsoft-hosts-and-manages-the-code-created-by-copilot/</span>
+      The public-preview announcement for the host and SDK: Microsoft-operated hosting, identity, governed data access, Git-backed lifecycle, third-party tool support, and centralized app inventory.
+    </div>
     <div class="ref">
       <a href="https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-apps-in-copilot-cowork-and-copilot-studio/" target="_blank" rel="noopener noreferrer">Build apps in Copilot Cowork and Copilot Studio</a>
       <span class="u">https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-apps-in-copilot-cowork-and-copilot-studio/</span>
