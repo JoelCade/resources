@@ -261,6 +261,54 @@ pre code { background: none; border: none; padding: 0; font-size: inherit; }
 .ref { font-size: 13px; margin: 10px 0; }
 .ref .u { color: var(--cp-text-soft); word-break: break-all; font-family: Consolas, "Courier New", Courier, monospace; font-size: 12px; display: block; }
 
+h2[id] { scroll-margin-top: 64px; }
+.toc { padding: 16px 20px 18px; }
+.toc h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cp-text-soft);
+  margin: 0 0 10px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding-left: 0;
+  margin: 0;
+  columns: 2;
+  column-gap: 28px;
+}
+@media (max-width: 680px) { .toc ol { columns: 1; } }
+.toc li {
+  counter-increment: toc;
+  break-inside: avoid;
+  margin: 0 0 7px;
+  padding-left: 26px;
+  position: relative;
+  font-size: 14px;
+}
+.toc li::before {
+  content: counter(toc);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toc a { color: var(--cp-text); }
+.toc a:hover { color: var(--cp-link); text-decoration: underline; }
+
 button.btn {
   font-family: inherit;
   font-size: 14px;
@@ -318,7 +366,24 @@ footer.foot a:hover { text-decoration: underline; }
     <strong>The one thing to remember:</strong> a managed app is real full-stack code deployed to <strong>Microsoft Copilot Managed Runtime</strong>, an enterprise platform inside the Microsoft 365 tenant boundary. The app can originate in <strong>Copilot Cowork</strong>, <strong>Copilot Code</strong>, <strong>Copilot Studio</strong>, or an SDK-compatible tool; once deployed, it inherits Microsoft Entra identity, governed data access, lifecycle controls, and centralized oversight in the <strong>Microsoft 365 admin center</strong>. Commercially it is a <strong>hybrid</strong>, and that is the part people get wrong: <strong>building</strong> and <strong>running</strong> are metered as two separate services in Copilot Credits, but a user holding <strong>Power Apps Premium</strong> has their license checked first, so runtime is included within that license's allowance of 40,000 Power Platform requests per user per 24 hours. AI-powered runtime inside the app always consumes credits on top.
   </div>
 
-  <h2>1. What a managed app actually is</h2>
+  <div class="card toc">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#what">What a managed app actually is</a></li>
+      <li><a href="#building">Building one</a></li>
+      <li><a href="#versioning">Versioning and the path to production</a></li>
+      <li><a href="#underneath">What sits underneath</a></li>
+      <li><a href="#governance">Governing them</a></li>
+      <li><a href="#licensing">Licensing and cost</a></li>
+      <li><a href="#choose">Power Apps, Copilot Studio, or Cowork?</a></li>
+      <li><a href="#developer">The developer path</a></li>
+      <li><a href="#when">When to reach for this, and when not to</a></li>
+      <li><a href="#rollout">Rollout checklist</a></li>
+      <li><a href="#references">Reference materials</a></li>
+    </ol>
+  </div>
+
+  <h2 id="what">1. What a managed app actually is</h2>
 
   <p>App building starts as a conversation. A user chooses <strong>App (Preview)</strong> from the Copilot Studio home screen, or invokes the <code>/app</code> skill in a Copilot Cowork chat, and describes the business outcome, the users, the data, and the actions they need. Agentic coding turns that intent into a working app scaffold. From there the user iterates in natural language, previews the app, and can inspect the underlying code when they want more control.</p>
 
@@ -429,7 +494,7 @@ footer.foot a:hover { text-decoration: underline; }
     </tbody>
   </table>
 
-  <h2>2. Building one</h2>
+  <h2 id="building">2. Building one</h2>
 
   <div class="step">
     <div class="num">1</div>
@@ -544,7 +609,7 @@ Notify the owner when a request is assigned and the requester when
 the status changes.</code></pre>
   <p>Everything in that prompt is a decision the generator would otherwise make for you, and every one of those decisions is cheaper to state than to correct. Layout is the one thing worth leaving vague &mdash; it is trivial to adjust in the next turn.</p>
 
-  <h2>3. Versioning and the path to production</h2>
+  <h2 id="versioning">3. Versioning and the path to production</h2>
 
   <p>This is the section that separates a managed app from a disposable prototype, and it is the part most easily missed in a demo.</p>
 
@@ -614,7 +679,7 @@ the status changes.</code></pre>
   </ul>
   <p>Both are worth noting on the cost side as well: MCP tool calls and agent invocations are AI-powered runtime, and AI-powered runtime is metered regardless of license position. See section 6.</p>
 
-  <h2>4. What sits underneath</h2>
+  <h2 id="underneath">4. What sits underneath</h2>
 
   <p>Managed apps run in Microsoft-managed environments, and enabling app creation changes Power Platform environment routing in your tenant whether or not you were using it before. This is the part administrators find out about late, so it is worth reading carefully.</p>
 
@@ -635,7 +700,7 @@ the status changes.</code></pre>
     <strong>The licensing tripwire hidden in that list:</strong> a maker who only builds managed apps in their personal developer environment <strong>does not</strong> need a Power Apps or Power Automate premium license, and auto-claim does not apply. The moment that maker creates a Power Apps or Power Automate resource in that environment, they <strong>do</strong> need the appropriate premium license to satisfy managed environment requirements, and auto-claim does apply. The boundary is the resource type, not the environment.
   </div>
 
-  <h2>5. Governing them</h2>
+  <h2 id="governance">5. Governing them</h2>
 
   <p>Governance follows the app from build through publish and run. Existing policies are inherited from the maker's Power Platform environment, and enforcement stays with the app <strong>at runtime</strong> rather than being applied once at deployment. Apps access connected data on behalf of the signed-in user, so publishing or sharing an app never grants access to data a person could not otherwise reach.</p>
 
@@ -731,7 +796,7 @@ the status changes.</code></pre>
   </table>
   <p><strong>Decide who is accountable for overseeing published apps before makers begin publishing</strong>, as you would for any other application estate. This is the cheapest governance decision available and the one most often deferred until the inventory is already crowded.</p>
 
-  <h2>6. Licensing and cost</h2>
+  <h2 id="licensing">6. Licensing and cost</h2>
 
   <div class="callout">
     <strong>There are two meters here, and they are funded differently.</strong> <strong>Building</strong> and <strong>running</strong> apps are metered as two separate services under usage-based billing, paid in <strong>Copilot Credits</strong>, from the same pool and governance model as Cowork itself. But a user's <strong>Power Apps Premium</strong> license is checked first at runtime, so where Premium is already deployed, much of the run cost is already covered. Getting this wrong in either direction produces a badly wrong forecast, so separate the two before you model anything.
@@ -866,7 +931,7 @@ the status changes.</code></pre>
     <li><strong>Pricing a preview.</strong> Frontier previews run under existing preview terms, and capabilities and availability may change. Confirm against the Copilot Credits Guide and the Power Platform Licensing Guide before putting a figure in a proposal.</li>
   </ul>
 
-  <h2>7. Power Apps, Copilot Studio, or Cowork?</h2>
+  <h2 id="choose">7. Power Apps, Copilot Studio, or Cowork?</h2>
 
   <p>This is the question that comes up in every conversation about managed apps, and the binary framing is the wrong one. Both are enterprise-ready. They differ in <strong>authoring experience</strong> and <strong>commercial model</strong>, not in whether they can be trusted with a business process. The right question is which one fits the problem in front of you today, on the understanding that you can combine them later.</p>
 
@@ -930,7 +995,7 @@ the status changes.</code></pre>
     <li><strong>If you are evaluating Power Apps right now, do not pause.</strong> Power Apps remains the right choice for structured business applications that need detailed maker control, design precision, and predictable licensing. The new experiences add a natural-language creation path; they do not put the existing one on notice.</li>
   </ul>
 
-  <h2>8. The developer path</h2>
+  <h2 id="developer">8. The developer path</h2>
 
   <p>Managed apps are real code, and the <strong>Copilot Managed Runtime SDK</strong> is the connective layer between that code and the host. It gives Microsoft tools, compatible third-party tools, and professional developers a common path from local development to an enterprise-managed runtime. It is worth knowing this exists, because it is the answer to "what happens when our developers want to own this properly?"</p>
 
@@ -948,7 +1013,7 @@ the status changes.</code></pre>
     <strong>This is a preview toolchain.</strong> The repository states plainly that APIs, templates, and tooling may change before general availability. Treat pinned versions and a rollback plan as mandatory rather than prudent.
   </div>
 
-  <h2>9. When to reach for this, and when not to</h2>
+  <h2 id="when">9. When to reach for this, and when not to</h2>
 
   <table>
     <thead>
@@ -968,7 +1033,7 @@ the status changes.</code></pre>
     </tbody>
   </table>
 
-  <h2>10. Rollout checklist</h2>
+  <h2 id="rollout">10. Rollout checklist</h2>
 
   <div class="card">
     <h3>Before you turn it on</h3>
@@ -1008,7 +1073,7 @@ the status changes.</code></pre>
     </ul>
   </div>
 
-  <h2>Reference materials</h2>
+  <h2 id="references">Reference materials</h2>
   <div class="card">
     <div class="ref">
       <a href="https://www.microsoft.com/en-us/copilot/blog/copilot-studio/build-where-you-want-run-with-confidence-now-microsoft-hosts-and-manages-the-code-created-by-copilot/" target="_blank" rel="noopener noreferrer">Build where you want, run with confidence: Microsoft Copilot Managed Runtime</a>
