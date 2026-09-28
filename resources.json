@@ -154,6 +154,26 @@
           ]
         },
         {
+          "title": "New FinOps for AI Capabilities: Control Spend, Measure Value, and Optimize for Impact",
+          "href": "https://techcommunity.microsoft.com/blog/ai-finops-blog/new-finops-for-ai-capabilities-control-spend-measure-value-and-optimize-for-impa/4559660",
+          "external": true,
+          "formats": [],
+          "topics": [
+            "copilot-studio",
+            "licensing",
+            "governance"
+          ],
+          "desc": "Microsoft's September 2026 overview of the expanding FinOps for AI control plane in Agent 365. Covers scoped spending policies and alerts at tenant, group, and user levels; Azure subscription and resource-group chargeback; detailed usage reporting; support for Copilot Code and Copilot Managed Runtime, with Copilot Studio support beginning in October; model-family controls; Cowork value measurement and end-user spend visibility; Microsoft Graph policy automation; and redirecting credit requests into an organization's existing approval flow.",
+          "source": "External &middot; Microsoft FinOps for AI blog &middot; <span class=\"u\">techcommunity.microsoft.com</span>",
+          "tags": [
+            "FinOps for AI",
+            "Agent 365",
+            "Spending policies",
+            "Microsoft Graph",
+            "Value measurement"
+          ]
+        },
+        {
           "title": "Analyzing Copilot Credit Consumption: Tenant to Agent",
           "href": "copilot-credit-consumption-analysis.html",
           "external": false,
@@ -474,12 +494,15 @@
             "governance",
             "licensing",
             "copilot-studio",
+            "copilot-managed-runtime",
+            "sdk",
             "architecture"
           ],
-          "desc": "Apps described in plain language in Copilot Cowork or Copilot Studio, generated as real full-stack code, published onto a Microsoft-operated runtime in your tenant, and governed from the Microsoft 365 admin center &mdash; not the Power Platform admin center. Covers both build surfaces and the single engine behind them, when to reach for an app versus an agent versus a workflow, the versioning model that makes this more than a prototype, the automatic environment-routing change that catches admins out, the All apps inventory and its block-versus-delete actions, and the hybrid commercial model &mdash; building and running metered as two separate services in Copilot Credits, a Power Apps Premium license checked first at runtime within its 40,000 requests per user per day, and AI runtime always metered on top.",
+          "desc": "Real full-stack apps built in Copilot Cowork, Copilot Code, Copilot Studio, or an SDK-compatible tool, then deployed to Microsoft Copilot Managed Runtime inside the Microsoft 365 tenant boundary. Covers the shared host and SDK, Entra identity and governed data access, Git-backed lifecycle, centralized inventory, environment routing, when to choose an app versus an agent or workflow, and the hybrid Copilot Credits and Power Apps Premium commercial model.",
           "source": null,
           "tags": [
             "Managed Apps",
+            "Managed Runtime",
             "Copilot Cowork",
             "Copilot Studio",
             "Copilot Credits",
@@ -738,7 +761,7 @@
             "licensing",
             "copilot-studio"
           ],
-          "desc": "An interactive model for what an existing AI Builder workload costs once it is metered in Copilot Credits. Enter monthly volume per capability against the published rates in both currencies and get the per-capability multiplier, the monthly and annual delta, and remaining runway. Set the capacity basis to match how the customer actually holds AI Builder today &mdash; purchased add-on or seeded with licensing &mdash; because on an entitlement basis there is no paid baseline, so the multiplier is suppressed and the result is reported as net-new spend rather than an increase. There is no conversion rate between the two currencies, so this models the cost difference instead. Includes the timing, scope and reporting gotchas that change the answer.",
+          "desc": "An interactive model for what an existing AI Builder workload costs once it is metered in Copilot Credits. Import the AI Builder activity CSV export straight from the Power Automate portal &mdash; one file per environment, parsed in the browser with nothing uploaded &mdash; and the calculator maps each tool to a billing capability and fills itself in, or enter monthly volume per capability by hand. Returns the per-capability multiplier, the monthly and annual delta, and remaining runway. Set the capacity basis to match how the customer actually holds AI Builder today &mdash; purchased add-on or seeded with licensing &mdash; because on an entitlement basis there is no paid baseline, so the multiplier is suppressed and the result is reported as net-new spend rather than an increase. There is no conversion rate between the two currencies, so this models the cost difference instead. Includes the timing, scope and reporting gotchas that change the answer.",
           "source": null,
           "tags": [
             "AI Builder",
