@@ -1009,6 +1009,26 @@ the status changes.</code></pre>
     <li><strong>Least-privilege connector policies.</strong> When a connection reference is shared, the app must declare in its config which connector operations it is permitted to invoke, and the Connectors infrastructure enforces that limit per app. Tabular references declare per-table verbs; action connectors declare action IDs. Declaring everything satisfies validation and protects nothing, so infer the set from what the code actually calls.</li>
   </ul>
 
+  <h3>Connecting an app to GitHub</h3>
+  <p>Every managed app is Git-backed. By default the platform provisions and manages the repository for you and wires it to the build and deploy pipeline. Teams that want their own GitHub repository as the source of truth have three documented routes, and the right one depends on how much of the pipeline they want to own.</p>
+  <table>
+    <thead><tr><th>Route</th><th>How</th><th>When to use it</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Platform-managed repo</strong></td><td><code>ms app clone &lt;app-id&gt;</code>, then work locally with <code>ms app dev</code>, commit, <code>git push</code>, validate with <code>ms app play --mode preview</code>, and publish with <code>ms app deploy</code>.</td><td>Makers and developers collaborating on an app that started in Copilot Studio or Cowork. Full Git history, but no GitHub pull requests or branch policies.</td></tr>
+      <tr><td><strong>Bring your own GitHub repo</strong></td><td><code>ms app create &lt;name&gt; --repo https://github.com/&lt;org&gt;/&lt;repo&gt;</code> against an <em>empty</em> repository, or <code>ms app init --repo &lt;url&gt;</code> inside an existing clone. <code>ms git auth refresh --repo &lt;url&gt;</code> maps your Entra identity to GitHub.</td><td>Developer teams that need pull request reviews and branch protection. The platform builds, scans, and deploys from GitHub as the single source of truth.</td></tr>
+      <tr><td><strong>GitHub Actions, external artifact</strong></td><td><code>ms app create --repo none</code>, then a workflow using <code>install-ms-cli</code>, <code>ms-app-pack</code>, and <code>ms-app-deploy</code> from <code>microsoft/Managed-Apps/github-actions</code>, authenticating as a service principal.</td><td>Teams that must build with their own toolchain and deploy on every push to <code>main</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Three constraints to raise before anyone starts:</strong>
+    <ul>
+      <li><strong>GitHub Enterprise Cloud only.</strong> The repository must be owned by a GitHub Enterprise Cloud organization, on <code>github.com</code> or a <code>*.ghe.com</code> data-residency host. GitHub Enterprise Server, personal accounts, and organizations outside Enterprise Cloud are not supported.</li>
+      <li><strong>The repository binding is chosen when the app is created.</strong> The documented way to bind GitHub is the <code>--repo</code> option on <code>ms app create</code> or <code>ms app init</code>. An app built in Copilot Studio starts on a platform-managed repository, and there is no documented command to rebind it later. Moving it to GitHub means initializing a new app record from its source, which brings a new app ID, and sharing and data sources must be set up again. If GitHub governance matters, decide before the app gets popular.</li>
+      <li><strong>External artifact deployment is off by default.</strong> The GitHub Actions route needs an administrator to allow it, and a service principal with rights on the app's environment: System Administrator and System Customizer in a Dataverse environment, or EnvironmentAdmin in one without Dataverse. Your organization owns the supply-chain validation of anything built outside the platform.</li>
+    </ul>
+  </div>
+
   <div class="callout">
     <strong>This is a preview toolchain.</strong> The repository states plainly that APIs, templates, and tooling may change before general availability. Treat pinned versions and a rollback plan as mandatory rather than prudent.
   </div>
@@ -1155,10 +1175,25 @@ the status changes.</code></pre>
       <span class="u">https://github.com/microsoft/Managed-Apps</span>
       Project templates, the coding-agent plugin, GitHub Actions, and the public issue tracker for the <code>ms</code> CLI path.
     </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/managed-apps/developer/quickstart-managed-apps-cli" target="_blank" rel="noopener noreferrer">Quickstart: Create an app with the Copilot Managed Runtime SDK</a>
+      <span class="u">https://learn.microsoft.com/microsoft-365/managed-apps/developer/quickstart-managed-apps-cli</span>
+      The end-to-end CLI path, including the variations for binding your own GitHub repository and converting an existing project.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/managed-apps/developer/deploy-managed-apps-github-actions" target="_blank" rel="noopener noreferrer">Deploy Copilot Managed Runtime apps with GitHub Actions</a>
+      <span class="u">https://learn.microsoft.com/microsoft-365/managed-apps/developer/deploy-managed-apps-github-actions</span>
+      Service principal setup, repository secrets, and the reference workflow for external artifact deployment.
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/microsoft-365/managed-apps/developer/ms-cli-command-reference" target="_blank" rel="noopener noreferrer">Copilot Managed Runtime CLI command reference</a>
+      <span class="u">https://learn.microsoft.com/microsoft-365/managed-apps/developer/ms-cli-command-reference</span>
+      Every <code>ms</code> command and option, including <code>--repo</code> and <code>ms git auth refresh</code>.
+    </div>
   </div>
 
   <footer class="foot">
-    Compiled from public Microsoft documentation, the Microsoft Copilot blog, and the public Managed Apps repository, September 2026. Managed apps are in <strong>preview</strong>, with app creation in Copilot Cowork gated behind the Frontier program and app building in Copilot Studio rolling out in public preview: capabilities, availability, and commercial terms may change, and this guidance evolves with them. This is guidance, not a contract. Confirm current product behavior, licensing terms, and process against the official documentation and the Copilot Credits Guide before making architectural or commercial commitments. &middot; <a href="index.html">All resources</a>
+    Compiled from public Microsoft documentation, the Microsoft Copilot blog, and the public Managed Apps repository, September 2026; GitHub integration guidance updated October 2026. Managed apps are in <strong>preview</strong>, with app creation in Copilot Cowork gated behind the Frontier program and app building in Copilot Studio rolling out in public preview: capabilities, availability, and commercial terms may change, and this guidance evolves with them. This is guidance, not a contract. Confirm current product behavior, licensing terms, and process against the official documentation and the Copilot Credits Guide before making architectural or commercial commitments. &middot; <a href="index.html">All resources</a>
   </footer>
 </div>
 <!-- TOGGLE:START - generated by build_pages.py. Do not edit by hand. -->
