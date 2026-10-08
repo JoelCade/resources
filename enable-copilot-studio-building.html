@@ -330,14 +330,14 @@ footer.foot {
     </div>
   </div>
 
-  <h2>Path 1 — Seat-based licensing</h2>
-  <p>Two distinct licenses are required — one at the tenant level and one per builder.</p>
+  <h2>Path 1 &mdash; Seat-based licensing</h2>
+  <p>Two distinct licenses are required &mdash; one at the tenant level and one per builder.</p>
 
   <div class="step">
     <div class="num">1</div>
     <div class="body">
       <h3>Tenant license (organization-level)</h3>
-      <p>Listed as <strong>"Copilot Studio"</strong> in the Microsoft 365 admin center. The tenant administrator acquires it <strong>once</strong> — it <strong>cannot</strong> be assigned to individual users. It enables Copilot Studio for the tenant and backs the message / Copilot Credit consumption pool that agents draw from at runtime.</p>
+      <p>Listed as <strong>"Copilot Studio"</strong> in the Microsoft 365 admin center. The tenant administrator acquires it <strong>once</strong> &mdash; it <strong>cannot</strong> be assigned to individual users. It enables Copilot Studio for the tenant and backs the message / Copilot Credit consumption pool that agents draw from at runtime.</p>
     </div>
   </div>
   <div class="step">
@@ -349,24 +349,24 @@ footer.foot {
   </div>
 
   <div class="callout warn">
-    <strong>Volume-licensing rule:</strong> If you buy through volume licensing (EA/CSP) or any channel other than the Microsoft 365 admin center, you must acquire <strong>both</strong> the tenant license and the user licenses through that same channel — preferably in a <strong>single transaction</strong>.
+    <strong>Volume-licensing rule:</strong> If you buy through volume licensing (EA/CSP) or any channel other than the Microsoft 365 admin center, you must acquire <strong>both</strong> the tenant license and the user licenses through that same channel &mdash; preferably in a <strong>single transaction</strong>.
   </div>
 
-  <h2>Path 2 — Pay-as-you-go + Environment Maker</h2>
+  <h2>Path 2 &mdash; Pay-as-you-go + Environment Maker</h2>
   <p>This path decouples building from prepaid seats entirely. Instead of buying a Copilot Studio User License per maker, you attach an environment to Azure billing and grant makers the environment role that carries build rights.</p>
 
   <div class="step">
     <div class="num">1</div>
     <div class="body">
       <h3>Enable pay-as-you-go on the environment</h3>
-      <p>In the <strong>Power Platform Admin Center (PPAC)</strong>, the admin creates a <strong>billing policy</strong> that links the target environment to an <strong>Azure subscription</strong>. Copilot Studio consumption (and the underlying Power Platform requests / Copilot Credits) is then metered and billed directly to Azure — no prepaid tenant capacity or per-user Copilot Studio seat required.</p>
+      <p>In the <strong>Power Platform Admin Center (PPAC)</strong>, the admin creates a <strong>billing policy</strong> that links the target environment to an <strong>Azure subscription</strong>. Copilot Studio consumption (and the underlying Power Platform requests / Copilot Credits) is then metered and billed directly to Azure &mdash; no prepaid tenant capacity or per-user Copilot Studio seat required.</p>
     </div>
   </div>
   <div class="step">
     <div class="num">2</div>
     <div class="body">
       <h3>Assign the Environment Maker role</h3>
-      <p>Grant each maker the <strong>Environment Maker</strong> role on that pay-as-you-go environment. With Maker rights in a PAYG-enabled environment, a user can <strong>create and manage agents</strong> in Copilot Studio <strong>without</strong> holding a Copilot Studio User License — the build entitlement comes from the environment/PAYG configuration rather than the seat.</p>
+      <p>Grant each maker the <strong>Environment Maker</strong> role on that pay-as-you-go environment. With Maker rights in a PAYG-enabled environment, a user can <strong>create and manage agents</strong> in Copilot Studio <strong>without</strong> holding a Copilot Studio User License &mdash; the build entitlement comes from the environment/PAYG configuration rather than the seat.</p>
     </div>
   </div>
 
@@ -389,28 +389,30 @@ footer.foot {
 
   <h2>Who does <em>not</em> need a license</h2>
   <ul>
-    <li><strong>End users</strong> of a published agent — no special license required; anyone with access to the published agent can interact with it.</li>
-    <li><strong>Guest users</strong> of the tenant — cannot access Copilot Studio at all, under either path.</li>
+    <li><strong>End users</strong> of a published agent &mdash; no special license required; anyone with access to the published agent can interact with it.</li>
+    <li><strong>Guest users</strong> of the tenant &mdash; cannot access Copilot Studio at all, under either path.</li>
   </ul>
 
-  <h2>Runtime consumption — common to both paths</h2>
-  <p>Regardless of how you entitle building, agents consume <strong>Copilot Credits</strong> at runtime. The seat path draws them from prepaid capacity; the PAYG path meters them to Azure. A few nuances worth knowing:</p>
+  <h2>Consumption depends on the harness</h2>
+  <p>The prepaid or pay-as-you-go choice determines how Copilot Credits are funded. The agent's harness determines which activities consume credits and whether a Microsoft 365 Copilot license covers eligible usage.</p>
   <ul>
-    <li>An <strong>M365 Copilot</strong>-licensed user interacting with an agent in an authenticated chat typically burns <strong>no</strong> Copilot Studio credits — their license covers it.</li>
-    <li><strong>Autonomous</strong> agents (triggered by schedule, email, or a file drop) have no license coverage and <strong>always</strong> consume Copilot Studio credits.</li>
+    <li><strong>GitHub Copilot harness (GHCP):</strong> Building, previewing, testing, evaluating, and running agents can all consume Copilot Credits. This usage is billed regardless of whether the maker or user has a Microsoft 365 Copilot license. Credits can come from prepaid capacity or a pay-as-you-go billing plan linked to Azure.</li>
+    <li><strong>Standard harness:</strong> Microsoft 365 Copilot licenses can cover eligible agent usage in Microsoft 365 channels. Usage without an eligible license, or through a channel outside Microsoft 365, is billed from Copilot Credits; coverage depends on the activity and channel.</li>
+    <li><strong>Copilot Chat harness:</strong> Usage is consumption-based or included with an eligible Microsoft Copilot user subscription license.</li>
+    <li><strong>Autonomous runs:</strong> Don't assume that Microsoft 365 Copilot user-license coverage applies. GHCP usage is billed regardless of the user's license, including for autonomous runs.</li>
     <li>A Copilot Studio agent requires a <strong>Dataverse</strong>-enabled environment.</li>
-    <li>Forecast an agent's credit volume with the public <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator</a> before you deploy.</li>
+    <li>Use the estimator that matches the harness: the <a href="https://nptnlopppecostweb.azurewebsites.net/#/estimator" target="_blank" rel="noopener">Copilot Credit Estimator for GHCP</a> or the <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator</a> for standard-harness agents. Estimates are directional; validate them against actual usage.</li>
   </ul>
 
   <h2>Quick decision guide</h2>
   <table>
     <thead><tr><th>Situation</th><th>Recommended path</th></tr></thead>
     <tbody>
-      <tr><td>Known, stable maker community you can plan seats for</td><td>Path 1 — seat-based</td></tr>
-      <tr><td>Pilot, hackathon, or dev/test where you just need makers building fast</td><td>Path 2 — PAYG + Environment Maker</td></tr>
-      <tr><td>Unpredictable or spiky consumption; want spend to follow usage</td><td>Path 2 — PAYG</td></tr>
-      <tr><td>Procurement already runs everything through the M365 admin center / EA</td><td>Path 1 — seat-based</td></tr>
-      <tr><td>Want to avoid any upfront seat commitment</td><td>Path 2 — PAYG</td></tr>
+      <tr><td>Known, stable maker community you can plan seats for</td><td>Path 1 &mdash; seat-based</td></tr>
+      <tr><td>Pilot, hackathon, or dev/test where you just need makers building fast</td><td>Path 2 &mdash; PAYG + Environment Maker</td></tr>
+      <tr><td>Unpredictable or spiky consumption; want spend to follow usage</td><td>Path 2 &mdash; PAYG</td></tr>
+      <tr><td>Procurement already runs everything through the M365 admin center / EA</td><td>Path 1 &mdash; seat-based</td></tr>
+      <tr><td>Want to avoid any upfront seat commitment</td><td>Path 2 &mdash; PAYG</td></tr>
       <tr><td>Organization already holds Microsoft 365 Copilot and wants to extend it with agents</td><td>Use the M365 Copilot access configuration before buying anything else</td></tr>
       <tr><td>Want to open building to a defined group without per-user assignment</td><td>Copilot Studio authors role in PPAC tenant settings</td></tr>
       <tr><td>One maker wants to evaluate before any procurement conversation</td><td>Trial license &mdash; build and test only, no publishing</td></tr>
@@ -419,19 +421,21 @@ footer.foot {
 
   <h2>Public reference materials</h2>
   <div class="card">
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing" target="_blank" rel="noopener">Assign user licenses and manage access — Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing" target="_blank" rel="noopener">Assign user licenses and manage access &mdash; Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Copilot Studio licensing &amp; billing overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/en-us/power-platform/admin/tenant-settings" target="_blank" rel="noopener">Power Platform admin center tenant settings, incl. Copilot Studio author (Learn)</a><br><span class="u">https://learn.microsoft.com/en-us/power-platform/admin/tenant-settings</span></div>
     <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2320995" target="_blank" rel="noopener">Microsoft Copilot Studio Licensing Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2320995</span></div>
     <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credit Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview" target="_blank" rel="noopener">Pay-as-you-go plan overview — Power Platform (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Overview of usage-based billing for the GitHub Copilot harness</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness" target="_blank" rel="noopener">Manage costs for agents powered by the GitHub Copilot harness</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview" target="_blank" rel="noopener">Pay-as-you-go plan overview &mdash; Power Platform (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-overview</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up" target="_blank" rel="noopener">Set up pay-as-you-go with an Azure subscription (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/pay-as-you-go-set-up</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/database-security" target="_blank" rel="noopener">Environment security roles, incl. Environment Maker (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/database-security</span></div>
     <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Copilot Studio agent usage estimator</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation (verified July 2026; access configurations re-verified September 2026). Licensing SKUs, Copilot Credit rates, and pay-as-you-go meters change frequently — always confirm current terms against the Copilot Studio Licensing Guide, the Copilot Credit Guide, and your organization's agreement before making purchasing decisions. This overview is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation (verified October 2026). Licensing SKUs, Copilot Credit rates, and pay-as-you-go meters change frequently &mdash; always confirm current terms against the Copilot Studio Licensing Guide, the Copilot Credit Guide, and your organization's agreement before making purchasing decisions. This overview is guidance, not a contract.
   </footer>
 </div>
 
