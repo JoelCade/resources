@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Copilot Studio Skills &amp; the Microsoft 365 Tools Registry</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    let stored = null;
+    try { stored = localStorage.getItem("resourcesTheme"); } catch (err) { /* private mode */ }
+    document.documentElement.setAttribute("data-theme", param || stored || "light");
+    document.documentElement.classList.add("js");
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f5f5f5;
+  --cp-bg-elevated: #fafafa;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f0f0f0;
+  --cp-border: #d1d1d1;
+  --cp-border-strong: #757575;
+  --cp-text: #242424;
+  --cp-text-muted: #424242;
+  --cp-text-soft: #616161;
+  --cp-accent: #0078d4;
+  --cp-accent-hover: #106ebe;
+  --cp-accent-soft: rgba(0, 120, 212, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-link: #0067b8;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-highlight: rgba(0, 120, 212, 0.12);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #1f1f1f;
+  --cp-bg-elevated: #242424;
+  --cp-surface: #292929;
+  --cp-surface-soft: #333333;
+  --cp-border: #3d3d3d;
+  --cp-border-strong: #666666;
+  --cp-text: #f5f5f5;
+  --cp-text-muted: #c7c7c7;
+  --cp-text-soft: #a6a6a6;
+  --cp-accent: #50e6ff;
+  --cp-accent-hover: #6ceaff;
+  --cp-accent-soft: rgba(80, 230, 255, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-highlight: rgba(80, 230, 255, 0.12);
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  margin: -32px 0 0;
+  background: linear-gradient(var(--cp-bg) 70%, transparent);
+}
+.quiet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cp-text-soft);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.quiet-btn:hover { color: var(--cp-accent); border-color: var(--cp-border); background: var(--cp-surface); }
+.quiet-btn:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 2px; }
+.quiet-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+.quiet-btn.icon-only { padding: 6px; }
+html[data-theme="dark"] .icon-to-dark { display: none; }
+html:not([data-theme="dark"]) .icon-to-light { display: none; }
+@media (max-width: 560px) {
+  .quiet-btn .btn-text { display: none; }
+  .quiet-btn { padding: 6px; }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+}
+.wrap { max-width: 900px; margin: 0 auto; padding: 32px 28px 80px; }
+.backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
+.backlink:hover { text-decoration: underline; }
+header.masthead { border-bottom: 3px solid var(--cp-accent); padding-bottom: 18px; margin: 14px 0 26px; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 600; color: var(--cp-accent); margin: 0 0 6px; }
+h1 { font-size: 27px; margin: 0 0 8px; line-height: 1.2; }
+.sub { color: var(--cp-text-muted); margin: 0; font-size: 14px; }
+h2 { font-size: 19px; margin: 34px 0 12px; border-bottom: 1px solid var(--cp-border); padding-bottom: 7px; }
+h3 { font-size: 16px; margin: 22px 0 7px; }
+p { margin: 10px 0; }
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+a { color: var(--cp-link); }
+.callout {
+  border-left: 4px solid var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 13px 16px;
+  margin: 18px 0;
+}
+.callout.warn { border-left-color: var(--cp-warning); background: rgba(245,158,11,0.10); }
+.table-wrap { overflow-x: auto; margin: 16px 0 22px; }
+table { width: 100%; border-collapse: collapse; background: var(--cp-surface); font-size: 13.5px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border: 1px solid var(--cp-border); }
+th { background: var(--cp-surface-soft); font-weight: 600; }
+code, .u { font-family: Consolas, "Courier New", Courier, monospace; font-size: 0.92em; }
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  box-shadow: 0 0 2px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.12);
+}
+.ref { margin: 10px 0; }
+.ref a { font-weight: 600; text-decoration: none; }
+.ref a:hover { text-decoration: underline; }
+.ref .u { display: block; color: var(--cp-text-soft); overflow-wrap: anywhere; margin-top: 2px; }
+footer.foot { margin-top: 42px; padding-top: 16px; border-top: 1px solid var(--cp-border); color: var(--cp-text-soft); font-size: 12.5px; }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 11.5px; }
+  .wrap { max-width: none; padding: 0; }
+  .toolbar, .backlink { display: none !important; }
+  .card, table, .callout { break-inside: avoid; box-shadow: none; }
+  a { color: var(--cp-text); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <button class="quiet-btn icon-only" id="themeToggle" type="button" aria-label="Switch color theme" title="Switch theme">
+      <svg class="icon-to-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.5 6.5 4.9 4.9M19.1 19.1l-1.6-1.6M17.5 6.5l1.6-1.6M4.9 19.1l1.6-1.6"/></svg>
+      <svg class="icon-to-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8z"/></svg>
+    </button>
+    <button class="quiet-btn" id="printBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4.5A1.5 1.5 0 0 1 3 16.5v-5A1.5 1.5 0 0 1 4.5 10h15a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 1-1.5 1.5H18"/><path d="M6 14h12v7H6z"/></svg>
+      <span class="btn-text">Print / Save as PDF</span>
+    </button>
+  </div>
+  <a class="backlink" href="index.html">&larr; All resources</a>
+  <header class="masthead">
+    <p class="eyebrow">Copilot Studio &middot; Admin &amp; Governance</p>
+    <h1>Copilot Studio Skills &amp; the Microsoft 365 Tools Registry</h1>
+    <p class="sub">Where skills are authored, shared, installed, and governed, and how the two experiences fit together. &middot; October 2026</p>
+  </header>
+
+  <div class="callout">
+    <strong>The one thing to remember:</strong> Copilot Studio's Skills panel is an agent-level authoring and consumption surface. Microsoft 365 admin center's <strong>Agents &gt; Tools &gt; Registry</strong> is an organizational tools surface. Related, but not one shared catalog with one lifecycle.
+  </div>
+
+  <h2>First, check the harness</h2>
+  <p>Microsoft's current Copilot Studio skills documentation applies to agents powered by the <strong>GitHub Copilot harness</strong>. Skills in this experience are reusable instructions and optional supporting files that help an agent handle a task. They are not the same thing as Azure Bot Service skills used by agents on the standard harness.</p>
+  <p>Before designing around skills, confirm the agent's harness and verify that the documented skill features are available in your tenant. A skill added to one agent does not, by itself, grant data access or publish the agent to users.</p>
+
+  <h2>Three surfaces, three jobs</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Surface</th><th>What it manages</th><th>Think of it as</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Copilot Studio &gt; Build &gt; Skills</strong></td>
+          <td>Create, upload, edit, replace, and add skills to an agent. Sharing and browsing skills through the marketplace are documented as preview features.</td>
+          <td>Agent-level capability and authoring</td>
+        </tr>
+        <tr>
+          <td><strong>Microsoft 365 admin center &gt; Agents &gt; Tools &gt; Registry</strong></td>
+          <td>View and govern tools available in the organization. Admins can upload a manifest package, scope access, install it, and manage tool availability.</td>
+          <td>Organization-level availability and governance</td>
+        </tr>
+        <tr>
+          <td><strong>Microsoft 365 admin center &gt; Agent registry</strong></td>
+          <td>View and manage agent records. This is an inventory of agents, not a catalog of reusable skill files or tool packages.</td>
+          <td>Agent inventory</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <strong>Do not collapse these into one registry.</strong> A skill shared from Copilot Studio and a skill packaged or uploaded through the admin tools registry have different documented workflows. Do not assume they automatically synchronize, share version state, or appear in every agent-building experience.
+  </div>
+
+  <h2>Author or add a skill in Copilot Studio</h2>
+  <p>In the documented GitHub Copilot harness experience, open an agent's <strong>Build</strong> tab and use the <strong>Skills</strong> component. You can create from blank, generate with AI, upload a skill, or browse marketplace skills where that preview is enabled.</p>
+  <ul>
+    <li><strong>Define a narrow job.</strong> Give the skill a clear name and a description that says what it does and when the agent should invoke it.</li>
+    <li><strong>Write actionable instructions.</strong> Use Markdown, ordered steps, expected output, edge cases, and relevant tool guidance.</li>
+    <li><strong>Choose a file format.</strong> Upload a Markdown file with YAML front matter, or a ZIP containing <code>SKILL.md</code> and optional scripts, templates, or reference files.</li>
+    <li><strong>Test the agent.</strong> Use Preview to check that the skill is selected for the right requests and that its instructions produce the expected result.</li>
+  </ul>
+  <p>For a skill created from blank, the documented name format uses lowercase letters, numbers, and hyphens. The required name and description help identify the skill and route requests; they are not a substitute for testing.</p>
+
+  <h2>Share through the Copilot Studio marketplace preview</h2>
+  <p>The documented marketplace flow lets an owner share a skill with specific people or groups in the organization. Other users can browse skills shared with them and add one to an agent. This experience is explicitly marked preview in Microsoft Learn, so treat its availability and behavior as subject to change.</p>
+  <ul>
+    <li>After changing a skill that has already been shared, share it again to make the latest version available to the people who already had access.</li>
+    <li>When someone adds a marketplace skill to an agent, the agent receives a snapshot while keeping a reference to the original. Copilot Studio can notify the maker about an available update; the maker chooses whether to update the agent's skill.</li>
+    <li>Sharing the skill is not the same as sharing or publishing the agent. The agent has its own access, deployment, and governance path.</li>
+  </ul>
+
+  <h2>Make a skill available through the admin Tools Registry</h2>
+  <p>Use the Microsoft 365 admin center path when the goal is organizational distribution or governance of an uploaded tool package. The documented upload flow is based on a <strong>manifest file</strong>; it is not simply the Copilot Studio agent's Save or Share action.</p>
+  <ol>
+    <li>Prepare the skill or plugin package and its manifest. Review which components the package contains, including any skills, MCP servers, or connectors.</li>
+    <li>In the Microsoft 365 admin center, go to <strong>Agents &gt; Tools &gt; Registry</strong> and select <strong>Upload</strong>.</li>
+    <li>Upload the manifest, review the package contents, and choose whether to scope it to all users or specific users or groups.</li>
+    <li>Review the configuration and install. Confirm availability using an account in the intended audience and in a supported agent experience.</li>
+    <li>Plan ownership, access review, updates, and removal before treating the package as a production capability.</li>
+  </ol>
+  <p>The admin Tools page includes registry views and governance actions for tools. The available management actions depend on the item and how it entered the tenant; Microsoft documents controls such as user availability, install or uninstall, block, and deletion of uploaded packages.</p>
+
+  <h2>Pick the path by the outcome</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>If you need to...</th><th>Start here</th><th>Keep in mind</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Prove an instruction set works on one agent</td>
+          <td>Copilot Studio Build &gt; Skills</td>
+          <td>Confirm the GitHub Copilot harness requirement, then test in Preview.</td>
+        </tr>
+        <tr>
+          <td>Reuse a skill with selected makers</td>
+          <td>Copilot Studio skill sharing / marketplace preview</td>
+          <td>Preview feature; sharing the skill does not publish its consuming agents.</td>
+        </tr>
+        <tr>
+          <td>Distribute and govern an uploaded package for an organization</td>
+          <td>Microsoft 365 admin center &gt; Agents &gt; Tools &gt; Registry</td>
+          <td>Prepare the manifest, review bundled components, and set the audience deliberately.</td>
+        </tr>
+        <tr>
+          <td>Find or govern agent records</td>
+          <td>Microsoft 365 admin center &gt; Agent registry</td>
+          <td>This is about agents, not the skill package catalog.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Govern the capability, not just the file</h2>
+  <ul>
+    <li><strong>Keep scope intentional.</strong> Start with the smallest user or group scope that supports testing; expand only after the skill and its dependencies are reviewed.</li>
+    <li><strong>Review the whole package.</strong> Instructions, scripts, templates, MCP servers, connectors, and requested permissions can all affect risk.</li>
+    <li><strong>Use real access controls.</strong> Treat skill instructions as behavior guidance, not an authorization boundary. Enforce access to data and actions through the identity, connector, and platform controls behind the agent.</li>
+    <li><strong>Own updates and retirement.</strong> Name an owner, track the published version, retest changes, and remove access when the capability is no longer supported.</li>
+  </ul>
+
+  <div class="card">
+    <h2 style="margin-top:0">Reference materials</h2>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-overview" target="_blank" rel="noopener noreferrer">Skills overview for agents</a>
+      <span class="u">learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-add-existing" target="_blank" rel="noopener noreferrer">Add an existing skill to an agent</a>
+      <span class="u">learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-add-existing</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-manage" target="_blank" rel="noopener noreferrer">Manage and delete skills in an agent</a>
+      <span class="u">learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-manage</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-tools-overview?view=o365-worldwide" target="_blank" rel="noopener noreferrer">Overview of the Tools page in Microsoft 365 admin center</a>
+      <span class="u">learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-tools-overview</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-plugins-skills-mcp-servers?view=o365-worldwide" target="_blank" rel="noopener noreferrer">Manage plugins, skills, and MCP servers</a>
+      <span class="u">learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-plugins-skills-mcp-servers</span>
+    </div>
+    <div class="ref">
+      <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry?view=o365-worldwide" target="_blank" rel="noopener noreferrer">Manage agent registry in Microsoft 365 admin center</a>
+      <span class="u">learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry</span>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Guidance, not a contract. Microsoft product features and admin paths can change, especially for preview experiences. Confirm current terms, harness support, availability, and administrative controls in your tenant before relying on this workflow. Last reviewed October 2026.
+  </footer>
+</div>
+<script>
+  (() => {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("resourcesTheme", next); } catch (err) { /* private mode */ }
+      });
+    }
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+  })();
+</script>
+</body>
+</html>
