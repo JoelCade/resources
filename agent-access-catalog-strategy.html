@@ -165,7 +165,7 @@ footer.foot{margin-top:42px;padding-top:16px;border-top:1px solid var(--cp-borde
   <header class="masthead">
     <p class="eyebrow">Microsoft 365 Copilot &middot; Agent Governance</p>
     <h1>Agent Access and Catalog Strategy for Microsoft 365</h1>
-    <p class="sub">How to make in-house agents discoverable without turning agent access into a shadow IT problem. &middot; September 2026</p>
+    <p class="sub">How to make in-house agents discoverable without turning agent access into a shadow IT problem. &middot; October 2026</p>
   </header>
 
   <div class="callout"><strong>The one thing to remember:</strong> use Agent Store as the employee-facing catalog and Microsoft 365 admin center as the approval and lifecycle control plane. Build a separate catalog only when you need to represent agents that cannot be surfaced in Copilot.</div>
@@ -184,6 +184,10 @@ footer.foot{margin-top:42px;padding-top:16px;border-top:1px solid var(--cp-borde
       <tr><td>Should every prototype go into the catalog?</td><td>No. Use private sharing or a pilot group first, then promote only owned, reviewed, supported agents.</td></tr>
     </tbody>
   </table>
+
+  <h2>Agent Registry is the inventory and lifecycle plane</h2>
+  <p>The Microsoft 365 admin center <strong>Agent Registry</strong> is the central tenant inventory and lifecycle plane. It includes Microsoft agents, external partner agents, organization-published agents, and creator-shared agents. The same Copilot Studio agent can appear as separate creator-shared and organization-published records as it moves through sharing and publication; that is not necessarily a duplicate error.</p>
+  <p>Use registry actions such as review, publish, assign, block, remove, or retire for the Microsoft 365 catalog lifecycle. Keep Power Platform admin center controls separate: environments, Dataverse, connectors, data policies, capacity, and maker governance still govern the Copilot Studio implementation.</p>
 
   <h2>Recommended access model</h2>
   <div class="grid2">
@@ -216,7 +220,7 @@ footer.foot{margin-top:42px;padding-top:16px;border-top:1px solid var(--cp-borde
     <thead><tr><th>Surface</th><th>Best use</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td>Agent Store in Microsoft Copilot</td><td>User discovery and installation</td><td>The employee-facing catalog for approved agents, including organization-built agents.</td></tr>
-      <tr><td>Microsoft 365 admin center</td><td>Approval, assignment, deployment, blocking, removal, and inventory</td><td>Admins can review details such as publisher, channels, users, data and tools, security and compliance, certification, and activity.</td></tr>
+      <tr><td>Microsoft 365 admin center</td><td>Approval, assignment, deployment, blocking, removal, and inventory</td><td>Admins can review details such as publisher, channels, users, data and tools, security and compliance, certification, and activity, then apply lifecycle actions such as assign, block, remove, or retire.</td></tr>
       <tr><td>Copilot Studio</td><td>Build, test, publish, and configure Copilot Studio agents</td><td>The preferred maker platform for many in-house business agents.</td></tr>
       <tr><td>Teams admin and Teams app store</td><td>Teams app visibility and app governance</td><td>Relevant when the agent is also distributed through Teams.</td></tr>
       <tr><td>Power Platform admin center</td><td>Environment, connector, DLP, capacity, and maker governance</td><td>Important for Copilot Studio agents because their tools and data access often depend on Power Platform environments and connectors.</td></tr>
@@ -274,11 +278,11 @@ footer.foot{margin-top:42px;padding-top:16px;border-top:1px solid var(--cp-borde
   <h2>Reference materials</h2>
   <div class="card">
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/copilot-agent-store" target="_blank" rel="noopener">Set up Agent Store in Microsoft Copilot</a><span class="u">https://learn.microsoft.com/microsoft-365/copilot/copilot-agent-store</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps" target="_blank" rel="noopener">Manage agents in the Microsoft 365 admin center</a><span class="u">https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/agent-essentials/m365-agents-admin-guide" target="_blank" rel="noopener">Agents admin guide for Microsoft 365</a><span class="u">https://learn.microsoft.com/microsoft-365/copilot/agent-essentials/m365-agents-admin-guide</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide" target="_blank" rel="noopener">Manage agents in the Microsoft 365 admin center</a><span class="u">https://learn.microsoft.com/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry?view=o365-worldwide" target="_blank" rel="noopener">Agent Registry in the Microsoft 365 admin center</a><span class="u">https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry?view=o365-worldwide</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/publication-add-bot-to-microsoft-teams" target="_blank" rel="noopener">Connect and configure an agent for Teams and Microsoft 365</a><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/publication-add-bot-to-microsoft-teams</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/bring-agents-to-copilot" target="_blank" rel="noopener">Bring your agents into Microsoft Copilot</a><span class="u">https://learn.microsoft.com/microsoft-365/copilot/extensibility/bring-agents-to-copilot</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-agent-365/overview" target="_blank" rel="noopener">Overview of Microsoft Agent 365</a><span class="u">https://learn.microsoft.com/microsoft-agent-365/overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry?view=o365-worldwide" target="_blank" rel="noopener">Overview of Microsoft Agent 365</a><span class="u">https://learn.microsoft.com/microsoft-agent-365/overview</span></div>
   </div>
 
   <footer class="foot">

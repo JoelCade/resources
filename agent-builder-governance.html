@@ -300,7 +300,7 @@ footer.foot a:hover { text-decoration: underline; }
   <header class="masthead">
     <p class="eyebrow">Microsoft 365 Copilot &middot; Agent Builder Governance</p>
     <h1>Agent Builder Governance</h1>
-    <p class="sub">Sharing controls, at-scale cleanup of unused agents, cost visibility, and what actually happens to an agent&rsquo;s environment and sharing settings when it gets copied into Copilot Studio. &middot; September 2026</p>
+    <p class="sub">Sharing, user access, agent and plugin access, security templates, management rules, cost visibility, and what actually happens when an agent is copied into Copilot Studio. &middot; October 2026</p>
   </header>
 
   <div class="callout">
@@ -314,7 +314,7 @@ footer.foot a:hover { text-decoration: underline; }
     <div class="card">
       <span class="pill">While in Agent Builder</span>
       <h3>Microsoft 365 admin center</h3>
-      <p>Agents created directly in Microsoft 365 Copilot&rsquo;s Agent Builder are managed under <strong>Copilot &gt; Agents</strong> and <strong>Copilot &gt; Settings &gt; Data access &gt; Agents</strong>. This covers sharing permissions, the agent registry, agent management rules, and Copilot-related cost/consumption views.</p>
+      <p>Agents created directly in Microsoft 365 Copilot&rsquo;s Agent Builder are managed under <strong>Copilot &gt; Agents</strong> and <strong>Copilot &gt; Settings &gt; Data access &gt; Agents</strong>. This covers sharing and user access, agent and plugin access, security templates, the Agent Registry, management rules, and Copilot-related cost/consumption views.</p>
     </div>
     <div class="card">
       <span class="pill">After Copy to Copilot Studio</span>
@@ -391,7 +391,7 @@ footer.foot a:hover { text-decoration: underline; }
   <p>All governance actions taken from the registry &mdash; block, reassign, delete &mdash; are logged in Microsoft Purview, so bulk cleanup remains auditable.</p>
 
   <h2>4. Cost controls and reporting as agents spread across the org</h2>
-  <p>Agent Builder agents themselves don&rsquo;t consume Dataverse storage entitlement, but any agent that uses AI capabilities consumes <strong>Copilot Credits</strong>, and the more an agent is shared, the more it gets used, and the more it costs. Cost visibility and controls live in the <strong>Power Platform admin center &gt; Licensing &gt; Copilot Studio</strong> pages, which apply to agent usage broadly (Agent Builder, Copilot Studio, and other agent-consuming workloads alike).</p>
+  <p>Agent Builder agents themselves don&rsquo;t consume Dataverse storage entitlement, but usage can consume <strong>Copilot Credits</strong> under the applicable Copilot terms. Cost depends on the workload and usage, not simply on whether an agent is shared. Cost visibility and controls live in the <strong>Power Platform admin center &gt; Licensing &gt; Copilot Studio</strong> pages, which apply to agent usage broadly (Agent Builder, Copilot Studio, and other agent-consuming workloads alike).</p>
 
   <h3>Reporting: four views of the same consumption</h3>
   <table>
@@ -416,14 +416,14 @@ footer.foot a:hover { text-decoration: underline; }
   </ul>
 
   <h2>5. What happens when an agent is copied to Copilot Studio</h2>
-  <p>The <strong>Copy to Copilot Studio</strong> feature unlocks lifecycle management, analytics and enterprise governance beyond what Agent Builder offers on its own &mdash; but it is a real migration, not a link. The agent gets a new home, and that home determines which rules now apply.</p>
+  <p>The <strong>Copy to Copilot Studio</strong> feature creates a snapshot for further lifecycle management and governance. It is not a live synchronization link: later changes do not stay synchronized, and not all Agent Builder knowledge or capabilities transfer. The new home determines which rules apply.</p>
 
   <h3>Which environment does it land in?</h3>
   <div class="step">
     <span class="num">1</span>
     <div class="body">
       <h3>You choose the environment; it is not automatic</h3>
-      <p>The person copying the agent is prompted to pick the destination environment. The environment must have a Dataverse data store, sit in a supported data location, and the user must hold the right security role in it. There is no hidden default &mdash; whatever environment is picked in that dialog is where the agent is stored.</p>
+      <p>The person copying the agent is prompted to pick the destination environment. The environment must have a Dataverse data store, be in a supported data location, and meet the required security, licensing, and environment prerequisites. The user must hold the right security role in it. There is no hidden default &mdash; whatever environment is picked in that dialog is where the agent is stored.</p>
     </div>
   </div>
   <div class="step">
@@ -454,13 +454,13 @@ footer.foot a:hover { text-decoration: underline; }
   <p>Practically: if you want a copied agent to inherit tight sharing discipline, that discipline has to already exist as policy on the environment you pick (or route makers into) &mdash; it is not something the Agent Builder agent brings with it.</p>
 
   <h3>Ownership and identity also change hands</h3>
-  <p>Admin management of the agent moves entirely from the Microsoft 365 admin center to the Power Platform admin center once copied. The agent is stored in Dataverse and managed as part of a Power Platform solution, so ALM practices (versioning, staged deployment, security roles on the environment) apply to it going forward, and the original Agent Builder registry entry and the Copilot Studio copy are managed as two separate lifecycles from that point on.</p>
+  <p>Admin management of the agent moves entirely from the Microsoft 365 admin center to the Power Platform admin center once copied. The agent is stored in Dataverse and managed as a Copilot Studio asset, so ALM practices and environment security apply going forward. The original Agent Builder entry and the Copilot Studio snapshot have separate lifecycles. Agent Builder does not author actions against external services; use Copilot Studio for low-code actions and connectors.</p>
 
   <div class="card">
     <h3>Reference materials</h3>
     <div class="ref">
-      <a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder-share-manage-agents" target="_blank" rel="noopener">Share and manage agents (Agent Builder)</a>
-      <span class="u">learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder-share-manage-agents</span>
+      <a href="https://learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder" target="_blank" rel="noopener">Agent Builder overview and governance controls</a>
+      <span class="u">learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder</span>
     </div>
     <div class="ref">
       <a href="https://learn.microsoft.com/microsoft-365/admin/manage/agent-settings" target="_blank" rel="noopener">Agent settings in Microsoft 365 admin center</a>
@@ -497,7 +497,7 @@ footer.foot a:hover { text-decoration: underline; }
   </div>
 
   <footer class="foot">
-    Curated by Joel Cade &middot; hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. All links point to public Microsoft documentation (verified September 2026). This is guidance, not a contract &mdash; confirm current terms and process against your own tenant configuration before acting on it.
+    Curated by Joel Cade &middot; hosted on GitHub Pages &middot; <a href="https://github.com/JoelCade/resources">github.com/JoelCade/resources</a>. All links point to public Microsoft documentation (verified October 2026). This is guidance, not a contract &mdash; confirm current terms and process against your own tenant configuration before acting on it.
   </footer>
 </div>
 
