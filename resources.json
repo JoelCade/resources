@@ -549,12 +549,13 @@
             "governance",
             "copilot-studio"
           ],
-          "desc": "How to administer AI agents across Microsoft 365 Copilot, Copilot Studio and Power Platform without blocking the business or losing track of what got built. The three zones and what changes between them, why sharing and publishing are different problems, the controls that implement each zone (environment groups, rules, routing, connector policy, agent identity), where each surface is monitored and why agent counts never match, plus a seven-step rollout and the common failure patterns.",
+          "desc": "How to administer AI agents across Microsoft 365 Copilot, Copilot Studio and Power Platform without blocking the business or losing track of what got built. Covers the three-zone model, Microsoft Agent 365, current agent inventory and lifecycle controls, environment routing, connector policy availability, identity design, and a practical rollout.",
           "source": null,
           "tags": [
             "Governance",
             "Copilot Studio",
             "Microsoft 365 Copilot",
+            "Agent 365",
             "Environment groups",
             "Purview"
           ]
