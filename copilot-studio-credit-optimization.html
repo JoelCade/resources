@@ -385,7 +385,7 @@ footer.foot {
 
   <h2 id="harness">Which harness are you on? (read this first)</h2>
 
-  <p>Copilot Studio is a <strong>multi-harness platform</strong>. A harness is the runtime that sits between what you author and the model that reasons: it decides when to call the model, what to send it, and which tools to invoke. Since <strong>August 3, 2026</strong> there are three, chosen when the agent is created, and <strong>the harness determines which billing model applies</strong>. Everything else on this page &mdash; the rate card, the stacking rule, the ten cost drivers, the optimization levers &mdash; describes the <strong>standard</strong> and <strong>Copilot chat</strong> harnesses. It does not describe the GitHub Copilot harness.</p>
+  <p>Copilot Studio is a <strong>multi-harness platform</strong>. A harness is the runtime that sits between what you author and the model that reasons: it decides when to call the model, what to send it, and which tools to invoke. Since <strong>August 3, 2026</strong> there are three, chosen when the agent is created, and <strong>the harness determines which billing model applies</strong>. Everything else on this page &mdash; the rate card, the stacking rule, the ten cost drivers, the optimization levers &mdash; describes the <strong>standard</strong> and <strong>Copilot chat</strong> harnesses. It does not describe the Microsoft Copilot harness.</p>
 
   <table>
     <thead>
@@ -394,22 +394,22 @@ footer.foot {
     <tbody>
       <tr><td><strong>Standard</strong></td><td>Rule-based agents, structured conversations, agent flows</td><td>The credit rate card below, or included in a Microsoft 365 Copilot user subscription license</td></tr>
       <tr><td><strong>Copilot chat</strong></td><td>Extending Microsoft 365 Copilot Chat with enterprise knowledge</td><td>Consumption, or included in a Microsoft 365 Copilot user subscription license</td></tr>
-      <tr><td><strong>GitHub Copilot</strong></td><td>Reasoning-heavy, multi-step business processes</td><td><strong>Usage-based Copilot Credits.</strong> Not the rate card. Not included in a Microsoft 365 Copilot license.</td></tr>
+      <tr><td><strong>Microsoft Copilot</strong></td><td>Reasoning-heavy, multi-step business processes</td><td><strong>Usage-based Copilot Credits.</strong> Not the rate card. Not included in a Microsoft 365 Copilot license.</td></tr>
     </tbody>
   </table>
 
   <div class="callout warn">
-    <strong>Three assumptions that hold everywhere else on this page break on the GitHub Copilot harness.</strong>
+    <strong>Three assumptions that hold everywhere else on this page break on the Microsoft Copilot harness.</strong>
     <ul>
       <li><strong>It is not the rate card.</strong> Consumption is usage-based, measured against the work performed rather than a published per-event price. Microsoft states credits are charged for large language model tokens, for tools (including knowledge and MCP servers), <em>and for the harness itself</em> &mdash; so there is no per-event table to optimize against in the way Phase 3 describes.</li>
-      <li><strong>Billing starts when you start building, not when you publish.</strong> This is the reversal that catches teams out. On the standard harness, cost begins at publish. On the GitHub Copilot harness, creating a solution with natural language, previewing and testing the agent, and generating and running agent evaluations <em>all consume credits</em> &mdash; on an agent that may never ship.</li>
+      <li><strong>Billing starts when you start building, not when you publish.</strong> This is the reversal that catches teams out. On the standard harness, cost begins at publish. On the Microsoft Copilot harness, creating a solution with natural language, previewing and testing the agent, and generating and running agent evaluations <em>all consume credits</em> &mdash; on an agent that may never ship.</li>
       <li><strong>There is no Microsoft 365 Copilot license inclusion.</strong> The "licensed employee-facing user costs nothing" logic does not carry over. Usage is billed regardless of what the user is licensed for.</li>
     </ul>
   </div>
 
-  <p>Two practical consequences. First, <strong>identify the harness before you diagnose anything</strong> &mdash; credits burning against an agent that was never published is expected behavior on the GitHub Copilot harness and a genuine defect on the standard harness, and the remedy is completely different. Second, <strong>maker activity becomes a budget line of its own</strong>. A team doing heavy iteration or running large evaluation suites is generating real consumption before a single end user arrives, so forecast build-phase spend separately from runtime spend.</p>
+  <p>Two practical consequences. First, <strong>identify the harness before you diagnose anything</strong> &mdash; credits burning against an agent that was never published is expected behavior on the Microsoft Copilot harness and a genuine defect on the standard harness, and the remedy is completely different. Second, <strong>maker activity becomes a budget line of its own</strong>. A team doing heavy iteration or running large evaluation suites is generating real consumption before a single end user arrives, so forecast build-phase spend separately from runtime spend.</p>
 
-  <h3>What a GitHub Copilot harness task actually costs</h3>
+  <h3>What a Microsoft Copilot harness task actually costs</h3>
 
   <p>There is no per-event rate card, but Microsoft publishes <strong>planning bands</strong> in the Copilot Credits Guide. Runtime cost is driven by four factors &mdash; the <strong>models</strong> chosen for the task, the <strong>runtime</strong> orchestration that keeps work moving across steps, the <strong>context</strong> retrieved to ground the work, and the <strong>tools</strong> invoked to act on it.</p>
 
@@ -457,7 +457,7 @@ footer.foot {
 
   <h2 id="phase-0">Phase 0 — Understand the billing model</h2>
 
-  <p class="sub" style="margin-top:-6px;">Applies to the standard and Copilot chat harnesses. For the GitHub Copilot harness, see <a href="#harness">the section above</a>.</p>
+  <p class="sub" style="margin-top:-6px;">Applies to the standard and Copilot chat harnesses. For the Microsoft Copilot harness, see <a href="#harness">the section above</a>.</p>
 
   <p>As of <strong>September 1, 2025</strong>, the common currency for agents changed from <em>Copilot Studio messages</em> to <strong>Copilot Credits</strong>. Microsoft states there was no change to the quantity per prepaid pack or to the pay-as-you-go rate at the time of the transition — but the model now exposes event-level granularity rather than the older "billed session" abstraction.</p>
 
@@ -689,7 +689,7 @@ footer.foot {
   <p>When an agent is disabled by enforcement, end users see a generic billing/usage-limit message — not a graceful fallback. If an agent is customer-facing, treat enforcement as an outage scenario and plan the escalation path accordingly.</p>
 
   <div class="callout warn">
-    <strong>Enforcement on the GitHub Copilot harness also stops the builders, not just the users.</strong> When an environment has no credits available, agents stop responding to requests <em>and</em> makers lose the ability to author with natural language, to preview and test the agent, and to generate or create agent evaluations. Microsoft allows a degree of overage as a grace buffer rather than cutting off instantly, but the recovery path is the same three options: reallocate capacity from elsewhere in the tenant, purchase more, or attach a consumptive/pay-as-you-go meter. Plan for this on shared build environments &mdash; one team exhausting the pool halts everyone's authoring, not only production traffic.
+    <strong>Enforcement on the Microsoft Copilot harness also stops the builders, not just the users.</strong> When an environment has no credits available, agents stop responding to requests <em>and</em> makers lose the ability to author with natural language, to preview and test the agent, and to generate or create agent evaluations. Microsoft allows a degree of overage as a grace buffer rather than cutting off instantly, but the recovery path is the same three options: reallocate capacity from elsewhere in the tenant, purchase more, or attach a consumptive/pay-as-you-go meter. Plan for this on shared build environments &mdash; one team exhausting the pool halts everyone's authoring, not only production traffic.
   </div>
 
   <h3>A monitoring cadence that actually gets followed</h3>
@@ -766,8 +766,8 @@ footer.foot {
 
   <h2 id="references">Reference materials</h2>
   <div class="card">
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview" target="_blank" rel="noopener">Choose a harness &mdash; standard, Copilot chat, GitHub Copilot (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Billing for agents powered by the GitHub Copilot harness (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview" target="_blank" rel="noopener">Choose a harness &mdash; standard, Copilot chat, Microsoft Copilot (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Billing for agents powered by the Microsoft Copilot harness (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits" target="_blank" rel="noopener">Enforcement policy for agents consuming Copilot Credits (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management — the full credit rate card (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing" target="_blank" rel="noopener">Copilot Studio licensing &amp; billing overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/billing-licensing</span></div>
@@ -803,7 +803,7 @@ footer.foot {
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation and the Microsoft Copilot Credits Guide, August 2026 (rate card verified July 2026; harness, credit band, and usage-based billing sections verified August 2026). Copilot Credit rates, zero-rating conditions, enforcement thresholds, prepaid pack sizes, and pay-as-you-go meters change frequently &mdash; always confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. The GitHub Copilot harness became generally available on August 3, 2026. Its usage-based pricing is not expressed as a per-event rate card, and the credit bands shown here are rough planning estimates published by Microsoft rather than commitments, so build-phase and runtime consumption should be estimated against your own workload. Any credits-per-session figures you derive from this page are illustrative modeling, not published Microsoft benchmarks. This playbook is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation and the Microsoft Copilot Credits Guide, August 2026 (rate card verified July 2026; harness, credit band, and usage-based billing sections verified August 2026). Copilot Credit rates, zero-rating conditions, enforcement thresholds, prepaid pack sizes, and pay-as-you-go meters change frequently &mdash; always confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. The Microsoft Copilot harness became generally available on August 3, 2026. Its usage-based pricing is not expressed as a per-event rate card, and the credit bands shown here are rough planning estimates published by Microsoft rather than commitments, so build-phase and runtime consumption should be estimated against your own workload. Any credits-per-session figures you derive from this page are illustrative modeling, not published Microsoft benchmarks. This playbook is guidance, not a contract.
   </footer>
 </div>
 <!-- TOGGLE:START - generated by build_pages.py. Do not edit by hand. -->
