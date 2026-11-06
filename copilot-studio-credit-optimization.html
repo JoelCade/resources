@@ -361,7 +361,7 @@ footer.foot {
   <header class="masthead">
     <p class="eyebrow">Microsoft Copilot Studio · Cost Optimization Playbook</p>
     <h1>Evaluating &amp; Optimizing Copilot Credit Consumption in Production</h1>
-    <p class="sub">A four-phase playbook &mdash; measure, diagnose, optimize, govern &mdash; for teams running Copilot Studio agents at scale. Compiled from public Microsoft documentation · Updated August 2026.</p>
+    <p class="sub">A four-phase playbook &mdash; measure, diagnose, optimize, govern &mdash; for teams running Copilot Studio agents at scale. Compiled from public Microsoft documentation · Updated November 2026. For estimating an agent before it is built or launched, see <a href="copilot-credit-usage-estimation.html">Estimating Copilot Credit Usage</a>.</p>
   </header>
 
   <div class="callout">
@@ -377,7 +377,7 @@ footer.foot {
       <li><a href="#phase-2">Phase 2 — Diagnose: the ten cost drivers</a></li>
       <li><a href="#phase-3">Phase 3 — Optimize: the levers and deltas</a></li>
       <li><a href="#phase-4">Phase 4 — Govern: caps, enforcement, cadence</a></li>
-      <li><a href="#forecasting">Forecasting a new agent before launch</a></li>
+      <li><a href="#forecasting">Estimating and forecasting before launch</a></li>
       <li><a href="#checklist">The optimization checklist</a></li>
       <li><a href="#references">Reference materials</a></li>
     </ol>
@@ -409,44 +409,9 @@ footer.foot {
 
   <p>Two practical consequences. First, <strong>identify the harness before you diagnose anything</strong> &mdash; credits burning against an agent that was never published is expected behavior on the Microsoft Copilot harness and a genuine defect on the standard harness, and the remedy is completely different. Second, <strong>maker activity becomes a budget line of its own</strong>. A team doing heavy iteration or running large evaluation suites is generating real consumption before a single end user arrives, so forecast build-phase spend separately from runtime spend.</p>
 
-  <h3>What a Microsoft Copilot harness task actually costs</h3>
+  <h3>Estimating what a Microsoft Copilot harness agent will cost</h3>
 
-  <p>There is no per-event rate card, but Microsoft publishes <strong>planning bands</strong> in the Copilot Credits Guide. Runtime cost is driven by four factors &mdash; the <strong>models</strong> chosen for the task, the <strong>runtime</strong> orchestration that keeps work moving across steps, the <strong>context</strong> retrieved to ground the work, and the <strong>tools</strong> invoked to act on it.</p>
-
-  <table>
-    <thead>
-      <tr><th>Runtime band</th><th>Shape of the work</th><th>Est. credits per task</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>Light</strong></td><td>Few sources, light reasoning, one or fewer outputs. For example: check an email, verify a workbook, post a status summary.</td><td class="num-cell">100 &ndash; 300</td></tr>
-      <tr><td><strong>Medium</strong></td><td>Many sources across varying timeframes, structured reasoning, two or more deliverables.</td><td class="num-cell">300 &ndash; 500</td></tr>
-      <tr><td><strong>Heavy</strong></td><td>Broad aggregation and deep reasoning over long timeframes, many outputs.</td><td class="num-cell cost-hi">&gt; 500</td></tr>
-    </tbody>
-  </table>
-
-  <p>Build-phase consumption has its own bands. <strong>Natural language authoring</strong> is estimated by conversation turns, meaning the number of messages you send in a single creation session &mdash; more turns generally means a more complex agent needing iterative refinement. <strong>Preview and evaluation consume credits at the same rate as runtime</strong>, which is what makes a large evaluation suite a real recurring line item rather than a one-off.</p>
-
-  <table>
-    <thead>
-      <tr><th>Authoring band</th><th>Conversation turns</th><th>Est. credits per session</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>Light</strong></td><td>1 &ndash; 2</td><td class="num-cell cost-lo">1 &ndash; 20</td></tr>
-      <tr><td><strong>Medium</strong></td><td>3 &ndash; 5</td><td class="num-cell">21 &ndash; 60</td></tr>
-      <tr><td><strong>Heavy</strong></td><td>6 +</td><td class="num-cell">61 +</td></tr>
-    </tbody>
-  </table>
-
-  <p><strong>Manual configuration is free.</strong> No credits are consumed for work performed in the Build and Monitor tabs. Only the model-powered maker experiences meter.</p>
-
-  <div class="callout warn">
-    <strong>Do this arithmetic before an account starts building.</strong> A light task at 100 to 300 credits is <strong>50 to 150 times</strong> the cost of a generative answer on the standard harness, which bills 2 credits. The capability difference is real and so is the cost difference. These are rough planning estimates published by Microsoft, not commitments &mdash; actual consumption varies with workflow and usage pattern, so treat them as a starting point for your own modeling rather than a quote.
-  </div>
-
-  <div class="callout">
-    <strong>Do not reuse these bands for Copilot Cowork.</strong> Cowork publishes bands with word-for-word identical descriptions but different figures: light 100 to 300, <strong>medium 300 to 700, heavy above 700</strong>. Quoting one workload's numbers for the other misprices the medium band by up to 40%. Check which product you are estimating.
-  </div>
-
+  <p>Harness agents are sized per <strong>task</strong> against Microsoft's published planning bands (roughly 100 to 300 credits for a light task, 300 to 500 for medium, above 500 for heavy), with authoring, preview, and evaluation budgeted as a build line of their own. That is roughly <strong>50 to 150 times</strong> a standard-harness generative answer at 2 credits, so do the arithmetic before an account starts building. The bands, the build-phase meters, and a worked forecasting method now live on a dedicated page: <a href="copilot-credit-usage-estimation.html#mch-model">Estimating Copilot Credit Usage</a>.</p>
   <h3>Work IQ APIs bill separately, and can cut cost</h3>
 
   <p>If your agents call the <strong>Work IQ APIs</strong>, that consumption is its own line and is not covered by a Microsoft 365 Copilot license. The <strong>Work IQ Tools API</strong> is a flat <strong>0.1 credit per API call</strong> for actions and tools. The <strong>Work IQ Chat and Context APIs</strong> are variable, billing query-style consumption for grounding, retrieval, and reasoning.</p>
@@ -477,7 +442,7 @@ footer.foot {
       <tr><td>Agent flow actions</td><td class="num-cell">13</td><td>per 100 actions</td><td>Individual actions executed inside an agent flow.</td></tr>
       <tr><td>AI tools — basic</td><td class="num-cell cost-lo">1</td><td>per 10 responses</td><td>≈ 0.1 credits per 1K tokens. OCR, sentiment, key phrases, simple text.</td></tr>
       <tr><td>AI tools — standard</td><td class="num-cell">15</td><td>per 10 responses</td><td>≈ 1.5 credits per 1K tokens. General-purpose prompts.</td></tr>
-      <tr><td>AI tools — premium / reasoning</td><td class="num-cell cost-hi">100</td><td>per 10 responses</td><td>≈ 10 credits per 1K tokens. Deep reasoning models.</td></tr>
+      <tr><td>AI tools — premium / reasoning</td><td class="num-cell cost-hi">10</td><td>per 1,000 tokens</td><td>Deep reasoning models, billed on exact tokens. When a reasoning model orchestrates the agent, every model call in a turn counts; prompt-cache reads are not billed.</td></tr>
       <tr><td>Voice — classic orchestration</td><td class="num-cell">10</td><td>per minute</td><td>Voice channel; core agent activity included in the rate.</td></tr>
       <tr><td>Voice — generative</td><td class="num-cell">35</td><td>per minute</td><td>Voice channel with generative orchestration.</td></tr>
       <tr><td>Voice — premium generative</td><td class="num-cell cost-hi">75</td><td>per minute</td><td>Voice channel with premium models.</td></tr>
@@ -680,7 +645,7 @@ footer.foot {
   <table>
     <thead><tr><th>Situation</th><th>What happens</th></tr></thead>
     <tbody>
-      <tr><td>Prepaid consumption reaches <strong>125%</strong> of allocation</td><td>Custom agents are <strong>disabled</strong>. In-flight conversations finish; new invocations are rejected. Admins get an email and a PPAC notification.</td></tr>
+      <tr><td>Prepaid consumption reaches <strong>125%</strong> of allocation</td><td>Custom agents are <strong>blocked</strong>, including conversations already in progress, unless the environment bills overage to pay-as-you-go. Admins get an email and a PPAC notification.</td></tr>
       <tr><td>Prepaid consumption reaches <strong>100%</strong> (agent flows)</td><td>New <strong>agent flow runs are blocked</strong>; the parent agent keeps working for non-flow interactions. Flow makers see a design-time warning.</td></tr>
       <tr><td>Per-agent hard cap reached</td><td>That agent alone is turned off; other agents in the environment are unaffected.</td></tr>
       <tr><td>Pay-as-you-go environment</td><td><strong>No enforcement.</strong> Usage continues and bills to the Azure subscription — which is why PAYG is the right choice for anything business-critical.</td></tr>
@@ -703,34 +668,8 @@ footer.foot {
     </tbody>
   </table>
 
-  <h2 id="forecasting">Forecasting a new agent before you launch it</h2>
-  <p>Microsoft publishes a free <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">agent usage estimator</a> covering Copilot Studio custom agents and Dynamics 365 agents, with multi-agent aggregation and PDF export for procurement. Microsoft is explicit that it produces informational estimates only and recommends adding a <strong>10–20% buffer</strong>.</p>
-
-  <p>Do the arithmetic by hand as well — it forces you to confront the stacking:</p>
-  <div class="math">1. Map the expected turns in a typical session.
-2. For each turn, add every event that fires:
-     classic answer          +1
-     generative answer       +2
-     each tool call          +5
-     tenant graph grounding  +10
-     agent flow actions      +13 per 100 actions
-     AI tool call            tier rate x (tokens / 1000)
-3. Credits per session  = sum of turn costs
-4. Credits per month    = credits/session x sessions/day x days
-5. Add a 10-20% buffer
-6. PAYG cost            = credits x $0.01</div>
-
-  <p>Worked examples published by Microsoft:</p>
-  <ul>
-    <li><strong>Autonomous order-processing agent:</strong> 4 action calls × 5 = <strong>20 credits per run</strong>.</li>
-    <li><strong>Customer support agent:</strong> (4 classic × 1 + 2 generative × 2) × 900 customers/day = <strong>7,200 credits/day</strong>.</li>
-    <li><strong>Sales agent with graph grounding, unlicensed users:</strong> (4 generative × 2 + 4 graph × 10) × 100 users = <strong>4,800 credits/day</strong> — note that grounding alone is 4,000 of those 4,800.</li>
-  </ul>
-
-  <div class="callout">
-    <strong>Read that last example again.</strong> Graph grounding is <strong>83%</strong> of the cost of that agent. Before you tune prompts, shave tools, or downgrade models, check the PPAC feature breakdown — the answer is usually one line item, not a hundred small inefficiencies.
-  </div>
-
+  <h2 id="forecasting">Estimating and forecasting before launch</h2>
+  <p>Estimation now has its own page: <a href="copilot-credit-usage-estimation.html">Estimating Copilot Credit Usage for Copilot Studio Agents</a>. It splits the method between standard agents and Microsoft Copilot harness agents and covers the build phase, operating cost, and production forecasting for each, including the agent usage estimator, Microsoft's worked examples, and how to replace assumptions with measured pilot costs. Use this playbook once the agent is live and the job becomes reading actual consumption and bringing it down.</p>
   <h2 id="checklist">The optimization checklist</h2>
   <div class="card">
     <h3>Measure</h3>
