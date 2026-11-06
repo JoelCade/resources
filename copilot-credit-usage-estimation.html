@@ -365,7 +365,7 @@ footer.foot {
   </header>
 
   <div class="callout">
-    <strong>The one thing to remember:</strong> identify the harness before you do any arithmetic, because the two harnesses need different math. A <strong>standard</strong> agent is estimated by adding up priced events on each conversation turn, and building it is close to free. A <strong>Microsoft Copilot harness</strong> agent is estimated per <em>task</em>, at roughly <strong>100 to 500+ credits a task</strong>, and the meter starts the first time a maker types a prompt, long before anything is published.
+    <strong>The one thing to remember:</strong> identify the harness before you do any arithmetic, because the two harnesses need different math. A <strong>standard</strong> agent is estimated by adding up priced events on each conversation turn, and building it is close to free. A <strong>Microsoft Copilot harness</strong> agent is estimated per <em>task</em>, at roughly <strong>100 to 500+ credits a task</strong>, by measuring it in Copilot Studio rather than with a calculator, and the meter starts the first time a maker types a prompt, long before anything is published.
   </div>
 
   <nav class="card toc" aria-label="Table of contents">
@@ -398,7 +398,7 @@ footer.foot {
     <tbody>
       <tr><td><strong>Also known as</strong></td><td>Standard agents, classic and generative orchestration agents, agent flows</td><td>Formerly the <strong>GitHub Copilot harness</strong>. Microsoft Learn and the admin center still use that label, so search for both names. It does not require GitHub Copilot.</td></tr>
       <tr><td><strong>Best for</strong></td><td>Rule-based agents, structured conversations, predictable answers</td><td>Reasoning-heavy, multistep business processes across many tools and files</td></tr>
-      <tr><td><strong>Unit you estimate</strong></td><td>Events per conversation turn, from a published rate card</td><td>Tasks, each sized against published planning bands, then calibrated from measured usage</td></tr>
+      <tr><td><strong>Unit you estimate</strong></td><td>Events per conversation turn, from a published rate card</td><td>Tasks, measured in Copilot Studio: the preview credit meter, the preview History tab, and evaluation runs over standard-workload test sets</td></tr>
       <tr><td><strong>Build and test</strong></td><td>Test chat, flow designer tests and prompt builder tests are <strong>not billed</strong></td><td>Natural-language authoring, preview, and evaluations <strong>are billed</strong>, at runtime rates</td></tr>
       <tr><td><strong>Microsoft 365 Copilot license offset</strong></td><td>Yes, for authenticated employee-facing use in Microsoft 365 channels, with exceptions</td><td><strong>None.</strong> All usage is billed regardless of the user's license</td></tr>
       <tr><td><strong>Cost variance</strong></td><td>Low to moderate, unless a reasoning model orchestrates the agent</td><td>High. The same task can cost two or three times more on a harder input</td></tr>
@@ -527,7 +527,7 @@ Pay-as-you-go cost = credits x $0.01</div>
 
   <p>A pre-launch estimate is a hypothesis. A production forecast replaces your assumptions with measured unit costs from a pilot.</p>
   <ol>
-    <li><strong>Start with the agent usage estimator.</strong> Microsoft's public <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">agent usage estimator</a> covers standard Copilot Studio agents and several Dynamics 365 agents, aggregates multiple agents, and exports a PDF. Run low, medium, and high volume scenarios rather than one number. Microsoft recommends a <strong>10 to 20% buffer</strong> and states the output is informational, not a quote.</li>
+    <li><strong>Start with the agent usage estimator.</strong> Microsoft's public <a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">agent usage estimator</a> is built for standard-harness agents. It covers standard Copilot Studio agents and several Dynamics 365 agents, aggregates multiple agents, and exports a PDF. Do not use it for Microsoft Copilot harness agents. Run low, medium, and high volume scenarios rather than one number. Microsoft recommends a <strong>10 to 20% buffer</strong> and states the output is informational, not a quote.</li>
     <li><strong>Pilot with one team or region for two to four weeks.</strong> From the Power Platform admin center, take month-to-date billed credits for the agent, broken down by feature. From Copilot Studio analytics, take the session count. Divide to get <strong>measured credits per billed session</strong>. Export session transcripts too; they cover only about the last 28 days.</li>
     <li><strong>Re-derive the covered share from real users.</strong> Pilot groups are often more heavily licensed than the full population. Recompute the share for the production audience.</li>
     <li><strong>Project volume from a business driver, not enthusiasm.</strong> Tie sessions to tickets, calls, or employees served. Ramp adoption over two or three months rather than assuming full use on day one, and add seasonal peaks such as open enrollment or quarter end.</li>
@@ -551,7 +551,7 @@ Pay-as-you-go cost = credits x $0.01</div>
     <div class="card"><span class="pill">Runtime</span><p>The orchestration that plans, retries, and keeps work moving across steps.</p></div>
   </div>
 
-  <p>Microsoft publishes <strong>planning bands</strong> per task in the Copilot Credits Guide. They are estimates, not commitments.</p>
+  <p>Microsoft publishes <strong>planning bands</strong> per task in the Copilot Credits Guide. Use them to understand the order of magnitude and to explain why harness agents cost more, not as your estimate. The estimate comes from measuring your own agent, as described below. Copilot Cowork publishes different figures under the same band descriptions, so do not mix the two.</p>
   <table>
     <thead><tr><th>Runtime band</th><th>Shape of the work</th><th>Est. credits per task</th></tr></thead>
     <tbody>
@@ -566,74 +566,120 @@ Pay-as-you-go cost = credits x $0.01</div>
     <ul>
       <li><strong>No license offset.</strong> Creation and runtime are billed whatever license the user holds, including Microsoft 365 Copilot.</li>
       <li><strong>Billing starts at build.</strong> Natural-language authoring, preview, and evaluations all consume credits, on agents that may never ship.</li>
-      <li><strong>Do not borrow Copilot Cowork's bands.</strong> Cowork's band descriptions read the same but its medium and heavy figures are higher (300 to 700 and above 700). Check which product you are sizing.</li>
+      <li><strong>Measure, do not calculate.</strong> Cost depends on what each task actually does with models, context, tools, and runtime, so no calculator or spreadsheet model of a harness agent will be as accurate as running the agent. Copilot Studio shows estimated credits as you work. Use those numbers.</li>
     </ul>
   </div>
 
+  <h3>Where Copilot Studio shows harness credit usage</h3>
+  <table>
+    <thead><tr><th>Surface</th><th>What it shows</th><th>Use it to</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Preview pane credit meter</strong></td><td>A running estimate of credits used in the current preview session, updated in near real time</td><td>See what one task costs while you build it, and see the effect of a design change immediately</td></tr>
+      <tr><td><strong>Preview &rarr; History tab</strong></td><td>Every past preview conversation with a <strong>Credits used</strong> column, alongside steps and turns, duration, status, and the agent version that handled it</td><td>Compare many sessions, see the spread between easy and hard tasks, and find the ones that cost more than expected</td></tr>
+      <tr><td><strong>Evaluate tab</strong></td><td>Estimated credits used for each evaluation run of a test set</td><td>Price a repeatable, representative workload, and re-price it after every change</td></tr>
+      <tr><td><strong>Monitor tab</strong></td><td><strong>Total estimated credits used</strong>, updated a few times a day; Microsoft's source of truth for what will be billed</td><td>Confirm that the Preview and Evaluate estimates line up with the final billed figure</td></tr>
+    </tbody>
+  </table>
+  <p>Preview and Evaluate figures are near-real-time approximations, marked with an information icon in the product. Monitor catches up within a few hours and is authoritative. Before you rely on preview numbers for a budget, compare them against Monitor for the same period once.</p>
+
   <h2 id="mch-build">Harness agents: estimating the build</h2>
 
-  <p>The build is a real budget line on this harness, and on most projects <strong>evaluation is the largest part of it</strong>. Split it into three meters:</p>
+  <p>The build is a real budget line on this harness, and on most projects <strong>evaluation is the largest part of it</strong>. It has three meters, and you can read all three in the product as you go:</p>
 
   <table>
-    <thead><tr><th>Build activity</th><th>How it bills</th><th>How to estimate it</th></tr></thead>
+    <thead><tr><th>Build activity</th><th>How it bills</th><th>Where to read the cost</th></tr></thead>
     <tbody>
-      <tr><td><strong>Natural-language authoring</strong></td><td>Per creation session, banded by conversation turns: light 1&ndash;2 turns (1&ndash;20 credits), medium 3&ndash;5 (21&ndash;60), heavy 6+ (61+)</td><td>Authoring sessions x band. Usually the smallest line.</td></tr>
-      <tr><td><strong>Preview and testing</strong></td><td>Each preview task bills like a production task</td><td>Preview tasks per maker per day x makers x build days x credits per task</td></tr>
-      <tr><td><strong>Evaluations</strong></td><td>Each test case in each run bills like a production task</td><td>Test cases x evaluation runs x credits per task</td></tr>
+      <tr><td><strong>Natural-language authoring</strong></td><td>Per creation session, banded by conversation turns: light 1&ndash;2 turns (1&ndash;20 credits), medium 3&ndash;5 (21&ndash;60), heavy 6+ (61+)</td><td>Monitor. Usually the smallest line.</td></tr>
+      <tr><td><strong>Preview and testing</strong></td><td>Each preview task bills like a production task</td><td>Preview pane credit meter for the current session; History tab for every session</td></tr>
+      <tr><td><strong>Evaluations</strong></td><td>Each conversation in each run bills like a production task</td><td>Evaluate tab, per run</td></tr>
       <tr><td>Manual configuration in the <strong>Build</strong> and <strong>Monitor</strong> tabs</td><td>Not billed</td><td>Zero</td></tr>
     </tbody>
   </table>
 
-  <div class="math">Harness build budget (credits)
+  <h3>Use the preview pane as your first estimate</h3>
+  <ol>
+    <li><strong>Watch the meter while you test.</strong> Run one realistic task in Preview and read the running credit estimate. Start a <strong>New chat</strong> for each task so every session is one task and the meter is not carrying earlier context.</li>
+    <li><strong>Read the spread in History.</strong> After a few dozen sessions, open <em>Preview &rarr; History</em>. The <strong>Credits used</strong> column gives a cost per session; the <strong>Steps/Turns</strong> column usually explains the expensive ones. Filter out <em>Failed</em> and <em>Input required</em> sessions when you work out a typical cost, then look at them separately, because in production they still bill.</li>
+    <li><strong>Compare versions.</strong> History records which agent version processed each conversation, so you can see whether a change to instructions, tools, knowledge, or model moved the cost per task.</li>
+  </ol>
+
+  <h3>Build standard workloads as evaluation test sets</h3>
+  <p>Ad hoc preview sessions vary with whoever is typing. For an estimate you can defend, turn the agent's expected work into <strong>standard workloads</strong>: evaluation test sets that represent what the agent will really do, and that you can run again and again with the same inputs.</p>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Define one test set per workload type</h3>
+      <p>Pick the task types the agent will handle, for example "match a single-line invoice", "match a multi-line invoice with an exception", "answer a policy question". Build one test set per type, and design each test conversation to represent <strong>one task</strong>, so credits per conversation equals credits per task.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Fill it with realistic inputs, in production proportions</h3>
+      <p>Upload conversations from a CSV of real or realistic requests rather than relying only on AI-generated ones, and include the hard cases in the proportion you expect to see them. A test set holds up to <strong>20 conversations</strong> of up to <strong>6 question-and-answer pairs</strong> each, so use several sets for a larger or more varied workload.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Run each set several times and read the credits</h3>
+      <p>The Evaluate tab shows estimated credits for each run. Divide by the number of conversations to get <strong>credits per task</strong> for that workload. Run each set at least three times; the variation between runs tells you how much buffer you need.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>Keep the sets as your cost baseline</h3>
+      <p>Re-run the same sets after every change to instructions, tools, knowledge, or model. You get a quality result and a cost result from the same run, and the cost of the evaluation sessions themselves is now known in advance instead of guessed.</p>
+    </div>
+  </div>
+
+  <div class="math">Harness build budget (credits), from measured figures
   = authoring sessions x authoring band
-  + preview tasks x credits per task
-  + test cases x evaluation runs x credits per task
+  + preview sessions planned x credits per session (History median)
+  + test-set conversations x runs planned x credits per conversation (Evaluate)
   + 20% contingency for rework
 
-Illustrative: 3 makers, 4 weeks, light-band agent (about 200 credits per task)
-  authoring    10 medium sessions x 40            =     400
-  preview      150 tasks x 200                    =  30,000
-  evaluation   30 cases x 6 runs x 200            =  36,000
-  contingency  20%                                =  13,280
-  total                                           ≈  79,700 credits ($797 pay-as-you-go)</div>
-  <p>The illustration is a modeling example, not a Microsoft benchmark. The lesson holds generally: preview and evaluation volume, not authoring, drives build cost, so <strong>size the evaluation set deliberately</strong> and run the full suite at milestones rather than after every edit.</p>
-
-  <div class="callout">
-    <strong>Calibrate early with your own numbers.</strong> After the first few dozen preview tasks, open the agent's <strong>Monitor</strong> page in Copilot Studio, which shows total credits and, where available, which activities consumed them. Divide by tasks run to get a <strong>measured credits per task</strong> for this agent. Use that figure, not the band midpoint, for the rest of the build estimate and as the seed for the operating estimate.
-  </div>
+Illustrative: 3 makers, 4 weeks, about 200 credits per task measured
+  authoring    10 medium sessions x 40                      =     400
+  preview      150 sessions x 200                           =  30,000
+  evaluation   2 test sets x 20 conversations x 6 runs x 200 =  48,000
+  contingency  20%                                          =  15,680
+  total                                                     ≈  94,100 credits ($941 pay-as-you-go)</div>
+  <p>The illustration is a modeling example, not a Microsoft benchmark. The lesson holds generally: preview and evaluation volume, not authoring, drives build cost. Because each evaluation run's cost is now measured, you can decide deliberately how many runs the build needs, and run the full suite at milestones rather than after every edit.</p>
 
   <h2 id="mch-run">Harness agents: estimating operation</h2>
 
   <p>Harness agents are estimated per task, and the volume driver is usually a <strong>business event</strong> (an invoice, a case, a request) rather than a user conversation.</p>
   <ol>
-    <li><strong>Define the task unit.</strong> One invoice matched, one report produced, one request triaged. If a task can fan out (one request spawning several sub-tasks or connected-agent calls), count the fan-out.</li>
-    <li><strong>Band each task type.</strong> Classify each type as light, medium, or heavy, then replace the band with the measured credits per task from preview and evaluation as soon as you have it.</li>
-    <li><strong>Use a high percentile, not the average.</strong> Task cost is skewed: hard inputs, retries, and long documents cost far more than the median. Budget against the 80th or 90th percentile of measured cost, or the top of the band before you have data.</li>
-    <li><strong>Keep evaluation in the operating budget.</strong> Every instruction, model, or tool change should be regression-tested, and every regression run is billed. Plan a recurring evaluation line.</li>
+    <li><strong>Define the task unit.</strong> One invoice matched, one report produced, one request triaged. If a task can fan out (one request spawning several sub-tasks or connected-agent calls), make sure the standard-workload test sets include that fan-out.</li>
+    <li><strong>Price each task type from its test set.</strong> Use the measured credits per conversation from the Evaluate tab for the matching workload, checked against the spread in the Preview History tab.</li>
+    <li><strong>Use a high percentile, not the average.</strong> Task cost is skewed: hard inputs, retries, and long documents cost far more than the median. Budget against the 80th or 90th percentile of the per-session costs in History and across evaluation runs.</li>
+    <li><strong>Keep evaluation in the operating budget.</strong> Every instruction, model, or tool change should be regression-tested against the standard workloads, and every run is billed. You already know what one run costs, so plan the cadence and price it.</li>
     <li><strong>Add every interactive user.</strong> If people also chat with the agent, those tasks bill too, licensed or not.</li>
   </ol>
 
   <div class="math">Monthly harness credits
-  = sum over task types: tasks per month x credits per task (p80-p90)
-  + regression evaluation runs per month x test cases x credits per task
-  + interactive tasks per month x credits per task
+  = sum over task types: tasks per month x measured credits per task (p80-p90)
+  + regression runs per month x test-set conversations x credits per conversation
+  + interactive tasks per month x measured credits per task
   then add 15-25% (wider than the standard-harness buffer, because variance is higher)
 
 Illustrative: accounts payable agent
-  4,000 invoices x 350 credits (measured p85, medium band) = 1,400,000
-  4 regression runs x 50 cases x 350                     =    70,000
-  subtotal                                               = 1,470,000
-  +20% buffer                                            ≈ 1,764,000 credits ($17,640 a month pay-as-you-go)</div>
-  <p>Do this comparison before choosing the harness: a light harness task at 100 to 300 credits is <strong>50 to 150 times</strong> a standard-harness generative answer at 2 credits. The capability difference is real. Make sure the business case carries the cost difference too, for example cost per invoice processed versus the cost of the manual work it replaces.</p>
+  4,000 invoices x 350 credits (measured p85)                     = 1,400,000
+  4 regression runs x 3 test sets x 20 conversations x 350        =    84,000
+  subtotal                                                        = 1,484,000
+  +20% buffer                                                     ≈ 1,781,000 credits ($17,810 a month pay-as-you-go)</div>
+  <p>Do this comparison before choosing the harness: even the lightest published band, 100 to 300 credits per task, is <strong>50 to 150 times</strong> a standard-harness generative answer at 2 credits. The capability difference is real. Make sure the business case carries the cost difference too, for example cost per invoice processed versus the cost of the manual work it replaces.</p>
 
   <h2 id="mch-forecast">Harness agents: forecasting production</h2>
 
-  <p>Because there is no rate card, a harness forecast is only as good as its measured unit costs. Build the forecast in stages:</p>
+  <p>Because there is no rate card, a harness forecast is only as good as its measured unit costs. Get to a measurement quickly rather than modeling on paper:</p>
   <ol>
-    <li><strong>Pre-build:</strong> size each task type against the published bands, using the top of the band. Microsoft Learn's usage-based billing overview links a <strong>Copilot Credit Estimator</strong> for modeling demand before any consumption history exists; treat its output as directional.</li>
-    <li><strong>End of build:</strong> replace the bands with the measured distribution from preview and evaluation. If evaluation used realistic inputs, this is your best pre-launch unit cost.</li>
-    <li><strong>Pilot:</strong> run a time-boxed pilot in a <em>test and validation</em> environment with a fixed allocation. Track credits per task weekly from the Monitor page and the Power Platform admin center consumption report, and watch for drift as users bring harder inputs.</li>
-    <li><strong>Production:</strong> forecast as volume x measured p80 to p90 cost per task, plus recurring evaluation and ongoing maker work. Changes to scope or instructions tend to make tasks heavier over time, so re-baseline the unit cost after every release, not only quarterly.</li>
+    <li><strong>Prototype first:</strong> a minimal version of the agent and one small standard-workload test set give you a measured cost per task within a day. Use the published bands only to sanity-check the order of magnitude.</li>
+    <li><strong>End of build:</strong> the full set of standard workloads, run several times, is your best pre-launch unit cost. If the test sets reflect real inputs and real proportions, the forecast inherits that accuracy.</li>
+    <li><strong>Pilot:</strong> run a time-boxed pilot in a <em>test and validation</em> environment with a fixed allocation. Track credits per task weekly from Monitor and the Power Platform admin center consumption report, and compare them with the test-set figures. If production tasks cost more, add the harder cases to the test sets so the baseline stays honest.</li>
+    <li><strong>Production:</strong> forecast as volume x measured p80 to p90 cost per task, plus recurring evaluation and ongoing maker work. Changes to scope or instructions tend to make tasks heavier over time, so re-run the standard workloads and re-baseline the unit cost after every release, not only quarterly.</li>
   </ol>
 
   <table>
@@ -653,13 +699,13 @@ Illustrative: accounts payable agent
     <thead><tr><th>Input</th><th>Standard agent</th><th>Microsoft Copilot harness agent</th></tr></thead>
     <tbody>
       <tr><td><strong>Volume driver</strong></td><td>Sessions (users x frequency) and autonomous trigger firings</td><td>Tasks (business events), including fan-out and interactive use</td></tr>
-      <tr><td><strong>Unit cost source</strong></td><td>Rate card events per turn; tokens if a reasoning model orchestrates</td><td>Published bands at first, then measured credits per task</td></tr>
+      <tr><td><strong>Unit cost source</strong></td><td>Rate card events per turn; tokens if a reasoning model orchestrates</td><td>Estimated credits per task from the preview meter and History tab, then evaluation runs over standard-workload test sets</td></tr>
       <tr><td><strong>Build line</strong></td><td>Near zero</td><td>Real: authoring, preview, and evaluation</td></tr>
       <tr><td><strong>Recurring evaluation</strong></td><td>Not billed in the test pane</td><td>Billed every run</td></tr>
       <tr><td><strong>License offset</strong></td><td>Covered share of licensed, authenticated, Microsoft 365 channel use</td><td>None</td></tr>
       <tr><td><strong>Statistic to budget against</strong></td><td>Average credits per session</td><td>80th to 90th percentile credits per task</td></tr>
       <tr><td><strong>Buffer</strong></td><td>10 to 20%</td><td>15 to 25%</td></tr>
-      <tr><td><strong>Where to measure actuals</strong></td><td>PPAC agent and feature breakdown, plus Copilot Studio analytics sessions</td><td>Agent Monitor page, plus PPAC agent consumption and the downloadable report</td></tr>
+      <tr><td><strong>Where to measure actuals</strong></td><td>PPAC agent and feature breakdown, plus Copilot Studio analytics sessions</td><td>Preview credit meter and History tab during build; Evaluate tab per run; Monitor tab and PPAC agent consumption for billed actuals</td></tr>
       <tr><td><strong>Re-forecast trigger</strong></td><td>Quarterly, or when grounding, tools, or model change</td><td>Every release, and monthly during ramp-up</td></tr>
     </tbody>
   </table>
@@ -698,7 +744,12 @@ Illustrative: accounts payable agent
         <li>Build budget covers authoring, preview, and evaluation.</li>
         <li>Evaluation set size and run cadence planned and priced.</li>
         <li>Task unit defined, including fan-out.</li>
-        <li>Each task type banded, then replaced with measured cost from the Monitor page.</li>
+        <li>No calculator or estimator used for harness agents; cost read from the product.</li>
+        <li>Preview cost per task read from the credit meter, one task per New chat.</li>
+        <li>Spread of session costs reviewed in the Preview History tab.</li>
+        <li>Standard workloads built as evaluation test sets, one per task type, in production proportions.</li>
+        <li>Each test set run at least three times; credits per conversation recorded.</li>
+        <li>Preview and Evaluate estimates checked once against Monitor.</li>
         <li>Budget set against the 80th to 90th percentile, with a 15 to 25% buffer.</li>
         <li>Recurring regression evaluation included in operating cost.</li>
         <li>No license offset assumed for any user.</li>
@@ -716,8 +767,12 @@ Illustrative: accounts payable agent
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness" target="_blank" rel="noopener">Manage costs for agents powered by the harness (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/govern-credit-consumption" target="_blank" rel="noopener">Govern Copilot Credit consumption for harness agents (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/govern-credit-consumption</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits" target="_blank" rel="noopener">Enforcement policy for agents consuming Copilot Credits (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator" target="_blank" rel="noopener">Agent usage estimator documentation (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator</span></div>
-    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Agent usage estimator, the tool</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator" target="_blank" rel="noopener">Agent usage estimator documentation, standard agents only (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator</span></div>
+    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Agent usage estimator, the tool (standard agents only)</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-understand-display" target="_blank" rel="noopener">Understand estimated credit usage in Preview, Evaluate, and Monitor (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-understand-display</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/preview-history" target="_blank" rel="noopener">Manage preview conversations and the History tab (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/preview-history</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-create" target="_blank" rel="noopener">Create a test set for a harness agent (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-create</span></div>
+    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-results" target="_blank" rel="noopener">Run an evaluation for a harness agent (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-results</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity" target="_blank" rel="noopener">Manage Copilot Credits and capacity in the Power Platform admin center (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview" target="_blank" rel="noopener">Monitor agent performance overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview</span></div>
     <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credit Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
@@ -735,7 +790,7 @@ Illustrative: accounts payable agent
   </div>
 
   <footer class="foot">
-    Compiled from Microsoft Learn public documentation and the Microsoft Copilot Credits Guide, verified November 2026. The Microsoft Copilot harness is still labeled the GitHub Copilot harness in Microsoft Learn and the Power Platform admin center at the time of writing. Harness credit bands are rough planning estimates published by Microsoft, not commitments, and the build and operating examples on this page are illustrative modeling rather than Microsoft benchmarks. Rates, license-inclusion conditions, enforcement behavior, and pack terms change often, so confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. This page is guidance, not a contract.
+    Compiled from Microsoft Learn public documentation and the Microsoft Copilot Credits Guide, verified November 2026. The Microsoft Copilot harness is still labeled the GitHub Copilot harness in Microsoft Learn and the Power Platform admin center at the time of writing. Harness credit bands are rough planning estimates published by Microsoft, not commitments, and are shown for orientation only; harness estimates on this page come from the credit figures Copilot Studio displays in Preview and Evaluate, which Microsoft labels as near-real-time estimates and finalizes in Monitor. The build and operating examples on this page are illustrative modeling rather than Microsoft benchmarks. Rates, license-inclusion conditions, enforcement behavior, and pack terms change often, so confirm current figures against the Copilot Credit Guide, the Copilot Studio Licensing Guide, and your organization's agreement before making purchasing or architectural decisions. This page is guidance, not a contract.
   </footer>
 </div>
 <!-- TOGGLE:START - generated by build_pages.py. Do not edit by hand. -->

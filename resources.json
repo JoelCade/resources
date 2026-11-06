@@ -261,7 +261,7 @@
           "title": "Estimating Copilot Credit Usage for Copilot Studio Agents",
           "href": "copilot-credit-usage-estimation.html",
           "external": false,
-          "desc": "How to estimate an agent's Copilot Credit consumption at three points: while it is built, while it runs, and as a production forecast, with the method split between standard agents and Microsoft Copilot harness agents (formerly the GitHub Copilot harness). Covers per-turn event math and reasoning-model token billing for standard agents, per-task bands and the billable authoring, preview, and evaluation meters for harness agents, calibrating with measured pilot costs, a side-by-side forecasting worksheet, and turning the forecast into limits and allocations.",
+          "desc": "How to estimate an agent's Copilot Credit consumption at three points: while it is built, while it runs, and as a production forecast, with the method split between standard agents and Microsoft Copilot harness agents (formerly the GitHub Copilot harness). Standard agents get per-turn event math, reasoning-model token billing, and the agent usage estimator. Harness agents get no calculator: cost is measured in Copilot Studio with the preview credit meter, the preview History tab, and evaluation runs over test sets built as standard workloads. Includes a side-by-side forecasting worksheet and how to turn the forecast into limits and allocations.",
           "formats": [
             "guide",
             "printable"
