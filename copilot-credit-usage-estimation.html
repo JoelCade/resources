@@ -327,6 +327,76 @@ button.btn:hover { background: var(--cp-accent-hover); }
 .backlink { font-size: 13px; color: var(--cp-link); text-decoration: none; }
 .backlink:hover { text-decoration: underline; }
 
+/* Harness view toggle: page-local, shared by the Copilot Credit guides. */
+.harness-switch {
+  margin: 4px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  background: var(--cp-surface);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.harness-switch .hs-label { font-size: 13px; font-weight: 600; color: var(--cp-text-muted); }
+.hs-options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 999px;
+  background: var(--cp-surface-soft);
+}
+.hs-options button {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+  color: var(--cp-text-muted);
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.hs-options button:hover { color: var(--cp-text); }
+.hs-options button[aria-pressed="true"] { background: var(--cp-accent); color: var(--cp-accent-fg); }
+.hs-options button:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 2px; }
+.hs-hint { flex-basis: 100%; margin: 0; font-size: 12.5px; color: var(--cp-text-soft); }
+html:not(.js) .harness-switch { display: none; }
+html[data-view="std"] [data-harness="mch"],
+html[data-view="mch"] [data-harness="std"] { display: none !important; }
+html[data-view="std"] .view-grid,
+html[data-view="mch"] .view-grid { grid-template-columns: 1fr; }
+.harness-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  border-radius: 999px;
+  border: 1px solid var(--cp-accent);
+  color: var(--cp-accent);
+  background: var(--cp-accent-soft);
+}
+html[data-view="std"] .harness-badge,
+html[data-view="mch"] .harness-badge { display: none; }
+.step-auto { counter-reset: stp; }
+.step-auto .step { counter-increment: stp; }
+.step-auto .step .num::before { content: counter(stp); }
+.view-print-label { display: none; }
+html[data-view="std"] [data-harness="both-only"],
+html[data-view="mch"] [data-harness="both-only"] { display: none !important; }
+html:not([data-view="std"]):not([data-view="mch"]) .lead-view:not([data-harness="both-only"]) { display: none !important; }
+.harness-note { margin: 0 0 6px; }
+.harness-note .harness-badge { margin-left: 0; }
+html[data-view="std"] .harness-note,
+html[data-view="mch"] .harness-note { display: none; }
+
 footer.foot {
   margin-top: 40px;
   padding-top: 16px;
@@ -340,6 +410,8 @@ footer.foot {
   body { background: #fff; font-size: 11.5px; }
   .wrap { max-width: none; padding: 0; }
   .toolbar, .backlink { display: none !important; }
+  .harness-switch { display: none !important; }
+  .view-print-label { display: block; margin: 0 0 12px; font-size: 12px; font-weight: 600; color: var(--cp-text-muted); }
   .card { box-shadow: none; break-inside: avoid; }
   h2 { break-after: avoid; }
   table, .callout, .grid2, .step, .math { break-inside: avoid; }
@@ -364,7 +436,70 @@ footer.foot {
     <p class="sub">How to estimate what an agent will consume while you build it, while it runs, and once it is in production, with separate guidance for standard agents and Microsoft Copilot harness agents. Compiled from public Microsoft documentation &middot; November 2026</p>
   </header>
 
-  <div class="callout">
+  <div class="harness-switch" role="group" aria-label="Choose which harness to show guidance for">
+    <span class="hs-label">Show guidance for</span>
+    <div class="hs-options">
+      <button type="button" data-set-view="std" aria-pressed="false">Standard harness</button>
+      <button type="button" data-set-view="mch" aria-pressed="false">Microsoft Copilot harness</button>
+      <button type="button" data-set-view="both" aria-pressed="false">Both</button>
+    </div>
+    <p class="hs-hint">The two harnesses bill differently, so the method differs. Not sure which one an agent is on? See <a href="#harness">which harness</a>. Your choice carries across the Copilot Credit guides.</p>
+  </div>
+  <p class="view-print-label" id="viewPrintLabel"></p>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const valid = ["std", "mch", "both"];
+      const labels = { std: "Standard harness", mch: "Microsoft Copilot harness", both: "Standard and Microsoft Copilot harnesses" };
+      const key = "resourcesHarnessView";
+      const param = new URLSearchParams(window.location.search).get("harness");
+      let stored = null;
+      try { stored = localStorage.getItem(key); } catch (err) { /* private mode */ }
+      let view = valid.includes(param) ? param : (valid.includes(stored) ? stored : "std");
+      root.setAttribute("data-view", view);
+
+      const apply = (next, persist) => {
+        view = next;
+        root.setAttribute("data-view", next);
+        document.querySelectorAll("[data-set-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.setView === next)));
+        const label = document.getElementById("viewPrintLabel");
+        if (label) label.textContent = "Showing guidance for: " + labels[next];
+        if (persist) {
+          try { localStorage.setItem(key, next); } catch (err) { /* private mode */ }
+          const url = new URL(window.location.href);
+          url.searchParams.set("harness", next);
+          history.replaceState(null, "", url);
+        }
+      };
+
+      // A deep link into content hidden by the current view switches to the view that shows it.
+      const followHash = () => {
+        if (!window.location.hash) return;
+        const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+        const tagged = target && target.closest("[data-harness]");
+        if (tagged && view !== "both" && tagged.dataset.harness !== view) {
+          apply(tagged.dataset.harness, false);
+          target.scrollIntoView();
+          if (document.readyState !== "complete") window.addEventListener("load", () => target.scrollIntoView(), { once: true });
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        apply(view, false);
+        followHash();
+        document.querySelectorAll("[data-set-view]").forEach((b) => b.addEventListener("click", () => apply(b.dataset.setView, true)));
+      });
+      window.addEventListener("hashchange", followHash);
+    })();
+  </script>
+
+  <div class="callout lead-view" data-harness="std">
+    <strong>The one thing to remember:</strong> a <strong>standard</strong> agent is estimated by adding up priced events on each conversation turn, and building it is close to free. Find the one event that dominates the total (usually tenant graph grounding or a reasoning model) before you refine anything else, and remember that licensed, authenticated Microsoft 365 channel use is largely covered by the Microsoft 365 Copilot license.
+  </div>
+  <div class="callout lead-view" data-harness="mch">
+    <strong>The one thing to remember:</strong> a <strong>Microsoft Copilot harness</strong> agent is estimated per <em>task</em>, at roughly <strong>100 to 500+ credits a task</strong>, by measuring it in Copilot Studio rather than calculating it on paper. The meter starts the first time a maker types a prompt, long before anything is published, and no user license offsets it.
+  </div>
+  <div class="callout lead-view" data-harness="both-only">
     <strong>The one thing to remember:</strong> identify the harness before you do any arithmetic, because the two harnesses need different math. A <strong>standard</strong> agent is estimated by adding up priced events on each conversation turn, and building it is close to free. A <strong>Microsoft Copilot harness</strong> agent is estimated per <em>task</em>, at roughly <strong>100 to 500+ credits a task</strong>, by measuring it in Copilot Studio rather than with a calculator, and the meter starts the first time a maker types a prompt, long before anything is published.
   </div>
 
@@ -372,14 +507,14 @@ footer.foot {
     <h2>On this page</h2>
     <ol>
       <li><a href="#harness">Start here: which harness is the agent on?</a></li>
-      <li><a href="#std-model">Standard agents: how they bill</a></li>
-      <li><a href="#std-build">Standard agents: estimating the build</a></li>
-      <li><a href="#std-run">Standard agents: estimating operation</a></li>
-      <li><a href="#std-forecast">Standard agents: forecasting production</a></li>
-      <li><a href="#mch-model">Harness agents: how they bill</a></li>
-      <li><a href="#mch-build">Harness agents: estimating the build</a></li>
-      <li><a href="#mch-run">Harness agents: estimating operation</a></li>
-      <li><a href="#mch-forecast">Harness agents: forecasting production</a></li>
+      <li data-harness="std"><a href="#std-model">Standard agents: how they bill</a></li>
+      <li data-harness="std"><a href="#std-build">Standard agents: estimating the build</a></li>
+      <li data-harness="std"><a href="#std-run">Standard agents: estimating operation</a></li>
+      <li data-harness="std"><a href="#std-forecast">Standard agents: forecasting production</a></li>
+      <li data-harness="mch"><a href="#mch-model">Harness agents: how they bill</a></li>
+      <li data-harness="mch"><a href="#mch-build">Harness agents: estimating the build</a></li>
+      <li data-harness="mch"><a href="#mch-run">Harness agents: estimating operation</a></li>
+      <li data-harness="mch"><a href="#mch-forecast">Harness agents: forecasting production</a></li>
       <li><a href="#compare">Side by side: the forecasting worksheet</a></li>
       <li><a href="#controls">Turning the forecast into a budget and controls</a></li>
       <li><a href="#checklist">Estimation checklist</a></li>
@@ -389,7 +524,7 @@ footer.foot {
 
   <h2 id="harness">Start here: which harness is the agent on?</h2>
 
-  <p>Everything built in Copilot Studio runs on a <strong>harness</strong>, the runtime between what you author and the model that reasons. The harness is chosen when the agent is created, it cannot be changed afterward (there is no migration between harnesses, only a rebuild), and it decides which billing model applies. This page covers the two harnesses most agents are built on.</p>
+  <p>Everything built in Copilot Studio runs on a <strong>harness</strong>, the runtime between what you author and the model that reasons. The harness is chosen when the agent is created, it cannot be changed afterward (there is no migration between harnesses, only a rebuild), and it decides which billing model applies. This page covers the two harnesses most agents are built on. Use the switch at the top of the page to show the method for one harness, or both side by side.</p>
 
   <table>
     <thead>
@@ -412,8 +547,9 @@ footer.foot {
   </div>
 
   <!-- ===================== STANDARD ===================== -->
+  <div data-harness="std">
 
-  <h2 id="std-model">Standard agents: how they bill</h2>
+  <h2 id="std-model">Standard agents: how they bill<span class="harness-badge">Standard</span></h2>
 
   <p>Standard agents bill <strong>per event, not per conversation</strong>, against a published rate card, and several events can bill on a single user turn.</p>
 
@@ -446,7 +582,7 @@ footer.foot {
     <li><strong>External channels and unlicensed users</strong>, including customer-facing websites.</li>
   </ul>
 
-  <h2 id="std-build">Standard agents: estimating the build</h2>
+  <h2 id="std-build">Standard agents: estimating the build<span class="harness-badge">Standard</span></h2>
 
   <p>Plan the standard-agent build as <strong>close to zero credits</strong>. Testing in the Copilot Studio test chat, test runs in the flow designer, testing a prompt in prompt builder, and training an AI Builder custom model are not billed, and manual authoring never is. What can bill during a build is anything that runs for real in a development environment:</p>
   <ul>
@@ -462,7 +598,7 @@ footer.foot {
   + 20% contingency</div>
   <p>For most standard agents this lands in the hundreds or low thousands of credits. Give the development environment a small capped allocation anyway, so a misconfigured trigger cannot spend production capacity.</p>
 
-  <h2 id="std-run">Standard agents: estimating operation</h2>
+  <h2 id="std-run">Standard agents: estimating operation<span class="harness-badge">Standard</span></h2>
 
   <p>Estimate one representative session per intent, then multiply by volume. Doing it by hand, even once, makes the stacking visible.</p>
 
@@ -523,7 +659,7 @@ Pay-as-you-go cost = credits x $0.01</div>
   </table>
   <p>Note what the sales agent shows: graph grounding is 4,000 of the 4,800 credits. In most standard-agent estimates, one line item drives the total. Find it before you refine anything else.</p>
 
-  <h2 id="std-forecast">Standard agents: forecasting production</h2>
+  <h2 id="std-forecast">Standard agents: forecasting production<span class="harness-badge">Standard</span></h2>
 
   <p>A pre-launch estimate is a hypothesis. A production forecast replaces your assumptions with measured unit costs from a pilot.</p>
   <ol>
@@ -539,9 +675,12 @@ Pay-as-you-go cost = credits x $0.01</div>
   + autonomous runs (m) x measured credits per run
   x 1.10 to 1.20 buffer</div>
 
-  <!-- ===================== HARNESS ===================== -->
+  </div>
 
-  <h2 id="mch-model">Microsoft Copilot harness agents: how they bill</h2>
+  <!-- ===================== HARNESS ===================== -->
+  <div data-harness="mch">
+
+  <h2 id="mch-model">Microsoft Copilot harness agents: how they bill<span class="harness-badge">Microsoft Copilot</span></h2>
 
   <p>Harness agents use <strong>usage-based billing</strong>. There is no per-event rate card to add up. Credits are charged for the model tokens, the tools used (including knowledge and MCP servers), <em>and the harness runtime itself</em>. Microsoft describes the cost of each task as a function of four inputs:</p>
   <div class="grid2">
@@ -570,6 +709,8 @@ Pay-as-you-go cost = credits x $0.01</div>
     </ul>
   </div>
 
+  <p><strong>Before anything is built:</strong> Microsoft Learn now points to a <a href="https://nptnlopppecostweb.azurewebsites.net/#/estimator" target="_blank" rel="noopener">Copilot Credit Estimator</a> for modeling expected demand when an agent has no consumption history. Microsoft describes its output as directional and dependent on the assumptions you enter. Use it to frame a business case, then replace it with measured figures as soon as a prototype exists.</p>
+
   <h3>Where Copilot Studio shows harness credit usage</h3>
   <table>
     <thead><tr><th>Surface</th><th>What it shows</th><th>Use it to</th></tr></thead>
@@ -582,7 +723,7 @@ Pay-as-you-go cost = credits x $0.01</div>
   </table>
   <p>Preview and Evaluate figures are near-real-time approximations, marked with an information icon in the product. Monitor catches up within a few hours and is authoritative. Before you rely on preview numbers for a budget, compare them against Monitor for the same period once.</p>
 
-  <h2 id="mch-build">Harness agents: estimating the build</h2>
+  <h2 id="mch-build">Harness agents: estimating the build<span class="harness-badge">Microsoft Copilot</span></h2>
 
   <p>The build is a real budget line on this harness, and on most projects <strong>evaluation is the largest part of it</strong>. It has three meters, and you can read all three in the product as you go:</p>
 
@@ -648,7 +789,7 @@ Illustrative: 3 makers, 4 weeks, about 200 credits per task measured
   total                                                     ≈  94,100 credits ($941 pay-as-you-go)</div>
   <p>The illustration is a modeling example, not a Microsoft benchmark. The lesson holds generally: preview and evaluation volume, not authoring, drives build cost. Because each evaluation run's cost is now measured, you can decide deliberately how many runs the build needs, and run the full suite at milestones rather than after every edit.</p>
 
-  <h2 id="mch-run">Harness agents: estimating operation</h2>
+  <h2 id="mch-run">Harness agents: estimating operation<span class="harness-badge">Microsoft Copilot</span></h2>
 
   <p>Harness agents are estimated per task, and the volume driver is usually a <strong>business event</strong> (an invoice, a case, a request) rather than a user conversation.</p>
   <ol>
@@ -672,7 +813,7 @@ Illustrative: accounts payable agent
   +20% buffer                                                     ≈ 1,781,000 credits ($17,810 a month pay-as-you-go)</div>
   <p>Do this comparison before choosing the harness: even the lightest published band, 100 to 300 credits per task, is <strong>50 to 150 times</strong> a standard-harness generative answer at 2 credits. The capability difference is real. Make sure the business case carries the cost difference too, for example cost per invoice processed versus the cost of the manual work it replaces.</p>
 
-  <h2 id="mch-forecast">Harness agents: forecasting production</h2>
+  <h2 id="mch-forecast">Harness agents: forecasting production<span class="harness-badge">Microsoft Copilot</span></h2>
 
   <p>Because there is no rate card, a harness forecast is only as good as its measured unit costs. Get to a measurement quickly rather than modeling on paper:</p>
   <ol>
@@ -691,6 +832,8 @@ Illustrative: accounts payable agent
     </tbody>
   </table>
   <p>Remember that capacity is charged to the <strong>environment</strong> where the agent runs, not to makers or users, so forecast by environment as well as by agent.</p>
+
+  </div>
 
   <!-- ===================== COMPARE ===================== -->
 
@@ -721,8 +864,8 @@ Illustrative: accounts payable agent
   <p>For the full set of controls and optimization levers, see the companion pages <a href="copilot-studio-credit-optimization.html">Evaluating &amp; Optimizing Copilot Credit Consumption</a>, <a href="copilot-credit-budget-alerts.html">Budget &amp; Cost Alert Options for Copilot Credits</a>, and <a href="copilot-studio-harness-billing-changes.html">What Changed in Copilot Studio Billing</a>.</p>
 
   <h2 id="checklist">Estimation checklist</h2>
-  <div class="grid2">
-    <div class="card">
+  <div class="grid2 view-grid">
+    <div class="card" data-harness="std">
       <span class="pill alt">Standard agents</span>
       <ul class="checklist">
         <li>Harness confirmed as Standard (or Copilot Chat).</li>
@@ -737,14 +880,14 @@ Illustrative: accounts payable agent
         <li>Quarterly re-forecast owner named.</li>
       </ul>
     </div>
-    <div class="card">
+    <div class="card" data-harness="mch">
       <span class="pill">Microsoft Copilot harness agents</span>
       <ul class="checklist">
         <li>Harness confirmed as Microsoft Copilot (GitHub Copilot in the admin center).</li>
         <li>Build budget covers authoring, preview, and evaluation.</li>
         <li>Evaluation set size and run cadence planned and priced.</li>
         <li>Task unit defined, including fan-out.</li>
-        <li>No calculator or estimator used for harness agents; cost read from the product.</li>
+        <li>Any pre-build estimate (published bands or the Copilot Credit Estimator) treated as directional and replaced by measured cost from the product.</li>
         <li>Preview cost per task read from the credit meter, one task per New chat.</li>
         <li>Spread of session costs reviewed in the Preview History tab.</li>
         <li>Standard workloads built as evaluation test sets, one per task type, in production proportions.</li>
@@ -762,17 +905,18 @@ Illustrative: accounts payable agent
   <h2 id="references">Reference materials</h2>
   <div class="card">
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview" target="_blank" rel="noopener">Harnesses in Copilot Studio (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/harnesses-overview</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management, including reasoning-model token billing (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Overview of usage-based billing (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness" target="_blank" rel="noopener">Manage costs for agents powered by the harness (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/govern-credit-consumption" target="_blank" rel="noopener">Govern Copilot Credit consumption for harness agents (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/govern-credit-consumption</span></div>
+    <div class="ref" data-harness="std"><a href="https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Billing rates and management, including reasoning-model token billing (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/requirements-messages-management</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview" target="_blank" rel="noopener">Overview of usage-based billing (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness" target="_blank" rel="noopener">Manage costs for agents powered by the harness (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-usage-github-copilot-harness</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/microsoft-copilot-studio/guidance/govern-credit-consumption" target="_blank" rel="noopener">Govern Copilot Credit consumption for harness agents (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/guidance/govern-credit-consumption</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits" target="_blank" rel="noopener">Enforcement policy for agents consuming Copilot Credits (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/enforcement-policy-credits</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator" target="_blank" rel="noopener">Agent usage estimator documentation, standard agents only (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator</span></div>
-    <div class="ref"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Agent usage estimator, the tool (standard agents only)</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-understand-display" target="_blank" rel="noopener">Understand estimated credit usage in Preview, Evaluate, and Monitor (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-understand-display</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/preview-history" target="_blank" rel="noopener">Manage preview conversations and the History tab (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/preview-history</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-create" target="_blank" rel="noopener">Create a test set for a harness agent (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-create</span></div>
-    <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-results" target="_blank" rel="noopener">Run an evaluation for a harness agent (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-results</span></div>
+    <div class="ref" data-harness="std"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator" target="_blank" rel="noopener">Agent usage estimator documentation, standard agents only (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agent-usage-estimator</span></div>
+    <div class="ref" data-harness="mch"><a href="https://nptnlopppecostweb.azurewebsites.net/#/estimator" target="_blank" rel="noopener">Copilot Credit Estimator, directional pre-build modeling (linked from Microsoft Learn)</a><br><span class="u">https://nptnlopppecostweb.azurewebsites.net/#/estimator</span></div>
+    <div class="ref" data-harness="std"><a href="https://microsoft.github.io/copilot-studio-estimator/" target="_blank" rel="noopener">Agent usage estimator, the tool (standard agents only)</a><br><span class="u">https://microsoft.github.io/copilot-studio-estimator/</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-understand-display" target="_blank" rel="noopener">Understand estimated credit usage in Preview, Evaluate, and Monitor (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-understand-display</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/preview-history" target="_blank" rel="noopener">Manage preview conversations and the History tab (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/preview-history</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-create" target="_blank" rel="noopener">Create a test set for a harness agent (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-create</span></div>
+    <div class="ref" data-harness="mch"><a href="https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-results" target="_blank" rel="noopener">Run an evaluation for a harness agent (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/analytics-agent-evaluation-results</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity" target="_blank" rel="noopener">Manage Copilot Credits and capacity in the Power Platform admin center (Learn)</a><br><span class="u">https://learn.microsoft.com/power-platform/admin/manage-copilot-studio-messages-capacity</span></div>
     <div class="ref"><a href="https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview" target="_blank" rel="noopener">Monitor agent performance overview (Learn)</a><br><span class="u">https://learn.microsoft.com/microsoft-copilot-studio/analytics-overview</span></div>
     <div class="ref"><a href="https://go.microsoft.com/fwlink/?linkid=2368800" target="_blank" rel="noopener">Copilot Credit Guide (PDF)</a><br><span class="u">https://go.microsoft.com/fwlink/?linkid=2368800</span></div>
